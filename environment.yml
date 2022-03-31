@@ -1,0 +1,13 @@
+name: bitinfo
+channels:
+  - conda-forge
+dependencies:
+  - python
+  - julia
+  - pyjulia
+  - ca-certificates
+  - openssl
+  - numpy
+  - matplotlib
+  - pyqt
+prefix: /Users/haukeschulz/mambaforge/envs/bitinfo
