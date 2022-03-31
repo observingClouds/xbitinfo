@@ -10,4 +10,4 @@ dependencies:
   - numpy
   - matplotlib
   - pyqt
-prefix: /Users/haukeschulz/mambaforge/envs/bitinfo
+# prefix: /Users/haukeschulz/mambaforge/envs/bitinfo
