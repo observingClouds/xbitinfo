@@ -15,6 +15,10 @@ def response():
     """
     # import requests
     # return requests.get('https://github.com/audreyr/cookiecutter-pypackage')
+    from bitinformation_pipeline import bitinformation_pipeline as bm
+    import xarray as xr
+    ds = xr.tutorial.load_dataset("rasm")
+    bitinfo = bm.get_bitinformation(ds, dim=1)
 
 
 def test_content(response):
