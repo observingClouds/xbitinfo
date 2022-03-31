@@ -10,4 +10,8 @@ dependencies:
   - numpy
   - matplotlib
   - pyqt
+  - pytest
+  - xarray
+  - zarr
+  - netcdf4
 # prefix: /Users/haukeschulz/mambaforge/envs/bitinfo
