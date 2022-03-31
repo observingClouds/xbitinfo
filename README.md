@@ -1,6 +1,5 @@
-=======================
-bitinformation_pipeline
-=======================
+# bitinformation_pipeline
+
 
 Retrieve information content and compress accordingly.
 
@@ -11,7 +10,7 @@ The package intends to present an easy pipeline to compress (climate) datasets b
 Credits
 -------
 
-This package was created with Cookiecutter_ and the `audreyr/cookiecutter-pypackage`_ project template.
+This package was created with Cookiecutter and the `audreyr/cookiecutter-pypackage` project template.
 
-.. _Cookiecutter: https://github.com/audreyr/cookiecutter
-.. _`audreyr/cookiecutter-pypackage`: https://github.com/audreyr/cookiecutter-pypackage
+- Cookiecutter: https://github.com/audreyr/cookiecutter
+- `audreyr/cookiecutter-pypackage`: https://github.com/audreyr/cookiecutter-pypackage
