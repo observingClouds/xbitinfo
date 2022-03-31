@@ -3,9 +3,9 @@
 """Tests for `bitinformation_pipeline` package."""
 
 import pytest
+import xarray as xr
 
 from bitinformation_pipeline import bitinformation_pipeline as bm
-import xarray as xr
     
 
 def test_get_bitinformation():
