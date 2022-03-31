@@ -76,22 +76,23 @@ Ready to contribute? Here's how to set up `bitinformation_pipeline` for local de
 
    Now you can make your changes locally.
 
-5. When you're done making changes, check that your changes pass flake8 and the
-   tests, including testing other Python versions with tox::
+5. When you're done making changes, check that your changes pass some tests. For linting, please install the pre-commit hooks:
 
-    $ flake8 bitinformation_pipeline tests
-    $ python setup.py test or pytest
-    $ tox
+    $ pip install pre-commit
+    $ pre-commit install
 
-   To get flake8 and tox, just pip install them into your virtualenv.
+   When you commit your changes, some tests incl. flake8, black, isort are triggered automatically. The CI on github will do these checks as well.
 
-6. Commit your changes and push your branch to GitHub::
+6. In addition, the functionality of the code needs to be tested with
+    $ pytest
+
+7. Commit your changes and push your branch to GitHub::
 
     $ git add .
     $ git commit -m "Your detailed description of your changes."
     $ git push origin name-of-your-bugfix-or-feature
 
-7. Submit a pull request through the GitHub website.
+8. Submit a pull request through the GitHub website.
 
 Pull Request Guidelines
 -----------------------
