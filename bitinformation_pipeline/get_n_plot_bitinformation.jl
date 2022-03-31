@@ -15,7 +15,7 @@ function get_bitinformation(filename::String)
         delete!(v, c)
     end
 
-    varnames = keys(v)  #["qv","temp","pres","qc","v","w","u","div","theta_v"]
+    varnames = keys(v)
 
     n = length(varnames)
     IC = fill(0.0,n,nbits)
