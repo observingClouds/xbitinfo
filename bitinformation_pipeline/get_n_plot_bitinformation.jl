@@ -8,7 +8,7 @@ function get_bitinformation(filename::String)
 
     nbits = 32
 
-    coords = ("lat", "lon", "height_bnds", "height_2", "height", "time")
+    coords = ("lat", "lon", "lon_bnds", "lat_bnds", "latitude", "longitude", "height_bnds", "height_2", "height", "time", "time_bnds")
     v = ncfile.vars
 
     for c in coords
