@@ -2,22 +2,13 @@
 
 """Tests for `bitinformation_pipeline` package."""
 
-import pytest
+import xarray as xr
 
-# from bitinformation_pipeline import bitinformation_pipeline
-
-
-@pytest.fixture
-def response():
-    """Sample pytest fixture.
-
-    See more at: http://doc.pytest.org/en/latest/fixture.html
-    """
-    # import requests
-    # return requests.get('https://github.com/audreyr/cookiecutter-pypackage')
+from bitinformation_pipeline import bitinformation_pipeline as bp
 
 
-def test_content(response):
-    """Sample pytest test function with the pytest fixture as an argument."""
-    # from bs4 import BeautifulSoup
-    # assert 'GitHub' in BeautifulSoup(response.content).title.string
+def test_get_bitinformation():
+    """Test bm.get_bitinformation."""
+    ds = xr.tutorial.load_dataset("rasm")
+    bitinfo = bp.get_bitinformation(ds, dim=1)
+    assert bitinfo
