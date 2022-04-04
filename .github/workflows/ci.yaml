@@ -53,6 +53,6 @@ jobs:
         run: conda list
       - name: install julia packages
         run: |
-          julia "import Pkg; Pkg.add("PyCall")"
+          julia install_julia_packages.jl
       - name: Run tests
         run: pytest
