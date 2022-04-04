@@ -13,9 +13,6 @@ path_to_julia_functions = os.path.join(
     os.path.dirname(__file__), "get_n_plot_bitinformation.jl"
 )
 Main.path = path_to_julia_functions
-#jl.eval(
-#    'import Pkg; Pkg.add(["BitInformation", "NetCDF", "PyPlot", "StatsBase", "ColorSchemes"])'
-#)
 jl.using("BitInformation")
 jl.eval("include(Main.path)")
 
