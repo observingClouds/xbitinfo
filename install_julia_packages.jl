@@ -1,8 +1,3 @@
 import Pkg
-Pkg.add("PyCall")
-Pkg.add("PyPlot")
-Pkg.add("Statistics")
-Pkg.add("StatsBase")
-Pkg.add("NetCDF")
-Pkg.add("JSON3")
-Pkg.add("BitInformation")
+Pkg.add(["PyCall","PyPlot","Statistics","StatsBase","NetCDF", "JSON3", "LaTXStrings", "JSON","BitInformation"])
+Pkg.status()
