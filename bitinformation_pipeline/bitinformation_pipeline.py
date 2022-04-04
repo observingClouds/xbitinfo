@@ -72,7 +72,7 @@ def load_bitinformation(label):
         return None
 
 
-def get_keepbits(info_per_bit, information_content=0.99):
+def get_keepbits(ds, info_per_bit, inflevel=0.99):
     """Get the amount of bits to keep for a given information content
 
     Returns
@@ -80,9 +80,23 @@ def get_keepbits(info_per_bit, information_content=0.99):
     keepbits : dict
       Number of bits to keep per variable
     """
-    Main.info_per_bit = info_per_bit
-    Main.information_content = information_content
-    keepbits = jl.eval("get_keepbits(info_per_bit, information_content)")
+
+    def get_inflevel(var, inflevel):
+        if isinstance(inflevel, dict):
+            return inflevel[var]
+        else:
+            return inflevel
+
+    keepbits = {}
+    config = {}
+    for var in ds.data_vars:
+        config[var] = {
+            "inflevel": get_inflevel(var, inflevel),
+            "bitinfo": info_per_bit[var],
+            "maskinfo": int(ds[var].notnull().sum()),
+        }
+        Main.config = config[var]
+        keepbits[var] = jl.eval("get_keepbits(config)")
     return keepbits
 
 
