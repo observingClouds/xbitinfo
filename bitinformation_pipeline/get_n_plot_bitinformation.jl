@@ -1,5 +1,5 @@
-using BitInformation, JSON
-using Statistics, StatsBase
+using BitInformation
+using StatsBase
 
 function get_bitinformation(X::AbstractArray{T}, dim=1) where {T<:Base.IEEEFloat}
 
