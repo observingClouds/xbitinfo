@@ -2,7 +2,25 @@
 
 """The setup script."""
 
+import os
+
 from setuptools import find_packages, setup
+
+from setuptools.command.develop import develop
+from setuptools.command.install import install
+
+julia_install_command = "julia install_julia_packages.jl"
+class PostDevelopCommand(develop):
+    """Post-installation for development mode."""
+    def run(self):
+        develop.run(self)
+        os.system(julia_install_command)
+
+class PostInstallCommand(install):
+    """Post-installation for installation mode."""
+    def run(self):
+        install.run(self)
+        os.system(julia_install_command)
 
 with open("README.md") as readme_file:
     readme = readme_file.read()
@@ -12,9 +30,7 @@ with open("HISTORY.rst") as history_file:
 
 requirements = ["xarray", "julia", "pyjulia"]
 
-test_requirements = [
-    "pytest", "pooch", "netcdf4"
-]
+test_requirements = ["pytest", "pooch", "netcdf4"]
 
 setup(
     author="Hauke Schulz",
@@ -30,12 +46,11 @@ setup(
         "Programming Language :: Python :: 3.9",
         "Programming Language :: Python :: 3.10",
     ],
-    description="Retrieve information content and compress accordingly.",
-    entry_points={
-        "console_scripts": [
-            "bitinformation_pipeline=bitinformation_pipeline.cli:main",
-        ],
+    cmdclass={
+        'develop': PostDevelopCommand,
+        'install': PostInstallCommand,
     },
+    description="Retrieve information content and compress accordingly.",
     install_requires=requirements,
     license="MIT license",
     long_description=readme + "\n\n" + history,
