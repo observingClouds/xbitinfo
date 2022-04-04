@@ -51,5 +51,8 @@ jobs:
         run: conda info
       - name: Conda list
         run: conda list
+      - uses: julia-actions/julia-buildpkg@v1
+        env:
+          PYTHON: ""
       - name: Run tests
         run: pytest
