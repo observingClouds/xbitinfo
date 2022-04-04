@@ -8,6 +8,6 @@ dependencies:
   - matplotlib
   - numpy
   - xarray
-  - dask
+  - dask-core
   - jupyterlab
   - netcdf4
