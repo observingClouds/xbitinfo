@@ -5,9 +5,9 @@ dependencies:
   - python
   - julia
   - pyjulia
-  - ca-certificates
-  - openssl
-  - numpy
   - matplotlib
-  - pyqt
-prefix: /Users/haukeschulz/mambaforge/envs/bitinfo
+  - numpy
+  - xarray
+  - dask
+  - jupyterlab
+  - netcdf4
