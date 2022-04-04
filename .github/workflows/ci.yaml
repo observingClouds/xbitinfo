@@ -54,5 +54,8 @@ jobs:
       - name: install julia packages
         run: |
           julia install_julia_packages.jl
+      - name: install bitinformation_pipeline
+        run: |
+          pip install .
       - name: Run tests
         run: pytest
