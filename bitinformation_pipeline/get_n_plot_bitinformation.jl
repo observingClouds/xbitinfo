@@ -2,7 +2,7 @@ using NetCDF, PyPlot, BitInformation, LaTeXStrings, JSON
 using Statistics, StatsBase, ColorSchemes, Printf, PyPlot
 
 function get_bitinformation(X::AbstractArray{T}, dim=1) where {T<:Base.IEEEFloat}
-    print("Apply signed_exponent")
+
     BitInformation.signed_exponent!(X)
     IC = bitinformation(X,dim=dim)
 
@@ -12,7 +12,7 @@ end
 
 
 function get_bitinformation(X::AbstractArray{T}, dim=1) where {T<:Union{Int16,Int32,Int64}}
-    print("Did not Apply signed_exponent")
+
     IC = bitinformation(X,dim=dim)
 
     return IC
