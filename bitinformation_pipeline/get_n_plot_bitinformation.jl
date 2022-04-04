@@ -1,42 +1,21 @@
 using NetCDF, PyPlot, BitInformation, LaTeXStrings, JSON
 using Statistics, StatsBase, ColorSchemes, Printf, PyPlot
 
-function get_bitinformation(filename::String)
+function get_bitinformation(X::AbstractArray{T}, dim=1) where {T<:Base.IEEEFloat}
+    print("Apply signed_exponent")
+    BitInformation.signed_exponent!(X)
+    IC = bitinformation(X,dim=dim)
 
-    path = filename
-    ncfile = NetCDF.open(path)
+    return IC
 
-    nbits = 32
+end
 
-    coords = ("lat", "lon", "lon_bnds", "lat_bnds", "latitude", "longitude", "height_bnds", "height_2", "height", "time", "time_bnds")
-    v = ncfile.vars
 
-    for c in coords
-        delete!(v, c)
-    end
+function get_bitinformation(X::AbstractArray{T}, dim=1) where {T<:Union{Int16,Int32,Int64}}
+    print("Did not Apply signed_exponent")
+    IC = bitinformation(X,dim=dim)
 
-    varnames = keys(v)
-
-    n = length(varnames)
-    IC = fill(0.0,n,nbits)
-    bitinfo_dict = Dict()
-    for (i,var) in enumerate(varnames)
-        if length(size(ncfile.vars[var])) == 3
-            X = ncfile.vars[var][:,1,:]
-        elseif length(size(ncfile.vars[var])) == 2
-            X = ncfile.vars[var][:,:]
-        elseif length(size(ncfile.vars[var])) == 4
-            X = ncfile.vars[var][:,:,:,1]
-        end
-        BitInformation.signed_exponent!(X)
-        IC[i,:] = bitinformation(X,dim=1)
-        bitinfo_dict[var] = IC[i,:]
-        print("Processing: ", var, "\n")
-    end
-
-    #print(json(bitinfo_dict,4))
-
-    return bitinfo_dict
+    return IC
 
 end
 

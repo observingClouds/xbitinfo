@@ -3,6 +3,7 @@ import json
 import os
 
 import numpy as np
+import xarray as xr
 from julia.api import Julia
 
 jl = Julia(compiled_modules=False)
@@ -30,7 +31,7 @@ def get_user_input():
     return args
 
 
-def get_bitinformation(filename, dim=None, mask=None, label=None, overwrite=False):
+def get_bitinformation(ds, dim=None, mask=None, label=None, overwrite=False):
     """Wrapper around BitInformation.jl
 
     Returns
@@ -43,12 +44,16 @@ def get_bitinformation(filename, dim=None, mask=None, label=None, overwrite=Fals
         if info_per_bit is None:
             overwrite = True
     if label is None:
-        fn = os.path.basename(filename)
+        fn = ds.encoding["source"]
         label = fn
         overwrite = True
     if overwrite:
-        Main.inputfile = filename
-        info_per_bit = jl.eval("get_bitinformation(inputfile)")
+        info_per_bit = {}
+        for var in ds.data_vars:
+            # nbits = ds[var].dtype.itemsize * 8
+            X = ds[var].values
+            Main.X = X
+            info_per_bit[var] = jl.eval("get_bitinformation(X)")
         with open(label + ".json", "w") as f:
             json.dump(info_per_bit, f, cls=JsonCustomEncoder)
     return info_per_bit
@@ -95,7 +100,8 @@ class JsonCustomEncoder(json.JSONEncoder):
 
 if __name__ == "__main__":
     args = get_user_input()
-    info_per_bit = get_bitinformation(args.filename)
+    ds = xr.open_mfdataset(args.filename)
+    info_per_bit = get_bitinformation(ds)
     print(info_per_bit)
     keepbits = get_keepbits(info_per_bit)
     print(keepbits)
