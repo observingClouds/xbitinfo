@@ -1,5 +1,5 @@
-using PyPlot, BitInformation, LaTeXStrings, JSON
-using Statistics, StatsBase, ColorSchemes, Printf
+using BitInformation, JSON
+using Statistics, StatsBase
 
 function get_bitinformation(X::AbstractArray{T}, dim=1) where {T<:Base.IEEEFloat}
 
