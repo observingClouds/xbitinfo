@@ -11,3 +11,5 @@ dependencies:
   - dask-core
   - jupyterlab
   - netcdf4
+  - zarr
+  - cfgrib
