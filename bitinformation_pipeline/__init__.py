@@ -4,4 +4,4 @@ __author__ = """Hauke Schulz"""
 __email__ = "hauke.schulz@mpimet.mpg.de"
 __version__ = "0.0.1"
 
-from .bitinformation_pipeline import get_bitinformation(
+from .bitinformation_pipeline import get_bitinformation
