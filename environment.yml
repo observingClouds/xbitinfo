@@ -5,17 +5,19 @@ dependencies:
   - python
   - julia
   - pyjulia
-  - ca-certificates
-  - openssl
+  - matplotlib-base
   - numpy
-  - matplotlib
-  - pyqt
-  - pytest
-  - pytest-xdist
   - pooch
   - xarray
-  - dask
-  - zarr
+  - dask-core
+  - jupyterlab
   - netcdf4
+  - zarr
+  - cfgrib
+  - cdo
+  - python-cdo
+  - pytest
+  - nb_conda_kernels
   - pip
-# prefix: /Users/haukeschulz/mambaforge/envs/bitinfo
+  - pip:
+    - git+https://github.com/observingClouds/numcodecs@bitround
