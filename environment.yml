@@ -12,6 +12,7 @@ dependencies:
   - pyqt
   - pytest
   - pytest-xdist
+  - pooch
   - xarray
   - dask
   - zarr
