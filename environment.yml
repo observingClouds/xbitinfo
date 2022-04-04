@@ -5,9 +5,18 @@ dependencies:
   - python
   - julia
   - pyjulia
-  - matplotlib
+  - matplotlib-base
   - numpy
   - xarray
-  - dask
+  - dask-core
   - jupyterlab
   - netcdf4
+  - zarr
+  - cfgrib
+  - cdo
+  - python-cdo
+  - pytest
+  - nb_conda_kernels
+  - pip
+  - pip:
+    - git+https://github.com/observingClouds/numcodecs@bitround
