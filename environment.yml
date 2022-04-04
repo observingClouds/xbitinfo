@@ -11,3 +11,4 @@ dependencies:
   - dask
   - jupyterlab
   - netcdf4
+  - pytest
