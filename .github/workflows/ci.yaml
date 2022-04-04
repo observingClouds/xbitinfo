@@ -51,9 +51,9 @@ jobs:
         run: conda info
       - name: Conda list
         run: conda list
-      - name: install julia packages
-        run: |
-          julia install_julia_packages.jl
+      # - name: install julia packages
+      #   run: |
+      #     julia install_julia_packages.jl
       - name: install bitinformation_pipeline
         run: |
           pip install .
