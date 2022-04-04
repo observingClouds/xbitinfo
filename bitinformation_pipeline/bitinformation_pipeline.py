@@ -1,6 +1,6 @@
 from julia.api import Julia
 
-jl = Julia(compiled_modules=False)
+jl = Julia(compiled_modules=False, debug=True)
 from julia import Main  # noqa: E402
 
 jl.eval('import Pkg; Pkg.add("BitInformation"); Pkg.add("NetCDF");')
