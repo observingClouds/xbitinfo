@@ -13,3 +13,4 @@ dependencies:
   - netcdf4
   - zarr
   - cfgrib
+  - pytest
