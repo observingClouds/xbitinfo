@@ -75,6 +75,16 @@ def load_bitinformation(label):
 def get_keepbits(ds, info_per_bit, inflevel=0.99):
     """Get the amount of bits to keep for a given information content
 
+    Inputs
+    ------
+    ds : xr.Dataset
+      Dataset for which the information content has been retrieved
+    info_per_bit : dict
+      Information content of each bit for each variable in ds. This is the output from get_bitinformation.
+    inflevel : float or dict
+      Level of information that shall be preserved. Of type `float` if the
+      preserved information content should be equal across variables, otherwise of type `dict`.
+
     Returns
     -------
     keepbits : dict
@@ -82,6 +92,7 @@ def get_keepbits(ds, info_per_bit, inflevel=0.99):
     """
 
     def get_inflevel(var, inflevel):
+        """Helper function to load inflevel depending on input type."""
         if isinstance(inflevel, dict):
             return inflevel[var]
         else:
