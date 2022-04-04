@@ -5,7 +5,7 @@ dependencies:
   - python
   - julia
   - pyjulia
-  - matplotlib
+  - matplotlib-base
   - numpy
   - xarray
   - dask-core
