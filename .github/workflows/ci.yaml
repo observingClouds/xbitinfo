@@ -51,5 +51,8 @@ jobs:
         run: conda info
       - name: Conda list
         run: conda list
+      - name: install bitinformation_pipeline
+        run: |
+          pip install .
       - name: Run tests
-        run: pytest # -n 4 --durations=20
+        run: pytest
