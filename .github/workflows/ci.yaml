@@ -52,4 +52,4 @@ jobs:
       - name: Conda list
         run: conda list
       - name: Run tests
-        run: pytest -n 4 --durations=20
+        run: pytest
