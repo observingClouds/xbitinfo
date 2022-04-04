@@ -4,7 +4,7 @@
 
 import xarray as xr
 
-from bitinformation_pipeline import bitinformation_pipeline as bp
+import bitinformation_pipeline as bp
 
 
 def test_get_bitinformation():
