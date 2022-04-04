@@ -13,4 +13,9 @@ dependencies:
   - netcdf4
   - zarr
   - cfgrib
+  - cdo
+  - python-cdo
   - pytest
+  - pip
+  - pip:
+    - git+https://github.com/observingClouds/numcodecs@bitround
