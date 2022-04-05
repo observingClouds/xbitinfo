@@ -88,7 +88,7 @@ jobs:
       - name: Test notebooks
         run: |
           python -m ipykernel install --user --name bitinfo
-          jupyter nbconvert --to html --execute examples/singe_file_example.ipynb --ExecutePreprocessor.kernel_name=bitinfo
+          jupyter nbconvert --to html --execute examples/quick-start.ipynb --ExecutePreprocessor.kernel_name=bitinfo
 
   install:  # Installs bitinformation_pipeline on various OS without conda
     name: install bitinformation_pipeline, ${{ matrix.os }}
