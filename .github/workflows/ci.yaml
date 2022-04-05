@@ -89,5 +89,5 @@ jobs:
         run: |
           #jupyter nbconvert --inplace --execute examples/*.ipynb --ExecutePreprocessor.kernel_name=bitinfo
           nbstripout
-          nbstripout examples/*.ipynb
+          nbstripout --max-size 1k examples/*.ipynb
           make -j4 html
