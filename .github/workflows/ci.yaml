@@ -87,4 +87,4 @@ jobs:
           pip install .
       - name: Test notebooks
         run: |
-          jupyter nbconvert --inplace --execute examples/*.ipynb
+          jupyter nbconvert --inplace --execute examples/*.ipynb --ExecutePreprocessor.kernel_name=bitinfo
