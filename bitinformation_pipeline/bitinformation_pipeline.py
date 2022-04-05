@@ -30,7 +30,7 @@ def get_user_input():
     return args
 
 
-def get_bitinformation(ds, dim=None, mask=None, label=None, overwrite=False):
+def get_bitinformation(ds, label=None, overwrite=False, **kwargs):
     """Wrapper around BitInformation.jl
 
     Returns
@@ -52,9 +52,8 @@ def get_bitinformation(ds, dim=None, mask=None, label=None, overwrite=False):
             # nbits = ds[var].dtype.itemsize * 8
             X = ds[var].values
             Main.X = X
-            Main.dim = dim
-            # Main.mask = mask
-            info_per_bit[var] = jl.eval("get_bitinformation(X, dim)")
+            Main.kwargs = kwargs
+            info_per_bit[var] = jl.eval("get_bitinformation(X, kwargs)")
         with open(label + ".json", "w") as f:
             json.dump(info_per_bit, f, cls=JsonCustomEncoder)
     return info_per_bit
