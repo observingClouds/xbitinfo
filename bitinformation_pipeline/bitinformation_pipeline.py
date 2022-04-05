@@ -87,14 +87,14 @@ def get_keepbits(info_per_bit, information_content=0.99):
     return keepbits
 
 
-def plot_bitinformation(ds, bitinfo):
+def plot_bitinformation(bitinfo):
     from matplotlib import cm
 
     nvars = len(bitinfo)
     varnames = sorted(bitinfo.keys())
 
-    infbits_dict = get_keepbits(ds, bitinfo, 0.99)
-    infbits100_dict = get_keepbits(ds, bitinfo, 0.999999999)
+    infbits_dict = get_keepbits(bitinfo, 0.99)
+    infbits100_dict = get_keepbits(bitinfo, 0.999999999)
 
     ICnan = np.zeros((nvars, 64))
     infbits = infbits100 = np.zeros(nvars)
