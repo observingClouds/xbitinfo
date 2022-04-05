@@ -18,6 +18,7 @@ dependencies:
   - python-cdo
   - pytest
   - nb_conda_kernels
+  - cmcrameri
   - pip
   - pip:
     - git+https://github.com/observingClouds/numcodecs@bitround
