@@ -89,3 +89,25 @@ jobs:
         run: |
           python -m ipykernel install --user --name bitinfo
           jupyter nbconvert --to html --execute examples/singe_file_example.ipynb --ExecutePreprocessor.kernel_name=bitinfo
+
+  install:  # Installs bitinformation_pipeline on various OS without conda
+    name: install bitinformation_pipeline, ${{ matrix.os }}
+    runs-on: ${{ matrix.os }}
+    needs: detect-ci-trigger
+    if: needs.detect-ci-trigger.outputs.triggered == 'false'
+    strategy:
+      fail-fast: false
+      matrix:
+        os: ["ubuntu-latest", "macos-latest", "windows-latest"]
+    steps:
+    - uses: actions/checkout@v3
+      with:
+        fetch-depth: 0 # Fetch all history for all branches and tags.
+    - name: Setup python
+      uses: actions/setup-python@v3
+      with:
+        python-version: 3.8
+    - name: Install dependencies
+      run: |
+        pip install .
+        python -c "import bitinformation_pipeline"
