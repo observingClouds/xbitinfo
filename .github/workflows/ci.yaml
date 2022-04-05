@@ -58,7 +58,7 @@ jobs:
         run: pytest
 
   test_notebooks:  # Checks that notebooks complete without failure
-    name: "Test notebooks"
+    name: "notebooks"
     runs-on: ubuntu-latest
     needs: detect-ci-trigger
     if: needs.detect-ci-trigger.outputs.triggered == 'false'
