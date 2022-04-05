@@ -97,7 +97,7 @@ def plot_bitinformation(bitinfo):
     fig : matplotlib figure
     """
 
-    from matplotlib import cm
+    import cmcrameri.cm as cmc
 
     nvars = len(bitinfo)
     varnames = sorted(bitinfo.keys())
@@ -132,8 +132,7 @@ def plot_bitinformation(bitinfo):
     ax1right.invert_yaxis()
     ax1right.set_box_aspect(1 / 32 * nvars)
 
-    cmap = cm.get_cmap("copper_r").copy()
-    cmap.set_bad(color="lightgrey")
+    cmap = cmc.turku_r
     pcm = ax1.pcolormesh(ICnan, vmin=0, vmax=1, cmap=cmap)
     cbar = plt.colorbar(pcm, cax=cax, orientation="horizontal")
     cbar.set_label("information content [bit]")
