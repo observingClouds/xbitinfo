@@ -85,6 +85,18 @@ def get_keepbits(info_per_bit, information_content=0.99):
 
 
 def plot_bitinformation(bitinfo):
+    """Plot bitwise information content
+
+    Inputs
+    ------
+    bitinfo : dict
+      Dictionary containing the bitwise information content for each variable
+
+    Returns
+    -------
+    fig : matplotlib figure
+    """
+
     from matplotlib import cm
 
     nvars = len(bitinfo)
