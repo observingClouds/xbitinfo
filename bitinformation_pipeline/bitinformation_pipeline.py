@@ -51,6 +51,8 @@ def get_bitinformation(ds, dim=None, mask=None, label=None, overwrite=False):
             # nbits = ds[var].dtype.itemsize * 8
             X = ds[var].values
             Main.X = X
+            Main.dim = dim
+            Main.mask = mask
             info_per_bit[var] = jl.eval("get_bitinformation(X, dim, mask)")
         with open(label + ".json", "w") as f:
             json.dump(info_per_bit, f, cls=JsonCustomEncoder)
