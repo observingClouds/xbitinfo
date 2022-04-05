@@ -1,5 +1,6 @@
 # bitinformation_pipeline
 
+[![Binder](https://mybinder.org/badge_logo.svg)](https://mybinder.org/v2/gh/observingClouds/bitinformation_pipeline/master)
 
 Retrieve information content and compress accordingly.
 
