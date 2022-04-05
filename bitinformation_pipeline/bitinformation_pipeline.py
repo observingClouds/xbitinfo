@@ -7,16 +7,13 @@ import numpy as np
 import xarray as xr
 from julia.api import Julia
 
-jl = Julia(compiled_modules=False)
+jl = Julia(compiled_modules=False, debug=False)
 from julia import Main  # noqa: E402
 
 path_to_julia_functions = os.path.join(
     os.path.dirname(__file__), "get_n_plot_bitinformation.jl"
 )
 Main.path = path_to_julia_functions
-jl.eval(
-    'import Pkg; Pkg.add(["BitInformation", "NetCDF", "PyPlot", "StatsBase", "ColorSchemes"])'
-)
 jl.using("BitInformation")
 jl.eval("include(Main.path)")
 

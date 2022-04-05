@@ -11,4 +11,5 @@ def test_get_bitinformation():
     """Test bm.get_bitinformation."""
     ds = xr.tutorial.load_dataset("rasm")
     bitinfo = bp.get_bitinformation(ds, dim=1)
+    print(bitinfo)
     assert bitinfo
