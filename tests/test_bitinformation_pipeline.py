@@ -14,10 +14,11 @@ def test_get_bitinformation():
     print(bitinfo)
     assert bitinfo
 
+
 def test_get_bitinformation_dim():
     """Test bm.get_bitinformation is sensitive to dim."""
     ds = xr.tutorial.load_dataset("rasm")
     bitinfo1 = bp.get_bitinformation(ds, dim=1)
     bitinfo3 = bp.get_bitinformation(ds, dim=3)
     for v in bitinfo.keys():
-        bitinfo1[v]!=bitinfo3[v]
+        bitinfo1[v] != bitinfo3[v]
