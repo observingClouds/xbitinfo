@@ -20,5 +20,5 @@ def test_get_bitinformation_dim():
     ds = xr.tutorial.load_dataset("rasm")
     bitinfo1 = bp.get_bitinformation(ds, dim=1)
     bitinfo3 = bp.get_bitinformation(ds, dim=3)
-    for v in bitinfo.keys():
+    for v in bitinfo1.keys():
         bitinfo1[v] != bitinfo3[v]
