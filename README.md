@@ -1,6 +1,6 @@
 # bitinformation_pipeline
 
-[![Binder](https://mybinder.org/badge_logo.svg)](https://mybinder.org/v2/gh/observingClouds/bitinformation_pipeline/master) [![CI](https://github.com/observingClouds/bitinformation_pipeline/actions/workflows/ci.yaml/badge.svg)](https://github.com/observingClouds/bitinformation_pipeline/actions/workflows/ci.yaml)
+[![Binder](https://mybinder.org/badge_logo.svg)](https://mybinder.org/v2/gh/observingClouds/bitinformation_pipeline/main) [![CI](https://github.com/observingClouds/bitinformation_pipeline/actions/workflows/ci.yaml/badge.svg)](https://github.com/observingClouds/bitinformation_pipeline/actions/workflows/ci.yaml) [![pre-commit.ci status](https://results.pre-commit.ci/badge/github/observingClouds/bitinformation_pipeline/main.svg)](https://results.pre-commit.ci/latest/github/observingClouds/bitinformation_pipeline/main)
 
 Retrieve information content and compress accordingly.
 
