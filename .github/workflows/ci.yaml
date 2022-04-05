@@ -87,4 +87,6 @@ jobs:
           pip install .
       - name: Test notebooks
         run: |
-          jupyter nbconvert --inplace --execute examples/*.ipynb --ExecutePreprocessor.kernel_name=bitinfo
+          #jupyter nbconvert --inplace --execute examples/*.ipynb --ExecutePreprocessor.kernel_name=bitinfo
+          nbstripout examples/*.ipynb
+          make -j4 html
