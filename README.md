@@ -11,6 +11,8 @@ The package intends to present an easy pipeline to compress (climate) datasets b
 Credits
 -------
 
+- [Milan Klöver](https://github.com/milankl) for [BitInformation.jl](https://github.com/milankl/BitInformation.jl)
+
 This package was created with Cookiecutter and the `audreyr/cookiecutter-pypackage` project template.
 
 - Cookiecutter: https://github.com/audreyr/cookiecutter
