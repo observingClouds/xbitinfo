@@ -3,6 +3,7 @@ from numcodecs.bitround import BitRound
 
 
 def bitround(data, keepbits):
+    """Bitround for Arrays."""
     codec = BitRound(keepbits=keepbits)
     data = data.copy()  # otherwise overwrites the input
     encoded = codec.encode(data)
@@ -13,6 +14,7 @@ def xr_bitround(ds, keepbits):
     """Apply bitrounding based on keepbits from bp.get_keepbits for xarray.Dataset or xr.DataArray.
 
     Example:
+        >>> ds = xr.tutorial.load_dataset("rasm")
         >>> bitinfo = bp.get_bitinformation(ds, dim="longitude")
         >>> keepbits = bp.get_keepbits(ds, bitinfo, 0.99)
         >>> ds_bitrounded = xr_bitround(ds, keepbits)

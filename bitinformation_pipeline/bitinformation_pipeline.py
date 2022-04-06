@@ -53,6 +53,12 @@ def get_bitinformation(ds, label=None, overwrite=False, **kwargs):
     -------
     info_per_bit : dict
       Information content per bit and variable
+
+    Example
+    -------
+        >>> ds = xr.tutorial.load_dataset("rasm")
+        >>> bp.get_bitinformation(ds, dim="longitude")
+
     """
     if label is not None and overwrite is False:
         info_per_bit = load_bitinformation(label)
