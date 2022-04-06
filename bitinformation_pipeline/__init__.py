@@ -6,3 +6,4 @@ from .bitinformation_pipeline import (
     plot_bitinformation,
 )
 from .bitround import xr_bitround
+from .save_compressed import get_compress_encoding
