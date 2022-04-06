@@ -20,4 +20,4 @@ def test_xr_bitround(rasm, keepbits):
         # attrs set
         assert ds_bitrounded[v].attrs["bitround_keepbits"] == i
         # different after bitrounding
-        assert ((ds[v] - ds_bitrounded[v]) != 0).all()
+        assert ((ds[v] - ds_bitrounded[v]) != 0).compute().all()
