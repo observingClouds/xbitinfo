@@ -7,7 +7,13 @@ def bitround(data, keepbits):
     return codec.decode(encoded)
 
 def xr_bitround(ds, keepbits):
-    """Apply bitrounding based on keepbits from bp.get_keepbits for xarray.Dataset or xr.DataArray."""
+    """Apply bitrounding based on keepbits from bp.get_keepbits for xarray.Dataset or xr.DataArray.
+
+    Example:
+        >>> bitinfo = bp.get_bitinformation(ds, dim="longitude")
+        >>> keepbits = bp.get_keepbits(ds, bitinfo, 0.99)
+        >>> ds_bitrounded = xr_bitround(ds, keepbits)
+    """
     ds_bitrounded = ds.copy()
     if isinstance(ds, xr.Dataset):
         for v in ds.data_vars:
