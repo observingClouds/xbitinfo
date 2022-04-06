@@ -97,21 +97,46 @@ def load_bitinformation(label):
         return None
 
 
-def get_keepbits(info_per_bit, information_content=0.99):
+def get_keepbits(ds, info_per_bit, inflevel=0.99):
     """Get the amount of bits to keep for a given information content
+
+    Inputs
+    ------
+    ds : xr.Dataset
+      Dataset for which the information content has been retrieved
+    info_per_bit : dict
+      Information content of each bit for each variable in ds. This is the output from get_bitinformation.
+    inflevel : float or dict
+      Level of information that shall be preserved. Of type `float` if the
+      preserved information content should be equal across variables, otherwise of type `dict`.
 
     Returns
     -------
     keepbits : dict
       Number of bits to keep per variable
     """
-    Main.info_per_bit = info_per_bit
-    Main.information_content = information_content
-    keepbits = jl.eval("get_keepbits(info_per_bit, information_content)")
+
+    def get_inflevel(var, inflevel):
+        """Helper function to load inflevel depending on input type."""
+        if isinstance(inflevel, dict):
+            return inflevel[var]
+        else:
+            return inflevel
+
+    keepbits = {}
+    config = {}
+    for var in ds.data_vars:
+        config[var] = {
+            "inflevel": get_inflevel(var, inflevel),
+            "bitinfo": info_per_bit[var],
+            "maskinfo": int(ds[var].notnull().sum()),
+        }
+        Main.config = config[var]
+        keepbits[var] = jl.eval("get_keepbits(config)")
     return keepbits
 
 
-def plot_bitinformation(bitinfo):
+def plot_bitinformation(ds, bitinfo):
     """Plot bitwise information content
 
     Inputs
@@ -129,8 +154,8 @@ def plot_bitinformation(bitinfo):
     nvars = len(bitinfo)
     varnames = sorted(bitinfo.keys())
 
-    infbits_dict = get_keepbits(bitinfo, 0.99)
-    infbits100_dict = get_keepbits(bitinfo, 0.999999999)
+    infbits_dict = get_keepbits(ds, bitinfo, 0.99)
+    infbits100_dict = get_keepbits(ds, bitinfo, 0.999999999)
 
     ICnan = np.zeros((nvars, 64))
     infbits = infbits100 = np.zeros(nvars)
@@ -287,5 +312,5 @@ if __name__ == "__main__":
     ds = xr.open_mfdataset(args.filename)
     info_per_bit = get_bitinformation(ds)
     print(info_per_bit)
-    keepbits = get_keepbits(info_per_bit)
+    keepbits = get_keepbits(ds, info_per_bit)
     print(keepbits)
