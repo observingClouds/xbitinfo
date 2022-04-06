@@ -25,6 +25,7 @@ def get_chunksizes(da, for_cdo=False, time_dim="time", chunks=None):
 
 def get_compress_encoding(
     ds_bitrounded,
+    compression="zlib",
     shuffle=True,
     complevel=9,
     for_cdo=False,
@@ -43,7 +44,7 @@ def get_compress_encoding(
     """
     return {
         v: {
-            "zlib": True,
+            compression: True,
             "shuffle": shuffle,
             "complevel": complevel,
             "chunksizes": get_chunksizes(
@@ -73,6 +74,7 @@ class ToCompressed_Netcdf:
     def __call__(
         self,
         path,
+        compression="zlib",
         shuffle=True,
         complevel=9,
         for_cdo=False,
@@ -83,6 +85,7 @@ class ToCompressed_Netcdf:
             path,
             encoding=get_compress_encoding(
                 self._obj,
+                compression=compression,
                 shuffle=shuffle,
                 complevel=complevel,
                 for_cdo=for_cdo,
