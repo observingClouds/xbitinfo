@@ -5,8 +5,8 @@ import xarray as xr
 import bitinformation_pipeline as bp
 
 
-def test_to_compressed_netcdf():
-    """Test bm.get_bitinformation."""
+def test_full():
+    """Test bitinformation_pipeline end to end."""
     label = "rasm"
     ds = xr.tutorial.load_dataset(label)
     # bitinformation_pipeline
