@@ -44,7 +44,7 @@ def xr_bitround(ds, keepbits):
                 if v in keepbits.keys():
                     keep = keepbits[v]
                 else:
-                    continue
+                    raise ValueError("name not for in keepbits:", keepbits.keys())
             keep = keep - 9
             keep = min(keep, 23)
             keep = max(0, keep)
