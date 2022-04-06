@@ -1,5 +1,6 @@
 import argparse
 import json
+import logging
 import os
 
 import matplotlib.pyplot as plt
@@ -30,8 +31,23 @@ def get_user_input():
     return args
 
 
-def get_bitinformation(ds, dim=None, mask=None, label=None, overwrite=False):
-    """Wrapper around BitInformation.jl
+def get_bitinformation(ds, label=None, overwrite=False, **kwargs):
+    """Wrap BitInformation.bitinformation().
+
+    Inputs
+    ------
+    ds : xr.Dataset
+      input netcdf to analyse
+    label : str
+      label of the json to serialize bitinfo
+    overwrite : bool
+      if true, use serialized bitinfo based on label; if false, rerun bitinformation
+    kwargs
+      to be passed to bitinformation:
+      - masked_value: defaults to NaN (different to bitinformation.jl)
+      - mask: use masked_value instead
+      - set_zero_insignificant (bool): defaults to True
+      - confidence (float): defaults to 0.99
 
     Returns
     -------
@@ -49,10 +65,23 @@ def get_bitinformation(ds, dim=None, mask=None, label=None, overwrite=False):
     if overwrite:
         info_per_bit = {}
         for var in ds.data_vars:
-            # nbits = ds[var].dtype.itemsize * 8
             X = ds[var].values
             Main.X = X
-            info_per_bit[var] = jl.eval("get_bitinformation(X)")
+            if "mask" in kwargs:
+                raise ValueError(
+                    "bitinformation_pipeline does not wrap the mask argument. Mask your xr.Dataset with NaNs instead."
+                )
+            if "dim" in kwargs:
+                if isinstance(kwargs["dim"], str):
+                    kwargs["dim"] = ds[var].get_axis_num(kwargs["dim"]) + 1
+            if "masked_value" not in kwargs:
+                kwargs[
+                    "masked_value"
+                ] = f"convert({str(ds[var].dtype).capitalize()},NaN)"
+            kwargs_str = ", " + ", ".join([f"{k}={v}" for k, v in kwargs.items()])
+            kwargs_str = kwargs_str.replace("True", "true").replace("False", "false")
+            logging.debug(f"get_bitinformation(X{kwargs_str})")
+            info_per_bit[var] = jl.eval(f"get_bitinformation(X{kwargs_str})")
         with open(label + ".json", "w") as f:
             json.dump(info_per_bit, f, cls=JsonCustomEncoder)
     return info_per_bit
@@ -72,7 +101,6 @@ def load_bitinformation(label):
 
 def get_keepbits(ds, info_per_bit, inflevel=0.99):
     """Get the amount of bits to keep for a given information content
-
     Inputs
     ------
     ds : xr.Dataset
@@ -82,7 +110,6 @@ def get_keepbits(ds, info_per_bit, inflevel=0.99):
     inflevel : float or dict
       Level of information that shall be preserved. Of type `float` if the
       preserved information content should be equal across variables, otherwise of type `dict`.
-
     Returns
     -------
     keepbits : dict
@@ -111,12 +138,10 @@ def get_keepbits(ds, info_per_bit, inflevel=0.99):
 
 def plot_bitinformation(ds, bitinfo):
     """Plot bitwise information content
-
     Inputs
     ------
     bitinfo : dict
       Dictionary containing the bitwise information content for each variable
-
     Returns
     -------
     fig : matplotlib figure
