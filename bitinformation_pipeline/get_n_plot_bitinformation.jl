@@ -45,3 +45,5 @@ function get_keepbits(bitinfo_dict)
     #infbits100 = [argmax(ICcsum_norm[i,:] .> 0.999999999) for i in 1:nvars];
 
     return infbits
+
+end
