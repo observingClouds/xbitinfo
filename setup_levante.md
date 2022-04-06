@@ -11,7 +11,7 @@ cd bitinformation_pipeline
 Create a new [conda environment](https://docs.conda.io/projects/conda/en/latest/user-guide/tasks/manage-environments.html#creating-an-environment-with-commands) and register the python [kernel](https://docs.dkrz.de/doc/software&services/jupyterhub/kernels.html#use-your-own-kernel):
 ```
 module load python3
-mamba env create -f environment.yml
+mamba env create -f environment.yml  # use conda on mistral
 source activate bitinfo
 python -m ipykernel install --user --name bitinfo --display-name=bitinfo
 ```
