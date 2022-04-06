@@ -18,8 +18,8 @@ def test_to_compressed_netcdf():
     ds.to_compressed_netcdf(f"{label}_compressed.nc")
     ds_bitrounded.to_compressed_netcdf(f"{label}_bitrounded_compressed.nc")
     # check size reduction
-    ori_size = os.path.getsizeof(f"{label}.nc")
-    compressed_size = os.path.getsizeof(f"{label}_compressed.nc")
-    bitrounded_compressed_size = os.path.getsizeof(f"{label}_bitrounded_compressed.nc")
+    ori_size = os.path.getsize(f"{label}.nc")
+    compressed_size = os.path.getsize(f"{label}_compressed.nc")
+    bitrounded_compressed_size = os.path.getsize(f"{label}_bitrounded_compressed.nc")
     assert compressed_size < ori_size
     assert bitrounded_compressed_size < compressed_size
