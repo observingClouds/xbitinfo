@@ -21,7 +21,7 @@ Create `~/jupyter_preload` on `levante`:
 source activate bitinfo
 ```
 
-Start [jupyter](https://docs.jupyter.org/en/latest/) with [`start-jupyter`](https://gitlab.dkrz.de/k204213/ssh_scripts/-/blob/master/start-jupyter) on your laptop:
+Get [jupyter](https://docs.jupyter.org/en/latest/) with [`start-jupyter script from DKRZ`](https://gitlab.dkrz.de/k204213/ssh_scripts/-/blob/master/start-jupyter) on your laptop:
 ```
 wget https://gitlab.dkrz.de/k204213/ssh_scripts/-/blob/master/start-jupyter
 ```
@@ -33,6 +33,6 @@ Personalize the following lines:
 - [L90](https://gitlab.dkrz.de/k204213/ssh_scripts/-/blob/master/start-jupyter#L90): `SJ_INCFILE="jupyter_preload"`
 - [L96](https://gitlab.dkrz.de/k204213/ssh_scripts/-/blob/master/start-jupyter#L96): `SJ_FRONTEND_HOST="levante.dkrz.de"`
 
-Now start `jupyter` (overwriting script options is possible in the command line, see
+Now `start-jupyter` (overwriting script options is possible in the command line, see
 [available options](https://gitlab.dkrz.de/k204213/ssh_scripts/-/blob/master/start-jupyter#L141)):
 `sh start-jupyter`
