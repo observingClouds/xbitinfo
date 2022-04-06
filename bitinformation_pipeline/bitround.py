@@ -13,7 +13,19 @@ def bitround(data, keepbits):
 def xr_bitround(ds, keepbits):
     """Apply bitrounding based on keepbits from bp.get_keepbits for xarray.Dataset or xr.DataArray.
 
-    Example:
+    Inputs
+    ------
+    ds : xr.Dataset
+      input netcdf to bitround
+    keepbits : int or dict
+      how many mantissa bits to keep
+
+    Returns
+    -------
+    ds_bitrounded : xr.Dataset
+
+    Example
+    -------
         >>> ds = xr.tutorial.load_dataset("rasm")
         >>> bitinfo = bp.get_bitinformation(ds, dim="longitude")
         >>> keepbits = bp.get_keepbits(ds, bitinfo, 0.99)
@@ -22,17 +34,29 @@ def xr_bitround(ds, keepbits):
     ds_bitrounded = ds.copy()
     if isinstance(ds, xr.Dataset):
         for v in ds.data_vars:
-            if v in keepbits.keys():
-                # fails for .data
-                if (
-                    ds[v].dtype == "float64"
-                ):  # fails otherwise see https://github.com/zarr-developers/numcodecs/blob/7c7dc7cc83db1ae5c9fd93ece863acedbbc8156f/numcodecs/bitround.py#L23
-                    ds[v] = ds[v].astype("float32")
-                ds_bitrounded[v].values = bitround(ds[v].values, keepbits[v])
-                ds_bitrounded[v].attrs["bitround_keepbits"] = keepbits[v]
+            if (
+                ds[v].dtype == "float64"
+            ):  # fails otherwise see https://github.com/zarr-developers/numcodecs/blob/7c7dc7cc83db1ae5c9fd93ece863acedbbc8156f/numcodecs/bitround.py#L23
+                ds[v] = ds[v].astype("float32")
+            if isinstance(keepbits, int):
+                keep = keepbits
+            elif isinstance(keepbits, dict):
+                if v in keepbits.keys():
+                    keep = keepbits[v]
+                else:
+                    continue
+            # fails for .data
+            ds_bitrounded[v].values = bitround(ds[v].values, keep)
+            ds_bitrounded[v].attrs["bitround_keepbits"] = keepbits[v]
     elif isinstance(ds, xr.DataArray):
-        if v in keepbits.keys():
+        if isinstance(keepbits, int):
+            keep = keepbits
+        elif isinstance(keepbits, dict):
             v = ds.name
-            ds_bitrounded.data = bitround(ds.data, keepbits[v])
-            ds_bitrounded.attrs["bitround_keepbits"] = keepbits[v]
+            if v in keepbits.keys():
+                keep = keepbits[v]
+            else:
+                raise ValueError("name not for in keepbits:", keepbits.keys())
+        ds_bitrounded.data = bitround(ds.data, keep)
+        ds_bitrounded.attrs["bitround_keepbits"] = keep
     return ds_bitrounded

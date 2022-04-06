@@ -17,4 +17,20 @@ def test_xr_bitround(rasm):
         # different after bitrounding
         assert ((ds[v] - ds_bitrounded[v]) != 0).all()
         # but close
-        assert_allclose(ds, ds_bitrounded)
+        assert_allclose(ds, ds_bitrounded, atol=0.01, rtol=0.01)
+
+
+def test_xr_bitround_keepbits_int(rasm):
+    """Test xr_bitround with keepbits as int."""
+    ds = rasm
+    i = 15
+    keepbits = i
+    ds_bitrounded = bp.xr_bitround(ds, keepbits)
+    assert_allclose(ds, ds_bitrounded)
+    for v in ds.data_vars:
+        # attrs set
+        assert ds_bitrounded[v].attrs["bitround_keepbits"] == i
+        # different after bitrounding
+        assert ((ds[v] - ds_bitrounded[v]) != 0).all()
+        # but close
+        assert_allclose(ds, ds_bitrounded, atol=0.01, rtol=0.01)
