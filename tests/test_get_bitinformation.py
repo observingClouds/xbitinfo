@@ -60,5 +60,5 @@ def test_get_bitinformation_masked_value():
     """Test bp.get_bitinformation is sensitive to masked_value."""
     ds = xr.tutorial.load_dataset("rasm")
     bitinfo = bp.get_bitinformation(ds, dim="x")
-    bitinfo_no_mask = bp.get_bitinformation(ds, dim="x", masked_value=0.0)
+    bitinfo_no_mask = bp.get_bitinformation(ds, dim="x", masked_value="nothing")
     bitinfo_assert_different(bitinfo, bitinfo_no_mask)
