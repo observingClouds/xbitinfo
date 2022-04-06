@@ -1,24 +1,23 @@
 using BitInformation
 using StatsBase
 
-function get_bitinformation(X::AbstractArray{T}, dim=1) where {T<:Base.IEEEFloat}
+function get_bitinformation(X::AbstractArray{T}; kwargs...) where {T<:Base.IEEEFloat}
 
     BitInformation.signed_exponent!(X)
-    IC = bitinformation(X,dim=dim)
+    IC = bitinformation(X; kwargs...)
 
     return IC
 
 end
 
 
-function get_bitinformation(X::AbstractArray{T}, dim=1) where {T<:Union{Int16,Int32,Int64}}
+function get_bitinformation(X::AbstractArray{T}; kwargs...) where {T<:Union{Int16,Int32,Int64}}
 
-    IC = bitinformation(X,dim=dim)
+    IC = bitinformation(X; kwargs...)
 
     return IC
 
 end
-
 
 function get_keepbits(bitinfo_dict)
     # filter insignificant information via binomial distribution as explained in methods
