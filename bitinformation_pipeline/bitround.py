@@ -50,7 +50,7 @@ def xr_bitround(ds, keepbits):
             keep = max(0, keep)
             # fails for .data
             ds_bitrounded[v].values = bitround(ds[v].values, keep)
-            ds_bitrounded[v].attrs["bitround_keepbits"] = keep
+            ds_bitrounded[v].attrs["bitround_keepbits"] = keep + 9
     elif isinstance(ds, xr.DataArray):
         if isinstance(keepbits, int):
             keep = keepbits
@@ -64,5 +64,5 @@ def xr_bitround(ds, keepbits):
         keep = min(keep, 23)
         keep = max(0, keep)
         ds_bitrounded.values = bitround(ds.values, keep)
-        ds_bitrounded.attrs["bitround_keepbits"] = keep
+        ds_bitrounded.attrs["bitround_keepbits"] = keep + 9
     return ds_bitrounded
