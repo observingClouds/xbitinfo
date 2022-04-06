@@ -84,7 +84,7 @@ class ToCompressed_Netcdf:
                 shuffle=shuffle,
                 complevel=complevel,
                 for_cdo=for_cdo,
-                _time_dim=time_dim,
+                time_dim=time_dim,
                 chunks=chunks,
             ),
         )
