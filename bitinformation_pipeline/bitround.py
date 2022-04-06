@@ -27,8 +27,8 @@ def xr_bitround(ds, keepbits):
     Example
     -------
         >>> ds = xr.tutorial.load_dataset("rasm")
-        >>> bitinfo = bp.get_bitinformation(ds, dim="longitude")
-        >>> keepbits = bp.get_keepbits(ds, bitinfo, 0.99)
+        >>> info_per_bit = bp.get_bitinformation(ds, dim="x")
+        >>> keepbits = bp.get_keepbits(ds, info_per_bit, 0.99)
         >>> ds_bitrounded = xr_bitround(ds, keepbits)
     """
     ds_bitrounded = ds.copy()

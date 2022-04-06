@@ -36,7 +36,9 @@ def get_compress_encoding(
     Example:
         >>> ds = xr.tutorial.load_dataset("rasm")
         >>> get_compress_encoding(ds)
+        {'Tair': {'zlib': True, 'shuffle': True, 'complevel': 9, 'chunksizes': (36, 205, 275)}}
         >>> get_compress_encoding(ds, for_cdo=True)
+        {'Tair': {'zlib': True, 'shuffle': True, 'complevel': 9, 'chunksizes': (1, 205, 275)}}
 
     """
     return {
@@ -59,9 +61,9 @@ class ToCompressed_Netcdf:
     Example:
         >>> ds = xr.tutorial.load_dataset("rasm")
         >>> path = "rasm.nc"
-        >>> ds_bitrounded.to_compressed_netcdf(path)
-        >>> ds_bitrounded.to_compressed_netcdf(path, complevel=4)
-        >>> ds_bitrounded.to_compressed_netcdf(path, for_cdo=True)
+        >>> ds.to_compressed_netcdf(path)
+        >>> ds.to_compressed_netcdf(path, complevel=4)
+        >>> ds.to_compressed_netcdf(path, for_cdo=True)
 
     """
 

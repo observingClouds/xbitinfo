@@ -57,7 +57,7 @@ def get_bitinformation(ds, label=None, overwrite=False, **kwargs):
     Example
     -------
         >>> ds = xr.tutorial.load_dataset("rasm")
-        >>> bp.get_bitinformation(ds, dim="longitude")
+        >>> bp.get_bitinformation(ds, dim="x")
 
     """
     if label is not None and overwrite is False:
@@ -106,7 +106,8 @@ def load_bitinformation(label):
 
 
 def get_keepbits(ds, info_per_bit, inflevel=0.99):
-    """Get the amount of bits to keep for a given information content
+    """Get the amount of bits to keep for a given information content.
+
     Inputs
     ------
     ds : xr.Dataset
@@ -116,10 +117,18 @@ def get_keepbits(ds, info_per_bit, inflevel=0.99):
     inflevel : float or dict
       Level of information that shall be preserved. Of type `float` if the
       preserved information content should be equal across variables, otherwise of type `dict`.
+
     Returns
     -------
     keepbits : dict
       Number of bits to keep per variable
+
+    Example
+    -------
+    >>> ds = xr.tutorial.load_dataset("rasm")
+    >>> info_per_bit = bp.get_bitinformation(ds, dim="x")
+    >>> bp.get_keepbits(ds, info_per_bit)
+    >>> bp.get_keepbits(ds, info_per_bit, inflevel=0.99999999)
     """
 
     def get_inflevel(var, inflevel):
