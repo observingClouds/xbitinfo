@@ -47,7 +47,7 @@ def xr_bitround(ds, keepbits):
                     continue
             # fails for .data
             ds_bitrounded[v].values = bitround(ds[v].values, keep)
-            ds_bitrounded[v].attrs["bitround_keepbits"] = keepbits[v]
+            ds_bitrounded[v].attrs["bitround_keepbits"] = keep
     elif isinstance(ds, xr.DataArray):
         if isinstance(keepbits, int):
             keep = keepbits
