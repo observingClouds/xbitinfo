@@ -33,9 +33,13 @@ with open("README.md") as readme_file:
 with open("HISTORY.rst") as history_file:
     history = history_file.read()
 
-requirements = ["xarray", "julia", "matplotlib"]
+requirements = [
+    "xarray",
+    "julia",
+    "matplotlib",  # "numcodecs"
+]
 
-test_requirements = ["pytest", "pooch", "netcdf4", "git+https://github.com/observingClouds/numcodecs@bitround"]
+test_requirements = ["pytest", "pooch", "netcdf4"]
 
 setup(
     author="Hauke Schulz",
