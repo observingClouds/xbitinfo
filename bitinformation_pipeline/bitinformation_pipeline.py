@@ -1,7 +1,7 @@
 import argparse
 import json
-import os
 import logging
+import os
 
 import matplotlib.pyplot as plt
 import numpy as np
@@ -68,14 +68,18 @@ def get_bitinformation(ds, label=None, overwrite=False, **kwargs):
             X = ds[var].values
             Main.X = X
             if "mask" in kwargs:
-                raise ValueError("bitinformation_pipeline does not wrap the mask argument. Mask your xr.Dataset with NaNs instead.")
+                raise ValueError(
+                    "bitinformation_pipeline does not wrap the mask argument. Mask your xr.Dataset with NaNs instead."
+                )
             if "dim" in kwargs:
                 if isinstance(kwargs["dim"], str):
                     kwargs["dim"] = ds[var].get_axis_num(kwargs["dim"]) + 1
             if "masked_value" not in kwargs:
-                kwargs["masked_value"] = f"convert({str(ds[var].dtype).capitalize()},NaN)"
-            kwargs_str = " ," + ", ".join([f"{k}={v}" for k,v in kwargs.items()])
-            kwargs_str=kwargs_str.replace("True","true").replace("False","false")
+                kwargs[
+                    "masked_value"
+                ] = f"convert({str(ds[var].dtype).capitalize()},NaN)"
+            kwargs_str = " ," + ", ".join([f"{k}={v}" for k, v in kwargs.items()])
+            kwargs_str = kwargs_str.replace("True", "true").replace("False", "false")
             print(f"get_bitinformation(X{kwargs_str})")
             logging.debug(f"get_bitinformation(X{kwargs_str})")
             info_per_bit[var] = jl.eval(f"get_bitinformation(X{kwargs_str})")
