@@ -18,7 +18,7 @@ def test_xr_bitround(rasm, keepbits):
     assert_allclose(ds, ds_bitrounded, atol=0.01, rtol=0.01)
     for v in ds.data_vars:
         # attrs set
-        assert ds_bitrounded[v].attrs["bitround_keepbits"] == i
+        assert ds_bitrounded[v].attrs["_QuantizeBitRoundNumberOfSignificantDigits"] == i
         # different after bitrounding
         diff = (ds[v] - ds_bitrounded[v]).compute()
         assert (diff != 0).any()
