@@ -78,9 +78,8 @@ def get_bitinformation(ds, label=None, overwrite=False, **kwargs):
                 kwargs[
                     "masked_value"
                 ] = f"convert({str(ds[var].dtype).capitalize()},NaN)"
-            kwargs_str = " ," + ", ".join([f"{k}={v}" for k, v in kwargs.items()])
+            kwargs_str = ", " + ", ".join([f"{k}={v}" for k, v in kwargs.items()])
             kwargs_str = kwargs_str.replace("True", "true").replace("False", "false")
-            print(f"get_bitinformation(X{kwargs_str})")
             logging.debug(f"get_bitinformation(X{kwargs_str})")
             info_per_bit[var] = jl.eval(f"get_bitinformation(X{kwargs_str})")
         with open(label + ".json", "w") as f:
