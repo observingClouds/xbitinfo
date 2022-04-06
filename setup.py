@@ -35,7 +35,7 @@ with open("HISTORY.rst") as history_file:
 
 requirements = ["xarray", "julia"]
 
-test_requirements = ["pytest", "pooch", "netcdf4"]
+test_requirements = ["pytest", "pooch", "netcdf4", "git+https://github.com/observingClouds/numcodecs@bitround"]
 
 setup(
     author="Hauke Schulz",
