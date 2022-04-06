@@ -45,6 +45,7 @@ def xr_bitround(ds, keepbits):
                     keep = keepbits[v]
                 else:
                     continue
+            keep = keep - 9
             keep = min(keep, 23)
             keep = max(0, keep)
             # fails for .data
@@ -59,6 +60,7 @@ def xr_bitround(ds, keepbits):
                 keep = keepbits[v]
             else:
                 raise ValueError("name not for in keepbits:", keepbits.keys())
+        keep = keep - 9
         keep = min(keep, 23)
         keep = max(0, keep)
         ds_bitrounded.values = bitround(ds.values, keep)
