@@ -161,9 +161,9 @@ def get_keepbits(ds, info_per_bit, inflevel=0.99):
 
 
 def _jl_bitround(X, keepbits):
+    """Wrap BitInformation.round. Used in bp.jl_bitround."""
     Main.X = X
     Main.keepbits = keepbits
-    # wrapping BitInformation.round!($X, int) # what does the $ mean?
     return jl.eval("round!(X, keepbits)")
 
 
