@@ -1,0 +1,5 @@
+xarray
+dask
+julia
+matplotlib
+numcodecs @ git+https://github.com/observingClouds/numcodecs@bitround
