@@ -2,4 +2,4 @@ xarray
 dask
 julia
 matplotlib
-# numcodecs
+numcodecs @ git+https://github.com/observingClouds/numcodecs@bitround
