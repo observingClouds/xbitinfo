@@ -1,14 +1,16 @@
 import pytest
 import xarray as xr
+from dask import is_dask_collection
 from xarray.testing import assert_allclose, assert_equal
 
 import bitinformation_pipeline as bp
 
 
+@pytest.mark.parametrize("dask", [True, False])
 @pytest.mark.parametrize("implementation", ["xarray", "julia"])
 @pytest.mark.parametrize("input_type", ["Dataset", "DataArray"])
 @pytest.mark.parametrize("keepbits", ["dict", "int"])
-def test_xr_bitround(air_temperature, input_type, implementation, keepbits):
+def test_xr_bitround(air_temperature, input_type, implementation, keepbits, dask):
     """Test xr_bitround to different keepbits of type dict or int."""
     ds = air_temperature
     i = 15
@@ -19,11 +21,14 @@ def test_xr_bitround(air_temperature, input_type, implementation, keepbits):
     if input_type == "DataArray":
         v = list(ds.data_vars)[0]
         ds = ds[v]
+    if dask:
+        ds = ds.chunk("auto")
 
     bitround = bp.xr_bitround if implementation == "xarray" else bp.jl_bitround
     ds_bitrounded = bitround(ds, keepbits)
 
     def check(da, da_bitrounded):
+        assert is_dask_collection(da_bitrounded) == dask
         # check close
         assert_allclose(da, da_bitrounded, atol=0.01, rtol=0.01)
         # attrs set
