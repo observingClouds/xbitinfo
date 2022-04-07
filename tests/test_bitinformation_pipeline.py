@@ -10,9 +10,9 @@ def test_full():
     label = "air_temperature"
     ds = xr.tutorial.load_dataset(label)
     # bitinformation_pipeline
-    bitinfo = bp.get_bitinformation(ds, dim=3)
+    bitinfo = bp.get_bitinformation(ds, dim="lon")
     keepbits = bp.get_keepbits(ds, bitinfo)
-    ds_bitrounded = bp.xr_bitround(ds, keepbits)
+    ds_bitrounded = bp.jl_bitround(ds, keepbits)
     # save
     ds.to_netcdf(f"{label}.nc")
     ds.to_compressed_netcdf(f"{label}_compressed.nc")
