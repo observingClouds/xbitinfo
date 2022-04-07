@@ -41,7 +41,7 @@ def get_bitinformation(ds, label=None, overwrite=False, **kwargs):
     label : str
       label of the json to serialize bitinfo
     overwrite : bool
-      if true, use serialized bitinfo based on label; if false, rerun bitinformation
+      if false, try using serialized bitinfo based on label; if true or label does not exist, run bitinformation
     kwargs
       to be passed to bitinformation:
       - masked_value: defaults to NaN (different to bitinformation.jl)
@@ -67,15 +67,17 @@ def get_bitinformation(ds, label=None, overwrite=False, **kwargs):
                5.38601212e-04, 8.09862581e-04, 1.74893445e-04, 4.97915410e-05,
                3.88027711e-04, 0.00000000e+00, 3.95323228e-05, 6.88854435e-04])}
     """
-    if label is not None and overwrite is False:
-        info_per_bit = load_bitinformation(label)
-        if info_per_bit is None:
-            overwrite = True
-    if label is None:
-        fn = ds.encoding["source"]
-        label = fn
-        overwrite = True
     if overwrite:
+        calc = True
+    else:
+        calc = False
+        if label is None:
+            calc = True
+        else:
+            info_per_bit = load_bitinformation(label)
+            if info_per_bit is None:
+                calc = True
+    if calc:
         info_per_bit = {}
         for var in ds.data_vars:
             X = ds[var].values
@@ -95,9 +97,10 @@ def get_bitinformation(ds, label=None, overwrite=False, **kwargs):
             kwargs_str = kwargs_str.replace("True", "true").replace("False", "false")
             logging.debug(f"get_bitinformation(X{kwargs_str})")
             info_per_bit[var] = jl.eval(f"get_bitinformation(X{kwargs_str})")
-        with open(label + ".json", "w") as f:
-            logging.debug(f"Save bitinformation to {label+'.json'}")
-            json.dump(info_per_bit, f, cls=JsonCustomEncoder)
+        if label is not None:
+            with open(label + ".json", "w") as f:
+                logging.debug(f"Save bitinformation to {label+'.json'}")
+                json.dump(info_per_bit, f, cls=JsonCustomEncoder)
     return info_per_bit
 
 
