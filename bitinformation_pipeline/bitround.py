@@ -48,5 +48,7 @@ def xr_bitround(da, keepbits):
     da_bitrounded.values = bitround(
         da.values, keep - 9
     )  # uses keep mantissa bits: [0-23]
-    da_bitrounded.attrs["bitround_keepbits"] = keep  # document keepbits
+    da_bitrounded.attrs[
+        "_QuantizeBitRoundNumberOfSignificantDigits"
+    ] = keep  # document keepbits
     return da_bitrounded

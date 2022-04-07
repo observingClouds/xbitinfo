@@ -23,7 +23,7 @@ def add_standard_imports(
 
 @pytest.fixture()
 def rasm():
-    return load_dataset("rasm")
+    return load_dataset("rasm").astype("float32")  # dtype conversion is cheating here
 
 
 @pytest.fixture()
