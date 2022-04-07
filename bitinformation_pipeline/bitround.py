@@ -26,13 +26,17 @@ def xr_bitround(da, keepbits):
 
     Example
     -------
-        >>> ds = xr.tutorial.load_dataset("rasm")
+        >>> ds = xr.tutorial.load_dataset("air_temperature")
         >>> info_per_bit = bp.get_bitinformation(ds, dim="x")
         >>> keepbits = bp.get_keepbits(ds, info_per_bit, 0.99)
         >>> ds_bitrounded = xr_bitround(ds, keepbits)
     """
     if isinstance(da, xr.Dataset):
-        return da.map(xr_bitround, args=[keepbits], keep_attrs=True)
+        da_bitrounded = da.copy()
+        for v in da.data_vars:
+            da_bitrounded[v] = xr_bitround(da[v], keepbits)
+        return da_bitrounded
+
 
     assert da.dtype == "float32"
     da_bitrounded = da.copy()
