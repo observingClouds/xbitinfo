@@ -10,13 +10,14 @@ import bitinformation_pipeline as bp
 def test_xr_bitround(air_temperature, input_type, keepbits):
     """Test xr_bitround to different keepbits of type dict or int."""
     ds = air_temperature
-    if input_type == "DataArray":
-        ds = ds.to_array()
     i = 15
     if keepbits == "dict":
         keepbits = {v: i for v in ds.data_vars}
     elif keepbits == "int":
         keepbits = i
+    if input_type == "DataArray":
+        ds = ds.to_array()
+
     ds_bitrounded = bp.xr_bitround(ds, keepbits)
 
     def check(da, da_bitrounded):
