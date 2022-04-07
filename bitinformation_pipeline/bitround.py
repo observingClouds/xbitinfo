@@ -50,12 +50,8 @@ def xr_bitround(da, keepbits):
         else:
             raise ValueError(f"name {v} not for in keepbits: {keepbits.keys()}")
     # fails for .data
-    da_bitrounded.values = _bitround(
-        da.values, keep - 9
-    )  # uses keep mantissa bits: [0-23]
-    da_bitrounded.attrs[
-        "_QuantizeBitRoundNumberOfSignificantDigits"
-    ] = keep  # document keepbits
+    da_bitrounded.values = _bitround(da.values, keep)
+    da_bitrounded.attrs["_QuantizeBitRoundNumberOfSignificantDigits"] = keep
     return da_bitrounded
 
 
@@ -96,9 +92,7 @@ def jl_bitround(da, keepbits):
         else:
             raise ValueError(f"name {v} not for in keepbits: {keepbits.keys()}")
     # fails for .data
-    da_bitrounded.values = _jl_bitround(
-        da.values, keep - 9
-    )  # uses keep mantissa bits: [0-23]
+    da_bitrounded.values = _jl_bitround(da.values, keep)
     da_bitrounded.attrs[
         "_QuantizeBitRoundNumberOfSignificantDigits"
     ] = keep  # document keepbits
