@@ -23,19 +23,19 @@ def add_standard_imports(
 
 @pytest.fixture()
 def rasm():
-    """one variable float64 with masked ocean"""
+    """one atmospheric variable float64 with masked ocean"""
     return load_dataset("rasm")
 
 
 @pytest.fixture()
 def air_temperature():
-    """one variable float32 no mask"""
+    """one atmospheric variable float32 over the US no mask"""
     return load_dataset("air_temperature")
 
 
 @pytest.fixture()
 def ROMS_example():
-    """one variable float32 with masked land"""
+    """two ocean variabls float32 with masked land"""
     return load_dataset("ROMS_example")
 
 
@@ -47,5 +47,5 @@ def era52mt():
 
 @pytest.fixture()
 def eraint_uvz():
-    """three variable float32 atmospheric no mask"""
+    """three atmospheric variable float32 global no mask"""
     return load_dataset("eraint_uvz")
