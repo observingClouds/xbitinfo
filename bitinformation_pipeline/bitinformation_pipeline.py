@@ -174,7 +174,7 @@ def plot_bitinformation(ds, bitinfo):
     import cmcrameri.cm as cmc
 
     nvars = len(bitinfo)
-    varnames = sorted(bitinfo.keys())
+    varnames = bitinfo.keys()
 
     infbits_dict = get_keepbits(ds, bitinfo, 0.99)
     infbits100_dict = get_keepbits(ds, bitinfo, 0.999999999)
@@ -281,7 +281,7 @@ def plot_bitinformation(ds, bitinfo):
     ax1.text(
         infbits[0] + 0.1,
         0.8,
-        f"{infbits[0]-9} mantissa bits",
+        f"{int(infbits[0]-9)} mantissa bits",
         fontsize=8,
         color="saddlebrown",
     )
@@ -289,7 +289,7 @@ def plot_bitinformation(ds, bitinfo):
         ax1.text(
             infbits[i] + 0.1,
             (i) + 0.8,
-            f"{infbits[i]-9}",
+            f"{int(infbits[i]-9)}",
             fontsize=8,
             color="saddlebrown",
         )
