@@ -16,7 +16,8 @@ def test_xr_bitround(air_temperature, input_type, keepbits):
     elif keepbits == "int":
         keepbits = i
     if input_type == "DataArray":
-        ds = ds.to_array()
+        v = list(ds.data_vars)[0]
+        ds = ds[v]
 
     ds_bitrounded = bp.xr_bitround(ds, keepbits)
 
