@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 
 """Tests for `bitinformation_pipeline` package."""
+import os
 
 import numpy as np
 import xarray as xr
@@ -62,3 +63,12 @@ def test_get_bitinformation_masked_value():
     bitinfo = bp.get_bitinformation(ds, dim="x")
     bitinfo_no_mask = bp.get_bitinformation(ds, dim="x", masked_value="nothing")
     bitinfo_assert_different(bitinfo, bitinfo_no_mask)
+
+
+def test_get_bitinformation_label():
+    """Test bp.get_bitinformation serializes when label given."""
+    ds = xr.tutorial.load_dataset("rasm")
+    bp.get_bitinformation(ds, dim="x", label="rasm")
+    assert os.path.exists("rasm.json")
+    # second call should be faster
+    bp.get_bitinformation(ds, dim="x", label="rasm")
