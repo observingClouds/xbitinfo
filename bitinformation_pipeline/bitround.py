@@ -32,7 +32,7 @@ def xr_bitround(da, keepbits):
         >>> ds_bitrounded = xr_bitround(ds, keepbits)
     """
     if isinstance(da, xr.Dataset):
-        return da.map(xr_bitround, args=(keepbits), keep_attrs=True)
+        return da.map(xr_bitround, args=[keepbits], keep_attrs=True)
 
     assert da.dtype == "float32"
     da_bitrounded = da.copy()
