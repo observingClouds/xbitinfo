@@ -39,6 +39,7 @@ def xr_bitround(da, keepbits):
         return da
 
     assert da.dtype == "float32"
+    da_bitrounded = da.copy()
     if isinstance(keepbits, int):
         keep = keepbits
     elif isinstance(keepbits, dict):
@@ -48,9 +49,9 @@ def xr_bitround(da, keepbits):
         else:
             raise ValueError(f"name {v} not for in keepbits: {keepbits.keys()}")
     # fails for .data
-    da.values = _bitround(da.values, keep)
-    da.attrs["_QuantizeBitRoundNumberOfSignificantDigits"] = keep
-    return da
+    da_bitrounded.values = _bitround(da.values, keep)
+    da_bitrounded.attrs["_QuantizeBitRoundNumberOfSignificantDigits"] = keep
+    return da_bitrounded
 
 
 def jl_bitround(da, keepbits):
@@ -79,6 +80,7 @@ def jl_bitround(da, keepbits):
             da[v] = jl_bitround(da[v], keepbits)
         return da
 
+    da_bitrounded = da.copy()
     if isinstance(keepbits, int):
         keep = keepbits
     elif isinstance(keepbits, dict):
@@ -88,6 +90,6 @@ def jl_bitround(da, keepbits):
         else:
             raise ValueError(f"name {v} not for in keepbits: {keepbits.keys()}")
     # fails for .data
-    da.values = _jl_bitround(da.values, keep)
-    da.attrs["_QuantizeBitRoundNumberOfSignificantDigits"] = keep  # document keepbits
-    return da
+    da_bitrounded.values = _jl_bitround(da.values, keep)
+    da_bitrounded.attrs["_QuantizeBitRoundNumberOfSignificantDigits"] = keep  # document keepbits
+    return da_bitrounded
