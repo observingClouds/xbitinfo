@@ -96,6 +96,7 @@ def get_bitinformation(ds, label=None, overwrite=False, **kwargs):
             logging.debug(f"get_bitinformation(X{kwargs_str})")
             info_per_bit[var] = jl.eval(f"get_bitinformation(X{kwargs_str})")
         with open(label + ".json", "w") as f:
+            logging.debug(f"Save bitinformation to {label+'.json'}")
             json.dump(info_per_bit, f, cls=JsonCustomEncoder)
     return info_per_bit
 
@@ -105,7 +106,8 @@ def load_bitinformation(label):
     label_file = label + ".json"
     if os.path.exists(label_file):
         with open(label_file) as f:
-            info_per_bit = json.open(f)
+            logging.debug(f"Load bitinformation from {label+'.json'}")
+            info_per_bit = json.load(f)
         print(info_per_bit)
         return info_per_bit
     else:
