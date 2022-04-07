@@ -23,7 +23,7 @@ source activate bitinfo
 
 Get [jupyter](https://docs.jupyter.org/en/latest/) with [`start-jupyter script from DKRZ`](https://gitlab.dkrz.de/k204213/ssh_scripts/-/blob/master/start-jupyter) on your laptop:
 ```
-wget https://gitlab.dkrz.de/k204213/ssh_scripts/-/blob/master/start-jupyter
+wget https://gitlab.dkrz.de/k204213/ssh_scripts/-/raw/master/start-jupyter
 ```
 
 Personalize the following lines:
