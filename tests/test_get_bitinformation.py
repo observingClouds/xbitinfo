@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 
 """Tests for `bitinformation_pipeline` package."""
+import os
 
 import numpy as np
 import xarray as xr
