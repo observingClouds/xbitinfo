@@ -6,9 +6,9 @@ import bitinformation_pipeline as bp
 
 
 @pytest.mark.parametrize("keepbits", ["dict", "int"])
-def test_xr_bitround(rasm, keepbits):
+def test_xr_bitround(air_temperature, keepbits):
     """Test xr_bitround to different keepbits of type dict or int."""
-    ds = rasm
+    ds = air_temperature
     i = 15
     if keepbits == "dict":
         keepbits = {v: i for v in ds.data_vars}

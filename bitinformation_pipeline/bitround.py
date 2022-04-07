@@ -27,7 +27,7 @@ def xr_bitround(da, keepbits):
     Example
     -------
         >>> ds = xr.tutorial.load_dataset("air_temperature")
-        >>> info_per_bit = bp.get_bitinformation(ds, dim="x")
+        >>> info_per_bit = bp.get_bitinformation(ds, dim="lon")
         >>> keepbits = bp.get_keepbits(ds, info_per_bit, 0.99)
         >>> ds_bitrounded = xr_bitround(ds, keepbits)
     """

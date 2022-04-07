@@ -7,7 +7,7 @@ import bitinformation_pipeline as bp
 
 def test_full():
     """Test bitinformation_pipeline end to end."""
-    label = "rasm"
+    label = "air_temperature"
     ds = xr.tutorial.load_dataset(label)
     # bitinformation_pipeline
     bitinfo = bp.get_bitinformation(ds, dim=3)

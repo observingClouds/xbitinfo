@@ -23,24 +23,29 @@ def add_standard_imports(
 
 @pytest.fixture()
 def rasm():
-    return load_dataset("rasm").astype("float32")  # dtype conversion is cheating here
+    """one variable float64 with masked ocean"""
+    return load_dataset("rasm")
 
 
 @pytest.fixture()
 def air_temperature():
+    """one variable float32 no mask"""
     return load_dataset("air_temperature")
 
 
 @pytest.fixture()
 def ROMS_example():
+    """one variable float32 with masked land"""
     return load_dataset("ROMS_example")
 
 
 @pytest.fixture()
 def era52mt():
+    """one variable float32 t2m over the UK no mask"""
     return load_dataset("era5-2mt-2019-03-uk.grib")
 
 
 @pytest.fixture()
 def eraint_uvz():
+    """three variable float32 atmospheric no mask"""
     return load_dataset("eraint_uvz")
