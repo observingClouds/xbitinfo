@@ -180,7 +180,8 @@ def plot_bitinformation(ds, bitinfo):
     infbits100_dict = get_keepbits(ds, bitinfo, 0.999999999)
 
     ICnan = np.zeros((nvars, 64))
-    infbits = infbits100 = np.zeros(nvars)
+    infbits = np.zeros(nvars)
+    infbits100 = np.zeros(nvars)
     ICnan[:, :] = np.nan
     for v, var in enumerate(varnames):
         ic = bitinfo[var]
