@@ -18,9 +18,12 @@ def test_get_compress_encoding_for_cdo(rasm, for_cdo):
         assert encoding[v]["chunksizes"][time_axis] > 1
 
 
-def test_to_compressed_netcdf(rasm):
+@pytest.mark.parametrize("dask", [True, False])
+def test_to_compressed_netcdf(rasm, dask):
     """Test bitinformation_pipeline end to end."""
     ds = rasm
+    if dask:
+        ds = ds.chunk("auto")
     label = "file"
     # save
     ds.to_netcdf(f"{label}.nc")
