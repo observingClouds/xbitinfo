@@ -53,6 +53,19 @@ def get_bitinformation(ds, label=None, overwrite=False, **kwargs):
     -------
     info_per_bit : dict
       Information content per bit and variable
+
+    Example
+    -------
+        >>> ds = xr.tutorial.load_dataset("air_temperature")
+        >>> bp.get_bitinformation(ds, dim="lon")
+        {'air': array([0.00000000e+00, 0.00000000e+00, 0.00000000e+00, 0.00000000e+00,
+               0.00000000e+00, 3.94447851e-01, 3.94447851e-01, 3.94447851e-01,
+               3.94447851e-01, 3.94447851e-01, 3.94310542e-01, 7.36739987e-01,
+               5.62682836e-01, 3.60511555e-01, 1.52471111e-01, 4.18818055e-02,
+               3.65276146e-03, 1.19975820e-05, 4.39366160e-05, 4.18329296e-05,
+               2.54572089e-05, 1.44121797e-04, 1.34144798e-03, 1.55468479e-06,
+               5.38601212e-04, 8.09862581e-04, 1.74893445e-04, 4.97915410e-05,
+               3.88027711e-04, 0.00000000e+00, 3.95323228e-05, 6.88854435e-04])}
     """
     if label is not None and overwrite is False:
         info_per_bit = load_bitinformation(label)
@@ -100,7 +113,8 @@ def load_bitinformation(label):
 
 
 def get_keepbits(ds, info_per_bit, inflevel=0.99):
-    """Get the amount of bits to keep for a given information content
+    """Get the amount of bits to keep for a given information content.
+
     Inputs
     ------
     ds : xr.Dataset
@@ -110,10 +124,20 @@ def get_keepbits(ds, info_per_bit, inflevel=0.99):
     inflevel : float or dict
       Level of information that shall be preserved. Of type `float` if the
       preserved information content should be equal across variables, otherwise of type `dict`.
+
     Returns
     -------
     keepbits : dict
       Number of bits to keep per variable
+
+    Example
+    -------
+    >>> ds = xr.tutorial.load_dataset("air_temperature")
+    >>> info_per_bit = bp.get_bitinformation(ds, dim="lon")
+    >>> bp.get_keepbits(ds, info_per_bit)
+    {'air': 16}
+    >>> bp.get_keepbits(ds, info_per_bit, inflevel=0.99999999)
+    {'air': 23}
     """
 
     def get_inflevel(var, inflevel):
