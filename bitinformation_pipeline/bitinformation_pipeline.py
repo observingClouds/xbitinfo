@@ -165,6 +165,13 @@ def get_keepbits(ds, info_per_bit, inflevel=0.99):
     return keepbits
 
 
+def _jl_bitround(X, keepbits):
+    """Wrap BitInformation.round. Used in bp.jl_bitround."""
+    Main.X = X
+    Main.keepbits = keepbits
+    return jl.eval("round!(X, keepbits)")
+
+
 def plot_bitinformation(ds, bitinfo):
     """Plot bitwise information content
     Inputs
