@@ -138,6 +138,5 @@ jobs:
         python-version: 3.8
     - name: Install dependencies
       run: |
-        pip install git+https://github.com/observingClouds/numcodecs@bitround # remove once merged
         pip install .
         python -c "import bitinformation_pipeline"
