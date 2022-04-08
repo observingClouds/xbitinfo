@@ -84,12 +84,14 @@ def get_bitinformation(ds, dim=None, axis=None, label=None, overwrite=False, **k
     if calc:
         # check keywords
         if (axis and dim) or (not axis and not dim):
-            raise ValueError("Please provide either `axis` or `dim` but not both or none.")
+            raise ValueError(
+                "Please provide either `axis` or `dim` but not both or none."
+            )
         if axis:
             if not isinstance(axis, int):
                 raise ValueError(f"Please provide `axis` as `int`, found {type(axis)}.")
         if dim:
-             if not isinstance(dim, str):
+            if not isinstance(dim, str):
                 raise ValueError(f"Please provide `dim` as `str`, found {type(dim)}.")
         if "mask" in kwargs:
             raise ValueError(
@@ -114,7 +116,9 @@ def get_bitinformation(ds, dim=None, axis=None, label=None, overwrite=False, **k
             kwargs_str = ", " + ", ".join([f"{k}={v}" for k, v in kwargs.items()])
             kwargs_str = kwargs_str.replace("True", "true").replace("False", "false")
             logging.debug(f"get_bitinformation(X, dim={dim},{kwargs_str})")
-            info_per_bit[var] = jl.eval(f"get_bitinformation(X, dim={dim},{kwargs_str})")
+            info_per_bit[var] = jl.eval(
+                f"get_bitinformation(X, dim={dim},{kwargs_str})"
+            )
         if label is not None:
             with open(label + ".json", "w") as f:
                 logging.debug(f"Save bitinformation to {label+'.json'}")
