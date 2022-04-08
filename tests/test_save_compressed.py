@@ -34,8 +34,9 @@ def test_to_compressed_netcdf(rasm, dask):
     assert compressed_size < ori_size
 
 
-def test_to_compressed_netcdf_for_cdo_no_time_dim_var(rasm):
+def test_to_compressed_netcdf_for_cdo_no_time_dim_var(air_temperature):
     """Test to_compressed_netcdf if `for_cdo=True` and one var without `time_dim`."""
-    ds = rasm
+    ds = air_temperature
     ds["air_mean"] = ds["air"].isel(time=0)
     ds.to_compressed_netcdf("test.nc", for_cdo=True)
+    os.remove("test.nc")
