@@ -39,7 +39,7 @@ def get_bitinformation(ds, dim=None, axis=None, label=None, overwrite=False, **k
     ds : xr.Dataset
       input netcdf to analyse
     dim : str
-      Dimension(s) over which to apply mean.
+      Dimension over which to apply mean. Only one of the `dim` and `axis` arguments can be supplied.
     axis : int
       Axis over which to apply mean. Only one of the `dim` and `axis` arguments can be supplied.
     label : str
