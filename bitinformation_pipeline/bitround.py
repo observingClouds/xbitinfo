@@ -12,7 +12,7 @@ def _bitround(data, keepbits):
     return codec.decode(encoded)
 
 
-def xr_bitround(da, keepbits):
+def xr_bitround(da, keepbits, inplace=False):
     """Apply bitrounding based on keepbits from bp.get_keepbits for xarray.Dataset or xr.DataArray wrapping numcodecs.bitround
 
     Inputs
@@ -34,13 +34,15 @@ def xr_bitround(da, keepbits):
         >>> ds_bitrounded = bp.xr_bitround(ds, keepbits)
     """
     if isinstance(da, xr.Dataset):
-        da_bitrounded = da.copy()
+        if not inplace:
+            da = da.copy()
         for v in da.data_vars:
-            da_bitrounded[v] = xr_bitround(da[v], keepbits)
-        return da_bitrounded
+            da[v] = xr_bitround(da[v], keepbits)
+        return da
 
     assert da.dtype == "float32"
-    da_bitrounded = da.copy()
+    if not inplace:
+        da = da.copy()
     if isinstance(keepbits, int):
         keep = keepbits
     elif isinstance(keepbits, dict):
@@ -50,9 +52,9 @@ def xr_bitround(da, keepbits):
         else:
             raise ValueError(f"name {v} not for in keepbits: {keepbits.keys()}")
     # fails for .data
-    da_bitrounded.values = _bitround(da.values, keep)
-    da_bitrounded.attrs["_QuantizeBitRoundNumberOfSignificantDigits"] = keep
-    return da_bitrounded
+    da.values = _bitround(da.values, keep)
+    da.attrs["_QuantizeBitRoundNumberOfSignificantDigits"] = keep
+    return da
 
 
 def jl_bitround(da, keepbits):
