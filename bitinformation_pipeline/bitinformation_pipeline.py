@@ -40,7 +40,7 @@ def get_bitinformation(ds, dim=None, axis=None, label=None, overwrite=False, **k
       input netcdf to analyse
     dim : str
       Dimension(s) over which to apply mean.
-    axis : int 
+    axis : int
       Axis over which to apply mean. Only one of the `dim` and `axis` arguments can be supplied.
     label : str
       label of the json to serialize bitinfo
