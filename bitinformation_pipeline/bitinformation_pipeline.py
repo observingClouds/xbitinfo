@@ -102,12 +102,13 @@ def get_bitinformation(ds, dim=None, axis=None, label=None, overwrite=False, **k
         for var in ds.data_vars:
             X = ds[var].values
             Main.X = X
-            if axis:
+            if axis is not None:
                 # in julia convention axis + 1
                 dim = axis + 1
             if isinstance(dim, str):
                 # in julia convention axis + 1
                 dim = ds[var].get_axis_num(dim) + 1
+            assert isinstance(dim, int)
             Main.dim = dim
             if "masked_value" not in kwargs:
                 kwargs[
