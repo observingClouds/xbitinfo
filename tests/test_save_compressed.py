@@ -37,6 +37,5 @@ def test_to_compressed_netcdf(rasm, dask):
 def test_to_compressed_netcdf_for_cdo_no_time_dim_var(rasm):
     """Test to_compressed_netcdf if `for_cdo=True` and one var without `time_dim`."""
     ds = rasm
-    ds["air_mean"]=ds["air"].isel(time=0)
+    ds["air_mean"] = ds["air"].isel(time=0)
     ds.to_compressed_netcdf("test.nc", for_cdo=True)
-    
