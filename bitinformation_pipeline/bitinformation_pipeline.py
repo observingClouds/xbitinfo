@@ -31,13 +31,17 @@ def get_user_input():
     return args
 
 
-def get_bitinformation(ds, label=None, overwrite=False, **kwargs):
+def get_bitinformation(ds, dim=None, axis=None, label=None, overwrite=False, **kwargs):
     """Wrap BitInformation.bitinformation().
 
     Inputs
     ------
     ds : xr.Dataset
       input netcdf to analyse
+    dim : str
+      Dimension(s) over which to apply mean.
+    axis : int 
+      Axis over which to apply mean. Only one of the `dim` and `axis` arguments can be supplied.
     label : str
       label of the json to serialize bitinfo
     overwrite : bool
@@ -78,25 +82,39 @@ def get_bitinformation(ds, label=None, overwrite=False, **kwargs):
             if info_per_bit is None:
                 calc = True
     if calc:
+        # check keywords
+        if axis and dim:
+            raise ValueError("Please provide either `axis` or `dim` but not both.")
+        if axis:
+            if not isinstance(axis, int):
+                raise ValueError(f"Please provide `axis` as `int`, found {type(axis)}.")
+        if dim:
+             if not isinstance(dim, str)
+                raise ValueError(f"Please provide `dim` as `str`, found {type(dim)}.")
+        if "mask" in kwargs:
+            raise ValueError(
+                "`bitinformation_pipeline` does not wrap the mask argument. Mask your xr.Dataset with NaNs instead."
+            )
+
         info_per_bit = {}
         for var in ds.data_vars:
             X = ds[var].values
             Main.X = X
-            if "mask" in kwargs:
-                raise ValueError(
-                    "bitinformation_pipeline does not wrap the mask argument. Mask your xr.Dataset with NaNs instead."
-                )
-            if "dim" in kwargs:
-                if isinstance(kwargs["dim"], str):
-                    kwargs["dim"] = ds[var].get_axis_num(kwargs["dim"]) + 1
+            if axis:
+                # in julia convention axis + 1
+                dim = axis + 1
+            if dim:
+                # in julia convention axis + 1
+                dim = ds[var].get_axis_num(dim) + 1
+            Main.dim = dim
             if "masked_value" not in kwargs:
                 kwargs[
                     "masked_value"
                 ] = f"convert({str(ds[var].dtype).capitalize()},NaN)"
             kwargs_str = ", " + ", ".join([f"{k}={v}" for k, v in kwargs.items()])
             kwargs_str = kwargs_str.replace("True", "true").replace("False", "false")
-            logging.debug(f"get_bitinformation(X{kwargs_str})")
-            info_per_bit[var] = jl.eval(f"get_bitinformation(X{kwargs_str})")
+            logging.debug(f"get_bitinformation(X, dim={dim},{kwargs_str})")
+            info_per_bit[var] = jl.eval(f"get_bitinformation(X, dim={dim},{kwargs_str})")
         if label is not None:
             with open(label + ".json", "w") as f:
                 logging.debug(f"Save bitinformation to {label+'.json'}")
