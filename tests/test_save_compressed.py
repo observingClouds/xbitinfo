@@ -20,7 +20,7 @@ def test_get_compress_encoding_for_cdo(rasm, for_cdo):
 
 @pytest.mark.parametrize("dask", [True, False])
 def test_to_compressed_netcdf(rasm, dask):
-    """Test bitinformation_pipeline end to end."""
+    """Test to_compressed_netcdf reduces size on disk."""
     ds = rasm
     if dask:
         ds = ds.chunk("auto")
@@ -32,3 +32,11 @@ def test_to_compressed_netcdf(rasm, dask):
     ori_size = os.path.getsize(f"{label}.nc")
     compressed_size = os.path.getsize(f"{label}_compressed.nc")
     assert compressed_size < ori_size
+
+
+def test_to_compressed_netcdf_for_cdo_no_time_dim_var(rasm):
+    """Test to_compressed_netcdf if `for_cdo=True` and one var without `time_dim`."""
+    ds = rasm
+    ds["air_mean"]=ds["air"].isel(time=0)
+    ds.to_compressed_netcdf("test.nc", for_cdo=True)
+    
