@@ -17,7 +17,8 @@ def get_chunksizes(da, for_cdo=False, time_dim="time", chunks=None):
             chunksize[time_axis_num] = 1
             chunksize = tuple(chunksize)
             return chunksize
-        else get_chunksizes(da, for_cdo=False, time_dim=time_dim)
+        else:
+            return get_chunksizes(da, for_cdo=False, time_dim=time_dim)
     else:
         return da.data.chunksize if is_dask_collection(da.data) else da.shape
 
