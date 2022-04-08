@@ -105,7 +105,7 @@ def get_bitinformation(ds, dim=None, axis=None, label=None, overwrite=False, **k
             if axis:
                 # in julia convention axis + 1
                 dim = axis + 1
-            if dim:
+            if isinstance(dim, str):
                 # in julia convention axis + 1
                 dim = ds[var].get_axis_num(dim) + 1
             Main.dim = dim
