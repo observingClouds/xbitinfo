@@ -83,13 +83,13 @@ def get_bitinformation(ds, dim=None, axis=None, label=None, overwrite=False, **k
                 calc = True
     if calc:
         # check keywords
-        if axis and dim:
-            raise ValueError("Please provide either `axis` or `dim` but not both.")
+        if (axis and dim) or (not axis and not dim):
+            raise ValueError("Please provide either `axis` or `dim` but not both or none.")
         if axis:
             if not isinstance(axis, int):
                 raise ValueError(f"Please provide `axis` as `int`, found {type(axis)}.")
         if dim:
-             if not isinstance(dim, str)
+             if not isinstance(dim, str):
                 raise ValueError(f"Please provide `dim` as `str`, found {type(dim)}.")
         if "mask" in kwargs:
             raise ValueError(
