@@ -9,18 +9,17 @@ def get_chunksizes(da, for_cdo=False, time_dim="time", chunks=None):
     if chunks:  # use new chunksizes
         return da.chunk(chunks).data.chunksize
     if for_cdo:  # take shape as chunksize and ensure time chunksize 1
-        time_axis_num = da.get_axis_num(time_dim)
-        chunksize = da.data.chunksize if is_dask_collection(da) else da.shape
-        # https://code.mpimet.mpg.de/boards/2/topics/12598
-        chunksize = list(chunksize)
-        chunksize[time_axis_num] = 1
-        chunksize = tuple(chunksize)
-        return chunksize
+        if time_dim in da.dims:
+            time_axis_num = da.get_axis_num(time_dim)
+            chunksize = da.data.chunksize if is_dask_collection(da) else da.shape
+            # https://code.mpimet.mpg.de/boards/2/topics/12598
+            chunksize = list(chunksize)
+            chunksize[time_axis_num] = 1
+            chunksize = tuple(chunksize)
+            return chunksize
+         else get_chunksizes(da, for_cdo=False, time_dim=time_dim)
     else:
-        if is_dask_collection(da.data):
-            return da.data.chunksize
-        else:
-            return da.shape
+        return da.data.chunksize if is_dask_collection(da.data) else da.shape
 
 
 def get_compress_encoding(
