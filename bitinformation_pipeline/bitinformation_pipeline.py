@@ -142,7 +142,7 @@ def get_keepbits(info_per_bit, inflevel=0.99):
     >>> info_per_bit = bp.get_bitinformation(ds, dim="lon")
     >>> bp.get_keepbits(info_per_bit)
     {'air': 6}
-    >>> bp.get_keepbits(ds, info_per_bit, inflevel=0.99999999)
+    >>> bp.get_keepbits(info_per_bit, inflevel=0.99999999)
     {'air': 14}
     """
     keepmantissabits = {}
