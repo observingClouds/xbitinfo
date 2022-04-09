@@ -4,6 +4,7 @@
 import os
 
 import numpy as np
+import pytest
 import xarray as xr
 from numpy.testing import assert_allclose, assert_equal
 
@@ -76,11 +77,21 @@ def test_get_bitinformation_set_zero_insignificant():
     bitinfo_assert_equal(bitinfo, bitinfo_szi_True)
 
 
-def test_get_bitinformation_label():
+def test_get_bitinformation_label(rasm):
     """Test bp.get_bitinformation serializes when label given."""
-    ds = xr.tutorial.load_dataset("rasm")
+    ds = rasm
     bp.get_bitinformation(ds, dim="x", label="rasm")
     assert os.path.exists("rasm.json")
     # second call should be faster
     bp.get_bitinformation(ds, dim="x", label="rasm")
     os.remove("rasm.json")
+
+
+@pytest.mark.parametrize("dtype", ["Float64", "Float32", "Float16"])
+def test_get_bitinformation_dtype(rasm, dtype):
+    """Test bp.get_bitinformation returns correct number of bits depending on dtype."""
+    ds = rasm.astype(dtype)
+    v = list(ds.data_vars)[0]
+    assert len(bp.get_bitinformation(ds, dim="x", label="rasm")[v]) == int(
+        dtype.replace("Float", "")
+    )

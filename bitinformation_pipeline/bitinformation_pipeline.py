@@ -149,12 +149,14 @@ def get_keepbits(info_per_bit, inflevel=0.99):
     """
     keepmantissabits = {}
     for v, ic in info_per_bit.items():
+        # set below threshold to zero
         # use something a bit bigger than maximum of the last 4 bits
         threshold = 1.5 * np.max(ic[-4:])
         ic_over_threshold = np.where(ic < threshold, 0, ic)
-        ic_over_threshold_cum = np.cumsum(ic_over_threshold)
-        # norm CDF
+        ic_over_threshold_cum = np.cumsum(ic_over_threshold)  # CDF
+        # normed CDF
         ic_over_threshold_cum_normed = ic_over_threshold_cum / ic_over_threshold_cum[-1]
+        # return mantissabits to keep therefore subtract sign and exponent bits
         il = inflevel[v] if isinstance(inflevel, dict) else inflevel
         keepmantissabits[v] = (
             np.argmax(ic_over_threshold_cum_normed > il) + 1 - NMBITS[len(ic)]
