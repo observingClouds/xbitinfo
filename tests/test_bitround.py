@@ -6,7 +6,6 @@ from xarray.testing import assert_allclose, assert_equal
 import bitinformation_pipeline as bp
 
 
-
 @pytest.mark.parametrize("dtype", ["float16", "float32", "float64"])
 @pytest.mark.parametrize("implementation", ["xarray", "julia"])
 @pytest.mark.parametrize("input_type", ["Dataset", "DataArray"])
