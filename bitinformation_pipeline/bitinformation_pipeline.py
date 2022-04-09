@@ -141,7 +141,7 @@ def get_keepbits(info_per_bit, inflevel=0.99):
     >>> ds = xr.tutorial.load_dataset("air_temperature")
     >>> info_per_bit = bp.get_bitinformation(ds, dim="lon")
     >>> bp.get_keepbits(info_per_bit)
-    {'air': 7}
+    {'air': 6}
     >>> bp.get_keepbits(ds, info_per_bit, inflevel=0.99999999)
     {'air': 14}
     """
