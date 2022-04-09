@@ -65,6 +65,17 @@ def test_get_bitinformation_masked_value():
     bitinfo_assert_different(bitinfo, bitinfo_no_mask)
 
 
+def test_get_bitinformation_set_zero_insignificant():
+    """Test bp.get_bitinformation is sensitive to set_zero_insignificant."""
+    ds = xr.tutorial.load_dataset("air_temperature")
+    dim = "lon"
+    bitinfo_szi_False = bp.get_bitinformation(ds, dim=dim, set_zero_insignificant=False)
+    bitinfo_szi_True = bp.get_bitinformation(ds, dim=dim, set_zero_insignificant=True)
+    bitinfo = bp.get_bitinformation(ds, dim=dim)
+    bitinfo_assert_different(bitinfo, bitinfo_szi_False)
+    bitinfo_assert_equal(bitinfo, bitinfo_szi_True)
+
+
 def test_get_bitinformation_label():
     """Test bp.get_bitinformation serializes when label given."""
     ds = xr.tutorial.load_dataset("rasm")
