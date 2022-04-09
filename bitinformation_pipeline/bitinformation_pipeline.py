@@ -237,8 +237,9 @@ def plot_bitinformation(bitinfo):
     nvars = len(bitinfo)
     varnames = bitinfo.keys()
 
-    infbits_dict = get_keepbits(bitinfo, 0.99)
-    infbits100_dict = get_keepbits(bitinfo, 0.999999999)
+    bits = int(np.max([len(data) for data in bitinfo.values()]))
+    infbits_dict = get_keepbits(bitinfo, 0.99) + NMBITS[bits]
+    infbits100_dict = get_keepbits(bitinfo, 0.999999999) + NMBITS[bits]
 
     ICnan = np.zeros((nvars, 64))
     infbits = np.zeros(nvars)
