@@ -72,3 +72,4 @@ def test_get_bitinformation_label():
     assert os.path.exists("rasm.json")
     # second call should be faster
     bp.get_bitinformation(ds, dim="x", label="rasm")
+    os.remove("rasm.json")
