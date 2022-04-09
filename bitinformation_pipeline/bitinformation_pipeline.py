@@ -19,6 +19,9 @@ jl.using("BitInformation")
 jl.eval("include(Main.path)")
 
 
+NMBITS = {64: 12, 32: 9, 16: 6}  # number of non mantissa bits for given dtype
+
+
 def get_user_input():
     parser = argparse.ArgumentParser()
     parser.add_argument(
@@ -117,9 +120,6 @@ def load_bitinformation(label):
         return info_per_bit
     else:
         return None
-
-
-NMBITS = {64: 12, 32: 9, 16: 6}  # number of non mantissa bits for given dtype
 
 
 def get_keepbits(info_per_bit, inflevel=0.99):
@@ -237,9 +237,8 @@ def plot_bitinformation(bitinfo):
     nvars = len(bitinfo)
     varnames = bitinfo.keys()
 
-    bits = int(np.max([len(data) for data in bitinfo.values()]))
-    infbits_dict = get_keepbits(bitinfo, 0.99) + NMBITS[bits]
-    infbits100_dict = get_keepbits(bitinfo, 0.999999999) + NMBITS[bits]
+    infbits_dict = get_keepbits(bitinfo, 0.99)
+    infbits100_dict = get_keepbits(bitinfo, 0.999999999)
 
     ICnan = np.zeros((nvars, 64))
     infbits = np.zeros(nvars)
@@ -248,7 +247,8 @@ def plot_bitinformation(bitinfo):
     for v, var in enumerate(varnames):
         ic = bitinfo[var]
         ICnan[v, : len(ic)] = ic
-        infbits[v] = infbits_dict[var]
+        # infbits are all bits, infbits_dict were mantissa bits
+        infbits[v] = infbits_dict[var] + NMBITS[len(ic)]
         infbits100[v] = infbits100_dict[var]
     ICnan = np.where(ICnan == 0, np.nan, ICnan)
     ICcsum = np.nancumsum(ICnan, axis=1)
