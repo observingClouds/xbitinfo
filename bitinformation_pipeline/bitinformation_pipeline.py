@@ -251,7 +251,7 @@ def plot_bitinformation(bitinfo):
         ICnan[v, : len(ic)] = ic
         # infbits are all bits, infbits_dict were mantissa bits
         infbits[v] = infbits_dict[var] + NMBITS[len(ic)]
-        infbits100[v] = infbits100_dict[var]
+        infbits100[v] = infbits100_dict[var] + NMBITS[len(ic)]
     ICnan = np.where(ICnan == 0, np.nan, ICnan)
     ICcsum = np.nancumsum(ICnan, axis=1)
 
