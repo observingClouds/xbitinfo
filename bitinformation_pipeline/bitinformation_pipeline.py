@@ -117,8 +117,51 @@ def load_bitinformation(label):
         return None
 
 
-def get_keepbits(ds, info_per_bit, inflevel=0.99):
-    """Get the amount of bits to keep for a given information content.
+NMBITS = {64: 12, 32: 9, 16: 6}  # number of non mantissa bits for given dtype
+
+
+def get_keepbits(info_per_bit, inflevel=0.99):
+    """Get the number of mantissa bits to keep. To be used in xr_bitround and jl_bitround.
+
+    Inputs
+    ------
+    info_per_bit : dict
+      Information content of each bit for each variable in ds. This is the output from get_bitinformation.
+    inflevel : float or dict
+      Level of information that shall be preserved. Of type `float` if the
+      preserved information content should be equal across variables, otherwise of type `dict`.
+
+    Returns
+    -------
+    keepbits : dict
+      Number of mantissa bits to keep per variable
+
+    Example
+    -------
+    >>> ds = xr.tutorial.load_dataset("air_temperature")
+    >>> info_per_bit = bp.get_bitinformation(ds, dim="lon")
+    >>> bp.get_keepbits(info_per_bit)
+    {'air': 7}
+    >>> bp.get_keepbits(ds, info_per_bit, inflevel=0.99999999)
+    {'air': 14}
+    """
+    keepmantissabits = {}
+    for v, ic in info_per_bit.items():
+        # use something a bit bigger than maximum of the last 4 bits
+        threshold = 1.5 * np.max(ic[-4:])
+        ic_over_threshold = np.where(ic < threshold, 0, ic)
+        ic_over_threshold_cum = np.cumsum(ic_over_threshold)
+        # norm CDF
+        ic_over_threshold_cum_normed = ic_over_threshold_cum / ic_over_threshold_cum[-1]
+        il = inflevel[v] if isinstance(inflevel, dict) else inflevel
+        keepmantissabits[v] = (
+            np.argmax(ic_over_threshold_cum_normed > il) - NMBITS[len(ic)]
+        )
+    return keepmantissabits
+
+
+def _get_keepbits(ds, info_per_bit, inflevel=0.99):
+    """Get the amount of mantissa bits to keep for a given information content.
 
     Inputs
     ------
@@ -133,16 +176,16 @@ def get_keepbits(ds, info_per_bit, inflevel=0.99):
     Returns
     -------
     keepbits : dict
-      Number of bits to keep per variable
+      Number of mantissa bits to keep per variable
 
     Example
     -------
     >>> ds = xr.tutorial.load_dataset("air_temperature")
     >>> info_per_bit = bp.get_bitinformation(ds, dim="lon")
-    >>> bp.get_keepbits(ds, info_per_bit)
-    {'air': 16}
-    >>> bp.get_keepbits(ds, info_per_bit, inflevel=0.99999999)
-    {'air': 23}
+    >>> bp._get_keepbits(ds, info_per_bit)
+    {'air': 7}
+    >>> bp._get_keepbits(ds, info_per_bit, inflevel=0.99999999)
+    {'air': 14}
     """
 
     def get_inflevel(var, inflevel):
@@ -162,6 +205,8 @@ def get_keepbits(ds, info_per_bit, inflevel=0.99):
         }
         Main.config = config[var]
         keepbits[var] = jl.eval("get_keepbits(config)")
+        # keep mantissa bits
+        keepbits[var] = keepbits[var] - NMBITS[len(info_per_bit[var])]
     return keepbits
 
 
@@ -188,8 +233,8 @@ def plot_bitinformation(ds, bitinfo):
     nvars = len(bitinfo)
     varnames = bitinfo.keys()
 
-    infbits_dict = get_keepbits(ds, bitinfo, 0.99)
-    infbits100_dict = get_keepbits(ds, bitinfo, 0.999999999)
+    infbits_dict = get_keepbits(bitinfo, 0.99)
+    infbits100_dict = get_keepbits(bitinfo, 0.999999999)
 
     ICnan = np.zeros((nvars, 64))
     infbits = np.zeros(nvars)
