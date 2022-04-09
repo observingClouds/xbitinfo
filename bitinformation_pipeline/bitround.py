@@ -74,9 +74,10 @@ def jl_bitround(da, keepbits):
         >>> ds_bitrounded = bp.jl_bitround(ds, keepbits)
     """
     if isinstance(da, xr.Dataset):
+        da_bitrounded = da.copy()
         for v in da.data_vars:
-            da[v] = jl_bitround(da[v], keepbits)
-        return da
+            da_bitrounded[v] = jl_bitround(da[v], keepbits)
+        return da_bitrounded
 
     if isinstance(keepbits, int):
         keep = keepbits
@@ -86,7 +87,6 @@ def jl_bitround(da, keepbits):
             keep = keepbits[v]
         else:
             raise ValueError(f"name {v} not for in keepbits: {keepbits.keys()}")
-    # fails for .data
     da = xr.apply_ufunc(_jl_bitround, da, keep, dask="parallelized", keep_attrs=True)
     da.attrs["_QuantizeBitRoundNumberOfSignificantDigits"] = keep
     return da
