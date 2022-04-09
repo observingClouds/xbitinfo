@@ -59,7 +59,6 @@ def test_xr_bitround_dask(air_temperature, implementation, dask):
     assert is_dask_collection(ds_bitrounded) == dask
 
 
-
 @pytest.mark.parametrize("dtype", ["float16", "float32", "float64"])
 @pytest.mark.parametrize("keepbits", list(range(1, 23)))
 def test_bitround_xarray_julia_equal(air_temperature, dtype, keepbits):
