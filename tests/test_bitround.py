@@ -13,7 +13,7 @@ import bitinformation_pipeline as bp
 def test_xr_bitround(air_temperature, dtype, input_type, implementation, keepbits):
     """Test xr_bitround to different keepbits of type dict or int."""
     ds = air_temperature.astype(dtype)
-    i = 15
+    i = 2 if dtype == "float16" else 6
     if keepbits == "dict":
         keepbits = {v: i for v in ds.data_vars}
     elif keepbits == "int":
@@ -60,7 +60,7 @@ def test_xr_bitround_dask(air_temperature, implementation, dask):
 
 
 @pytest.mark.parametrize("dtype", ["float16", "float32", "float64"])
-@pytest.mark.parametrize("keepbits", list(range(1, 23)))
+@pytest.mark.parametrize("keepbits", list(range(1, 6)))
 def test_bitround_xarray_julia_equal(air_temperature, dtype, keepbits):
     """Test jl_bitround and xr_bitround yield identical results."""
     ds = air_temperature.astype(dtype)
