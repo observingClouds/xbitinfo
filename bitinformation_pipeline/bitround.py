@@ -34,10 +34,12 @@ def xr_bitround(da, keepbits):
         >>> ds_bitrounded = bp.xr_bitround(ds, keepbits)
     """
     if isinstance(da, xr.Dataset):
+        da_bitrounded = da.copy()
         for v in da.data_vars:
-            da[v] = xr_bitround(da[v], keepbits)
-        return da
+            da_bitrounded[v] = xr_bitround(da[v], keepbits)
+        return da_bitrounded
 
+    assert isinstance(da, xr.DataArray)
     assert da.dtype == "float32"
     if isinstance(keepbits, int):
         keep = keepbits
