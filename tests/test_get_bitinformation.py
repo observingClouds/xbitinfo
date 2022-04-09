@@ -82,9 +82,9 @@ def test_get_bitinformation_confidence():
     ds = xr.tutorial.load_dataset("air_temperature")
     dim = "lon"
     bitinfo_conf99 = bp.get_bitinformation(ds, dim=dim, confidence=0.99)
-    bitinfo_conf90 = bp.get_bitinformation(ds, dim=dim, confidence=0.9)
+    bitinfo_conf50 = bp.get_bitinformation(ds, dim=dim, confidence=0.5)
     bitinfo = bp.get_bitinformation(ds, dim=dim)
-    bitinfo_assert_different(bitinfo_conf99, bitinfo_conf90)
+    bitinfo_assert_different(bitinfo_conf99, bitinfo_conf50)
     bitinfo_assert_equal(bitinfo, bitinfo_conf99)
 
 
