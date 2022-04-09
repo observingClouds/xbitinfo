@@ -4,7 +4,7 @@ from numcodecs.bitround import BitRound
 from .bitinformation_pipeline import _jl_bitround
 
 
-def _bitround(data, keepbits):
+def _xr_bitround(data, keepbits):
     """Bitround for Arrays."""
     codec = BitRound(keepbits=keepbits)
     data = data.copy()  # otherwise overwrites the input
@@ -34,13 +34,11 @@ def xr_bitround(da, keepbits):
         >>> ds_bitrounded = bp.xr_bitround(ds, keepbits)
     """
     if isinstance(da, xr.Dataset):
-        da_bitrounded = da.copy()
         for v in da.data_vars:
-            da_bitrounded[v] = xr_bitround(da[v], keepbits)
-        return da_bitrounded
+            da[v] = xr_bitround(da[v], keepbits)
+        return da
 
     assert da.dtype == "float32"
-    da_bitrounded = da.copy()
     if isinstance(keepbits, int):
         keep = keepbits
     elif isinstance(keepbits, dict):
@@ -49,10 +47,9 @@ def xr_bitround(da, keepbits):
             keep = keepbits[v]
         else:
             raise ValueError(f"name {v} not for in keepbits: {keepbits.keys()}")
-    # fails for .data
-    da_bitrounded.values = _bitround(da.values, keep)
-    da_bitrounded.attrs["_QuantizeBitRoundNumberOfSignificantDigits"] = keep
-    return da_bitrounded
+    da = xr.apply_ufunc(_xr_bitround, da, keep, dask="parallelized", keep_attrs=True)
+    da.attrs["_QuantizeBitRoundNumberOfSignificantDigits"] = keep
+    return da
 
 
 def jl_bitround(da, keepbits):
@@ -77,12 +74,10 @@ def jl_bitround(da, keepbits):
         >>> ds_bitrounded = bp.jl_bitround(ds, keepbits)
     """
     if isinstance(da, xr.Dataset):
-        da_bitrounded = da.copy()
         for v in da.data_vars:
-            da_bitrounded[v] = jl_bitround(da[v], keepbits)
-        return da_bitrounded
+            da[v] = jl_bitround(da[v], keepbits)
+        return da
 
-    da_bitrounded = da.copy()
     if isinstance(keepbits, int):
         keep = keepbits
     elif isinstance(keepbits, dict):
@@ -92,8 +87,6 @@ def jl_bitround(da, keepbits):
         else:
             raise ValueError(f"name {v} not for in keepbits: {keepbits.keys()}")
     # fails for .data
-    da_bitrounded.values = _jl_bitround(da.values, keep)
-    da_bitrounded.attrs[
-        "_QuantizeBitRoundNumberOfSignificantDigits"
-    ] = keep  # document keepbits
-    return da_bitrounded
+    da = xr.apply_ufunc(_jl_bitround, da, keep, dask="parallelized", keep_attrs=True)
+    da.attrs["_QuantizeBitRoundNumberOfSignificantDigits"] = keep
+    return da
