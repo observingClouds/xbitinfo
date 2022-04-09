@@ -143,9 +143,9 @@ def get_keepbits(info_per_bit, inflevel=0.99):
     >>> ds = xr.tutorial.load_dataset("air_temperature")
     >>> info_per_bit = bp.get_bitinformation(ds, dim="lon")
     >>> bp.get_keepbits(info_per_bit)
-    {'air': 6}
+    {'air': 7}
     >>> bp.get_keepbits(info_per_bit, inflevel=0.99999999)
-    {'air': 13}
+    {'air': 14}
     """
     keepmantissabits = {}
     for v, ic in info_per_bit.items():
@@ -157,7 +157,7 @@ def get_keepbits(info_per_bit, inflevel=0.99):
         ic_over_threshold_cum_normed = ic_over_threshold_cum / ic_over_threshold_cum[-1]
         il = inflevel[v] if isinstance(inflevel, dict) else inflevel
         keepmantissabits[v] = (
-            np.argmax(ic_over_threshold_cum_normed > il) - NMBITS[len(ic)]
+            np.argmax(ic_over_threshold_cum_normed > il) + 1 - NMBITS[len(ic)]
         )
     return keepmantissabits
 
