@@ -143,7 +143,7 @@ def get_keepbits(info_per_bit, inflevel=0.99):
     >>> bp.get_keepbits(info_per_bit)
     {'air': 6}
     >>> bp.get_keepbits(info_per_bit, inflevel=0.99999999)
-    {'air': 14}
+    {'air': 13}
     """
     keepmantissabits = {}
     for v, ic in info_per_bit.items():
