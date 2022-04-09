@@ -217,17 +217,19 @@ def _jl_bitround(X, keepbits):
     return jl.eval("round!(X, keepbits)")
 
 
-def plot_bitinformation(ds, bitinfo):
-    """Plot bitwise information content
+def plot_bitinformation(bitinfo):
+    """Plot bitwise information content.
+
     Inputs
     ------
     bitinfo : dict
       Dictionary containing the bitwise information content for each variable
+
     Returns
     -------
     fig : matplotlib figure
-    """
 
+    """
     import cmcrameri.cm as cmc
 
     nvars = len(bitinfo)
