@@ -49,7 +49,8 @@ def xr_bitround(da, keepbits):
             keep = keepbits[v]
         else:
             raise ValueError(f"name {v} not for in keepbits: {keepbits.keys()}")
-    da = xr.apply_ufunc(_xr_bitround, da, keep, dask="parallelized", keep_attrs=True)
+    # da = xr.apply_ufunc(_xr_bitround, da, keep, dask="parallelized", keep_attrs=True)
+    da = xr.map_blocks(_xr_bitround, da, args=(keep))
     da.attrs["_QuantizeBitRoundNumberOfSignificantDigits"] = keep
     return da
 
