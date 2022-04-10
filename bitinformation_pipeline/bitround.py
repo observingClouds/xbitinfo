@@ -94,6 +94,11 @@ def jl_bitround(da, keepbits):
             keep = keepbits[v]
         else:
             raise ValueError(f"name {v} not for in keepbits: {keepbits.keys()}")
-    da = xr.apply_ufunc(_jl_bitround, da, keep, dask="parallelized", keep_attrs=True)
+    try:
+        da = da.map_blocks(_jl_bitround, args=[keep])
+    except Exception:
+        da = xr.apply_ufunc(
+            _jl_bitround, da, keep, dask="parallelized", keep_attrs=True
+        )
     da.attrs["_QuantizeBitRoundNumberOfSignificantDigits"] = keep
     return da
