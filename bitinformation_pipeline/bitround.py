@@ -51,7 +51,7 @@ def xr_bitround(da, keepbits):
             raise ValueError(f"name {v} not for in keepbits: {keepbits.keys()}")
     try:
         da = da.map_blocks(_xr_bitround, args=[keep])
-    except:
+    except Exception:
         da = xr.apply_ufunc(
             _xr_bitround, da, keep, dask="parallelized", keep_attrs=True
         )
