@@ -97,7 +97,5 @@ def jl_bitround(da, keepbits, inplace=False):
             raise ValueError(f"name {v} not for in keepbits: {keepbits.keys()}")
     # fails for .data
     da.values = _jl_bitround(da.values, keep)
-    da.attrs[
-        "_QuantizeBitRoundNumberOfSignificantDigits"
-    ] = keep  # document keepbits
+    da.attrs["_QuantizeBitRoundNumberOfSignificantDigits"] = keep  # document keepbits
     return da
