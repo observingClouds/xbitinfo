@@ -116,7 +116,7 @@ class RandomDask(Random):
     def setup(self, *args, **kwargs):
         requires_dask()
         _skip_slow()
-        self.get_data(keepbits=7, spatial_res=1, ntime=12 * 100)
+        self.get_data(keepbits=7, spatial_res=1, ntime=12 * 100)  # 100yr monthly 1deg
         self.ds = self.ds.chunk("auto")
 
 
