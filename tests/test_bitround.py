@@ -6,10 +6,11 @@ from xarray.testing import assert_allclose, assert_equal
 import bitinformation_pipeline as bp
 
 
+@pytest.mark.parametrize("inplace", [True, False])
 @pytest.mark.parametrize("implementation", ["xarray", "julia"])
 @pytest.mark.parametrize("input_type", ["Dataset", "DataArray"])
 @pytest.mark.parametrize("keepbits", ["dict", "int"])
-def test_xr_bitround(air_temperature, input_type, implementation, keepbits):
+def test_xr_bitround(air_temperature, input_type, implementation, keepbits, inplace):
     """Test xr_bitround to different keepbits of type dict or int."""
     ds = air_temperature
     i = 15
@@ -22,22 +23,26 @@ def test_xr_bitround(air_temperature, input_type, implementation, keepbits):
         ds = ds[v]
 
     bitround = bp.xr_bitround if implementation == "xarray" else bp.jl_bitround
-    ds_bitrounded = bitround(ds, keepbits)
+    ds_bitrounded = bitround(ds, keepbits, inplace=inplace)
 
-    def check(da, da_bitrounded):
-        # check close
-        assert_allclose(da, da_bitrounded, atol=0.01, rtol=0.01)
+    def check(da, da_bitrounded, inplace):
+        if inplace:
+            assert_equal(da, da_bitrounded)
+        else:
+            # close but
+            assert_allclose(da, da_bitrounded, atol=0.01, rtol=0.01)
+            # different after bitrounding
+            diff = (da - da_bitrounded).compute()
+            assert (diff != 0).any()
+
         # attrs set
         assert da_bitrounded.attrs["_QuantizeBitRoundNumberOfSignificantDigits"] == i
-        # different after bitrounding
-        diff = (da - da_bitrounded).compute()
-        assert (diff != 0).any()
 
     if input_type == "DataArray":
-        check(ds, ds_bitrounded)
+        check(ds, ds_bitrounded, inplace)
     else:
         for v in ds.data_vars:
-            check(ds[v], ds_bitrounded[v])
+            check(ds[v], ds_bitrounded[v], inplace)
 
 
 @pytest.mark.parametrize(
