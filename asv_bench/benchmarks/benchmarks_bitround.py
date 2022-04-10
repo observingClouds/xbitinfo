@@ -1,0 +1,131 @@
+import warnings
+
+import numpy as np
+import xarray as xr
+from dask.distributed import Client
+
+from bitinformation_pipeline import jl_bitround, xr_bitround
+
+from . import _skip_slow, ensure_loaded, parameterized, randn, requires_dask
+
+warnings.filterwarnings("ignore", message="Index.ravel returning ndarray is deprecated")
+
+
+class Base:
+    """
+    Benchmark time and peak memory of `xr_bitround` and `jl_bitround`.
+    """
+
+    # https://asv.readthedocs.io/en/stable/benchmarks.html
+    timeout = 300.0
+    repeat = 1
+    number = 5
+
+    def setup(self, *args, **kwargs):
+        raise NotImplementedError()
+
+    def time_xr_bitround(self, **kwargs):
+        """Take time for `xr_bitround`."""
+        self.info_per_bit = ensure_loaded(xr_bitround(self.ds, self.keepbits, **kwargs))
+
+    def peakmem_xr_bitround(self, **kwargs):
+        """Take memory peak for `xr_bitround`."""
+        self.info_per_bit = ensure_loaded(xr_bitround(self.ds, self.keepbits, **kwargs))
+
+    def time_jl_bitround(self, **kwargs):
+        """Take time for `jl_bitround`."""
+        self.info_per_bit = ensure_loaded(jl_bitround(self.ds, self.keepbits, **kwargs))
+
+    def peakmem_jl_bitround(self, **kwargs):
+        """Take memory peak for `jl_bitround`."""
+        self.info_per_bit = ensure_loaded(jl_bitround(self.ds, self.keepbits, **kwargs))
+
+
+class xr_tutorial_datasets(Base):
+    def setup(self, *args, **kwargs):
+        raise NotImplementedError()
+
+    def get_data(self, label="rasm", keepbits=7):
+        self.ds = xr.tutorial.load_dataset(label)
+        self.keepbits = keepbits
+
+
+class rasm(xr_tutorial_datasets):
+    def setup(self, *args, **kwargs):
+        self.get_data(label="rasm", keepbits=7, **kwargs)
+
+
+class air_temperature(xr_tutorial_datasets):
+    def setup(self, *args, **kwargs):
+        self.get_data(label="air_temperature", keepbits=7, **kwargs)
+
+
+class Random(Base):
+    """
+    Generate random input data.
+    """
+
+    def get_data(self, keepbits=7, spatial_res=5, ntime=120):
+        """Generates random number xr.Dataset."""
+        self.keepbits = keepbits
+        self.time = ntime
+        self.nx = 360 // spatial_res
+        self.ny = 360 // spatial_res
+
+        FRAC_NAN = 0.0
+
+        times = xr.cftime_range(start="2000", freq="MS", periods=ntime)
+        lons = xr.DataArray(
+            np.linspace(0.5, 359.5, self.nx),
+            dims=("lon",),
+            attrs={"units": "degrees east", "long_name": "longitude"},
+        )
+        lats = xr.DataArray(
+            np.linspace(-89.5, 89.5, self.ny),
+            dims=("lat",),
+            attrs={"units": "degrees north", "long_name": "latitude"},
+        )
+        self.ds = (
+            xr.DataArray(
+                randn(
+                    (self.ntime, self.nx, self.ny),
+                    frac_nan=FRAC_NAN,
+                ),
+                coords={
+                    "lon": lons,
+                    "lat": lats,
+                    "time": times,
+                },
+                dims=("lon", "lat", "time"),
+                name="var",
+                attrs={
+                    "units": "var units",
+                    "description": "a description",
+                    "history": "created for bitinformation_pipeline benchmarking",
+                },
+            )
+            .squeeze()
+            .to_dataset()
+        )
+
+    def setup(self, *args, **kwargs):
+        self.get_data(keepbits=7)
+
+
+class RandomDask(Random):
+    def setup(self, *args, **kwargs):
+        requires_dask()
+        _skip_slow()
+        self.get_data(keepbits=7, spatial_res=1, ntime=12 * 100)
+        self.ds = self.ds.chunk("auto")
+
+
+class RandomDaskClient(Random):
+    def setup(self, *args, **kwargs):
+        requires_dask()
+        _skip_slow()
+        self.client = Client()
+        super().setup(**kwargs)
+
+    def cleanup(self):
+        self.client.shutdown()
