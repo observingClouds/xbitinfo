@@ -397,7 +397,7 @@ class JsonCustomEncoder(json.JSONEncoder):
 if __name__ == "__main__":
     args = get_user_input()
     ds = xr.open_mfdataset(args.filename)
-    info_per_bit = get_bitinformation(ds)
+    info_per_bit = get_bitinformation(ds, axis=0)
     print(info_per_bit)
-    keepbits = get_keepbits(ds, info_per_bit)
+    keepbits = get_keepbits(info_per_bit)
     print(keepbits)
