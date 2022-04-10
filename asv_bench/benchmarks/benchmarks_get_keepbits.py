@@ -1,19 +1,14 @@
-import warnings
-
 import numpy as np
 import xarray as xr
-from dask.distributed import Client
 
-from bitinformation_pipeline import get_keepbits, jl_bitround
+from bitinformation_pipeline import get_keepbits
 
 from . import _skip_slow, ensure_loaded, parameterized, randn, requires_dask
 
-warnings.filterwarnings("ignore", message="Index.ravel returning ndarray is deprecated")
 
-
-class Base:
+class GetKeepbits:
     """
-    Benchmark time and peak memory of `get_keepbits` and `jl_bitround`.
+    Benchmark time and peak memory of `get_keepbits`.
     """
 
     # https://asv.readthedocs.io/en/stable/benchmarks.html
@@ -22,7 +17,7 @@ class Base:
     number = 5
 
     def setup(self, *args, **kwargs):
-        self.into_per_bit = {
+        self.info_per_bit = {
             "air": np.array(
                 [
                     0.00000000e00,

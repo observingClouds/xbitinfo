@@ -1,5 +1,3 @@
-import warnings
-
 import numpy as np
 import xarray as xr
 from dask.distributed import Client
@@ -7,8 +5,6 @@ from dask.distributed import Client
 from bitinformation_pipeline import jl_bitround, xr_bitround
 
 from . import _skip_slow, ensure_loaded, parameterized, randn, requires_dask
-
-warnings.filterwarnings("ignore", message="Index.ravel returning ndarray is deprecated")
 
 
 class Base:
@@ -65,10 +61,10 @@ class Random(Base):
     Generate random input data.
     """
 
-    def get_data(self, keepbits=7, spatial_res=5, ntime=120):
+    def get_data(self, keepbits=7, spatial_res=5, ntime=120, dtype="float32"):
         """Generates random number xr.Dataset."""
         self.keepbits = keepbits
-        self.time = ntime
+        self.ntime = ntime
         self.nx = 360 // spatial_res
         self.ny = 360 // spatial_res
 
@@ -88,7 +84,7 @@ class Random(Base):
         self.ds = (
             xr.DataArray(
                 randn(
-                    (self.ntime, self.nx, self.ny),
+                    (self.nx, self.ny, self.ntime),
                     frac_nan=FRAC_NAN,
                 ),
                 coords={
@@ -106,6 +102,7 @@ class Random(Base):
             )
             .squeeze()
             .to_dataset()
+            .astype(dtype)
         )
 
     def setup(self, *args, **kwargs):

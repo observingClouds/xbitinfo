@@ -1,13 +1,9 @@
-import warnings
-
 import numpy as np
 import xarray as xr
 
 from bitinformation_pipeline import get_bitinformation
 
 from . import _skip_slow, ensure_loaded, parameterized, randn, requires_dask
-
-warnings.filterwarnings("ignore", message="Index.ravel returning ndarray is deprecated")
 
 
 class Base:
@@ -60,7 +56,7 @@ class Random(Base):
     Generate random input data.
     """
 
-    def get_data(self, dim="x", spatial_res=5, ntime=120):
+    def get_data(self, dim="x", spatial_res=5, ntime=120, dtype="float32"):
         """Generates random number xr.Dataset."""
         self.dim = dim
         self.time = ntime
@@ -83,7 +79,7 @@ class Random(Base):
         self.ds = (
             xr.DataArray(
                 randn(
-                    (self.ntime, self.nx, self.ny),
+                    (self.nx, self.ny, self.ntime),
                     frac_nan=FRAC_NAN,
                 ),
                 coords={
@@ -101,6 +97,7 @@ class Random(Base):
             )
             .squeeze()
             .to_dataset()
+            .astype(dtype)
         )
 
     def setup(self, *args, **kwargs):
