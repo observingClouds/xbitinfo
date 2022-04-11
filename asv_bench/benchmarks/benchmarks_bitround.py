@@ -4,13 +4,13 @@ import xarray as xr
 from bitinformation_pipeline import jl_bitround, xr_bitround
 
 from . import (
+    _skip_julia_if_GHA,
     _skip_slow,
     ensure_loaded,
     parameterized,
     randn,
     requires_dask,
     requires_distributed,
-    skip_julia_if_GHA,
 )
 
 
@@ -37,13 +37,14 @@ class Base:
 
     def time_jl_bitround(self, **kwargs):
         """Take time for `jl_bitround`."""
-        skip_julia_if_GHA()
         self.info_per_bit = ensure_loaded(jl_bitround(self.ds, self.keepbits, **kwargs))
 
     def peakmem_jl_bitround(self, **kwargs):
         """Take memory peak for `jl_bitround`."""
-        skip_julia_if_GHA()
         self.info_per_bit = ensure_loaded(jl_bitround(self.ds, self.keepbits, **kwargs))
+
+    peakmem_jl_bitround.setup = _skip_julia_if_GHA()
+    time_jl_bitround.setup = _skip_julia_if_GHA()
 
 
 class xr_tutorial_datasets(Base):
@@ -131,7 +132,6 @@ class RandomDaskClient(Random):
         requires_distributed()
         from dask.distributed import Client
 
-        _skip_slow()
         self.client = Client()
         super().setup(**kwargs)
 

@@ -4,12 +4,12 @@ import xarray as xr
 from bitinformation_pipeline import get_bitinformation
 
 from . import (
+    _skip_julia_if_GHA,
     _skip_slow,
     ensure_loaded,
     parameterized,
     randn,
     requires_dask,
-    skip_julia_if_GHA,
 )
 
 
@@ -28,14 +28,12 @@ class Base:
 
     def time_get_bitinformation(self, **kwargs):
         """Take time for `get_bitinformation`."""
-        skip_julia_if_GHA()
         self.info_per_bit = ensure_loaded(
             get_bitinformation(self.ds, dim=self.dim, **kwargs)
         )
 
     def peakmem_get_bitinformation(self, **kwargs):
         """Take memory peak for `get_bitinformation`."""
-        skip_julia_if_GHA()
         self.info_per_bit = ensure_loaded(
             get_bitinformation(self.ds, dim=self.dim, **kwargs)
         )
@@ -46,6 +44,7 @@ class xr_tutorial_datasets(Base):
         raise NotImplementedError()
 
     def get_data(self, label="rasm", dim="x"):
+        _skip_julia_if_GHA()
         self.ds = xr.tutorial.load_dataset(label)
         self.dim = dim
 
@@ -110,4 +109,5 @@ class Random(Base):
         )
 
     def setup(self, *args, **kwargs):
+        _skip_julia_if_GHA()
         self.get_data()

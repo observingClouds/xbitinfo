@@ -32,11 +32,6 @@ def requires_distributed():
         raise NotImplementedError()
 
 
-def skip_julia_if_GHA():
-    if getpass.getuser() == "runner":
-        raise NotImplementedError("Skipping this test...")
-
-
 def randn(shape, frac_nan=None, chunks=None, seed=0):
     rng = np.random.RandomState(seed)
     if chunks is None:
@@ -84,4 +79,9 @@ def _skip_slow():
     >>> time_something.setup = _skip_slow
     """
     if os.environ.get("ASV_SKIP_SLOW", "0") == "1":
+        raise NotImplementedError("Skipping this test...")
+
+
+def _skip_julia_if_GHA():
+    if getpass.getuser() == "runner":
         raise NotImplementedError("Skipping this test...")
