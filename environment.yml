@@ -10,6 +10,7 @@ dependencies:
   - pooch
   - xarray
   - dask-core
+  - distributed
   - jupyterlab
   - netcdf4
   - zarr
