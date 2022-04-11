@@ -1,6 +1,6 @@
 import xarray as xr
-from numcodecs.bitround import BitRound
 from dask import is_dask_collection
+from numcodecs.bitround import BitRound
 
 from .bitinformation_pipeline import _jl_bitround
 
