@@ -130,6 +130,8 @@ class RandomDask(Random):
 class RandomDaskClient(Random):
     def setup(self, *args, **kwargs):
         requires_distributed()
+        requires_dask()
+        _skip_slow()
         from dask.distributed import Client
 
         self.client = Client()
