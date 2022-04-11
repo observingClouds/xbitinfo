@@ -33,28 +33,26 @@ def bitinfo_assert_different(bitinfo1, bitinfo2):
     assert not (bitinfo1_values == bitinfo2_values).all()
 
 
-def test_get_bitinformation():
-    """Test bp.get_bitinformation."""
+def test_get_bitinformation_returns_dict():
+    """Test bp.get_bitinformation returns dict."""
     ds = xr.tutorial.load_dataset("rasm")
-    bitinfo = bp.get_bitinformation(ds, dim=1)
-    print(bitinfo)
-    assert bitinfo
+    assert isinstance(bp.get_bitinformation(ds, axis=0), dict)
 
 
 def test_get_bitinformation_dim():
     """Test bp.get_bitinformation is sensitive to dim."""
     ds = xr.tutorial.load_dataset("rasm")
-    bitinfo1 = bp.get_bitinformation(ds, dim=1)
-    bitinfo3 = bp.get_bitinformation(ds, dim=3)
-    bitinfo_assert_different(bitinfo1, bitinfo3)
+    bitinfo0 = bp.get_bitinformation(ds, axis=0)
+    bitinfo2 = bp.get_bitinformation(ds, axis=2)
+    bitinfo_assert_different(bitinfo0, bitinfo2)
 
 
-def test_get_bitinformation_dim_string():
-    """Test bp.get_bitinformation undestands xarray dimension names."""
+def test_get_bitinformation_dim_string_equals_axis_int():
+    """Test bp.get_bitinformation undestands xarray dimension names the same way as axis as integers."""
     ds = xr.tutorial.load_dataset("rasm")
     bitinfox = bp.get_bitinformation(ds, dim="x")
-    bitinfo3 = bp.get_bitinformation(ds, dim=3)
-    bitinfo_assert_equal(bitinfox, bitinfo3)
+    bitinfo2 = bp.get_bitinformation(ds, axis=2)
+    bitinfo_assert_equal(bitinfox, bitinfo2)
 
 
 def test_get_bitinformation_masked_value():
