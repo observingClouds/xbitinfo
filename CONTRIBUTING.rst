@@ -128,7 +128,7 @@ Preparing Pull Requests
 
 #. Break your edits up into reasonably sized commits::
 
-    $ git commit -a -m "<commit message>"
+    $ git commit -m "<commit message>"
     $ git push -u
 
 #. Run all tests
