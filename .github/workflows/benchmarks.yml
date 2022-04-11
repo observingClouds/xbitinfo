@@ -31,8 +31,6 @@ jobs:
         shell: bash -l {0}
         run: |
           which conda
-          pwd
-          ls
           pip install asv
           pip install .
           julia install_julia_packages.jl
