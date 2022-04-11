@@ -3,6 +3,9 @@ __pycache__/
 *.py[cod]
 *$py.class
 
+*.nc
+asv_bench/.asv/
+
 # C extensions
 *.so
 
