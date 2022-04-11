@@ -1,4 +1,5 @@
 # https://github.com/pydata/xarray/blob/master/asv_bench/benchmarks/__init__.py
+import getpass
 import itertools
 import os
 
@@ -32,10 +33,8 @@ def requires_distributed():
 
 
 def skip_julia_if_GHA():
-    import getpass
-
     if getpass.getuser() == "runner":
-        raise NotImplementedError()
+        raise NotImplementedError("Skipping this test...")
 
 
 def randn(shape, frac_nan=None, chunks=None, seed=0):
