@@ -35,7 +35,7 @@ def skip_julia_if_GHA():
     import getpass
 
     if getpass.getuser() == "runner":
-        raise NotImplementedError
+        raise NotImplementedError()
 
 
 def randn(shape, frac_nan=None, chunks=None, seed=0):
