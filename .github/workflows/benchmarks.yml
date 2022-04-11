@@ -32,6 +32,8 @@ jobs:
         run: |
           pip install asv
           pip install .
+          pwd
+          julia install_julia_packages.jl
           sudo apt-get update -y
       - name: Run benchmarks
         shell: bash -l {0}
