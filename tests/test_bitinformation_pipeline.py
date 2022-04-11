@@ -11,7 +11,7 @@ def test_full():
     ds = xr.tutorial.load_dataset(label)
     # bitinformation_pipeline
     bitinfo = bp.get_bitinformation(ds, dim="lon")
-    keepbits = bp.get_keepbits(ds, bitinfo)
+    keepbits = bp.get_keepbits(bitinfo)
     ds_bitrounded = bp.jl_bitround(ds, keepbits)
     # save
     ds.to_netcdf(f"{label}.nc")
