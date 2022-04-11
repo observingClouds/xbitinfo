@@ -1,5 +1,6 @@
 import xarray as xr
 from numcodecs.bitround import BitRound
+from dask import is_dask_collection
 
 from .bitinformation_pipeline import _jl_bitround
 
@@ -22,7 +23,7 @@ def xr_bitround(da, keepbits, map_blocks=False):
     keepbits : int or dict of {str: int}
       how many bits to keep. int
     map_blocks : bool
-      if True, use xr.map_blocks, else use xr.apply_ufunc. Defaults to False.
+      if True and da is chunked, use xr.map_blocks, else use xr.apply_ufunc. Defaults to False.
 
     Returns
     -------
@@ -51,7 +52,7 @@ def xr_bitround(da, keepbits, map_blocks=False):
             keep = keepbits[v]
         else:
             raise ValueError(f"name {v} not for in keepbits: {keepbits.keys()}")
-    if map_blocks:
+    if map_blocks and is_dask_collection(da):
         da = da.map_blocks(_xr_bitround, args=[keep], template=da)
     else:
         da = xr.apply_ufunc(
@@ -71,7 +72,7 @@ def jl_bitround(da, keepbits, map_blocks=False):
     keepbits : int or dict of {str: int}
       how many bits to keep. int
     map_blocks : bool
-      if True, use xr.map_blocks, else use xr.apply_ufunc. Defaults to False.
+      if True and da is chunked, use xr.map_blocks, else use xr.apply_ufunc. Defaults to False.
 
     Returns
     -------
@@ -98,7 +99,7 @@ def jl_bitround(da, keepbits, map_blocks=False):
             keep = keepbits[v]
         else:
             raise ValueError(f"name {v} not for in keepbits: {keepbits.keys()}")
-    if map_blocks:
+    if map_blocks and is_dask_collection(is_dask_collection):
         da = da.map_blocks(_jl_bitround, args=[keep], template=da)
     else:
         da = xr.apply_ufunc(
