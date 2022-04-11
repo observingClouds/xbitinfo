@@ -40,10 +40,12 @@ def test_xr_bitround(air_temperature, input_type, implementation, keepbits):
             check(ds[v], ds_bitrounded[v])
 
 
+            
+@pytest.mark.parametrize("map_blocks", [True, False])
 @pytest.mark.parametrize("dask", [True, False])
 @pytest.mark.parametrize("implementation", ["xarray", "julia"])
-def test_xr_bitround_dask(air_temperature, implementation, dask):
-    """Test xr_bitround keeps dask."""
+def test_bitround_dask(air_temperature, implementation, dask, map_blocks):
+    """Test xr_bitround and jl_bitround keeps dask."""
     ds = air_temperature
     i = 15
     keepbits = i
@@ -51,7 +53,7 @@ def test_xr_bitround_dask(air_temperature, implementation, dask):
         ds = ds.chunk("auto")
 
     bitround = bp.xr_bitround if implementation == "xarray" else bp.jl_bitround
-    ds_bitrounded = bitround(ds, keepbits)
+    ds_bitrounded = bitround(ds, keepbits, map_blocks=map_blocks)
     assert is_dask_collection(ds_bitrounded) == dask
 
 
