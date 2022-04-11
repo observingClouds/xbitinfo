@@ -1,10 +1,16 @@
 import numpy as np
 import xarray as xr
-from dask.distributed import Client
 
 from bitinformation_pipeline import jl_bitround, xr_bitround
 
-from . import _skip_slow, ensure_loaded, parameterized, randn, requires_dask
+from . import (
+    _skip_slow,
+    ensure_loaded,
+    parameterized,
+    randn,
+    requires_dask,
+    requires_distributed,
+)
 
 
 class Base:
@@ -119,7 +125,9 @@ class RandomDask(Random):
 
 class RandomDaskClient(Random):
     def setup(self, *args, **kwargs):
-        requires_dask()
+        requires_distributed()
+        from dask.distributed import Client
+
         _skip_slow()
         self.client = Client()
         super().setup(**kwargs)

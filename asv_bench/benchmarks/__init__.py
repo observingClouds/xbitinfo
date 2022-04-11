@@ -24,6 +24,13 @@ def requires_dask():
         raise NotImplementedError
 
 
+def requires_distributed():
+    try:
+        import dask.distributed  # noqa
+    except ImportError:
+        raise NotImplementedError
+
+
 def randn(shape, frac_nan=None, chunks=None, seed=0):
     rng = np.random.RandomState(seed)
     if chunks is None:

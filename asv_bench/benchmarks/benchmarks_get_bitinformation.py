@@ -59,7 +59,7 @@ class Random(Base):
     def get_data(self, dim="x", spatial_res=5, ntime=120, dtype="float32"):
         """Generates random number xr.Dataset."""
         self.dim = dim
-        self.time = ntime
+        self.ntime = ntime
         self.nx = 360 // spatial_res
         self.ny = 360 // spatial_res
 
