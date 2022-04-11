@@ -13,7 +13,7 @@ import bitinformation_pipeline as bp
 def test_xr_bitround(air_temperature, dtype, input_type, implementation, keepbits):
     """Test xr_bitround to different keepbits of type dict or int."""
     ds = air_temperature.astype(dtype)
-    i = 2 if dtype == "float16" else 6
+    i = 6
     if keepbits == "dict":
         keepbits = {v: i for v in ds.data_vars}
     elif keepbits == "int":
@@ -28,7 +28,7 @@ def test_xr_bitround(air_temperature, dtype, input_type, implementation, keepbit
     def check(da, da_bitrounded):
         # check close
         assert_allclose(
-            da, da_bitrounded, atol=2.0 if dtype == "float16" else 0.01, rtol=0.01
+            da, da_bitrounded, atol=0.01, rtol=0.01
         )
         # attrs set
         assert da_bitrounded.attrs["_QuantizeBitRoundNumberOfSignificantDigits"] == i
