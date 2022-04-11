@@ -31,6 +31,7 @@ jobs:
         shell: bash -l {0}
         run: |
           pip install asv
+          pip install .
           sudo apt-get update -y
       - name: Run benchmarks
         shell: bash -l {0}
