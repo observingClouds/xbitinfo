@@ -52,7 +52,7 @@ def xr_bitround(da, keepbits, map_blocks=False):
         else:
             raise ValueError(f"name {v} not for in keepbits: {keepbits.keys()}")
     if map_blocks:
-        da = da.map_blocks(_xr_bitround, args=[keep])
+        da = da.map_blocks(_xr_bitround, args=[keep], template=da)
     else:
         da = xr.apply_ufunc(
             _xr_bitround, da, keep, dask="parallelized", keep_attrs=True
@@ -99,7 +99,7 @@ def jl_bitround(da, keepbits, map_blocks=False):
         else:
             raise ValueError(f"name {v} not for in keepbits: {keepbits.keys()}")
     if map_blocks:
-        da = da.map_blocks(_jl_bitround, args=[keep])
+        da = da.map_blocks(_jl_bitround, args=[keep], template=da)
     else:
         da = xr.apply_ufunc(
             _jl_bitround, da, keep, dask="parallelized", keep_attrs=True
