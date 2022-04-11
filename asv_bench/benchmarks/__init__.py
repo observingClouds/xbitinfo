@@ -31,7 +31,7 @@ def requires_distributed():
         raise NotImplementedError
 
 
-def skip_if_GHA():
+def skip_julia_if_GHA():
     import getpass
 
     if getpass.get_user() == "runner":
