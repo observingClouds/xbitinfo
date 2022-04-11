@@ -19,6 +19,9 @@ jl.using("BitInformation")
 jl.eval("include(Main.path)")
 
 
+NMBITS = {64: 12, 32: 9, 16: 6}  # number of non mantissa bits for given dtype
+
+
 def get_user_input():
     parser = argparse.ArgumentParser()
     parser.add_argument(
@@ -31,13 +34,17 @@ def get_user_input():
     return args
 
 
-def get_bitinformation(ds, label=None, overwrite=False, **kwargs):
+def get_bitinformation(ds, dim=None, axis=None, label=None, overwrite=False, **kwargs):
     """Wrap BitInformation.bitinformation().
 
     Inputs
     ------
     ds : xr.Dataset
       input netcdf to analyse
+    dim : str
+      Dimension over which to apply mean. Only one of the `dim` and `axis` arguments can be supplied.
+    axis : int
+      Axis over which to apply mean. Only one of the `dim` and `axis` arguments can be supplied.
     label : str
       label of the json to serialize bitinfo
     overwrite : bool
@@ -78,25 +85,47 @@ def get_bitinformation(ds, label=None, overwrite=False, **kwargs):
             if info_per_bit is None:
                 calc = True
     if calc:
+        # check keywords
+        if (axis is None and dim is None) or (axis is not None and dim is not None):
+            raise ValueError(
+                "Please provide either `axis` or `dim` but not both or none."
+            )
+        if axis:
+            if not isinstance(axis, int):
+                raise ValueError(f"Please provide `axis` as `int`, found {type(axis)}.")
+        if dim:
+            if not isinstance(dim, str):
+                raise ValueError(f"Please provide `dim` as `str`, found {type(dim)}.")
+        if "mask" in kwargs:
+            raise ValueError(
+                "`bitinformation_pipeline` does not wrap the mask argument. Mask your xr.Dataset with NaNs instead."
+            )
+
         info_per_bit = {}
         for var in ds.data_vars:
             X = ds[var].values
             Main.X = X
-            if "mask" in kwargs:
-                raise ValueError(
-                    "bitinformation_pipeline does not wrap the mask argument. Mask your xr.Dataset with NaNs instead."
-                )
-            if "dim" in kwargs:
-                if isinstance(kwargs["dim"], str):
-                    kwargs["dim"] = ds[var].get_axis_num(kwargs["dim"]) + 1
+            if axis is not None:
+                # in julia convention axis + 1
+                dim = axis + 1
+            if isinstance(dim, str):
+                # in julia convention axis + 1
+                dim = ds[var].get_axis_num(dim) + 1
+            assert isinstance(dim, int)
+            Main.dim = dim
             if "masked_value" not in kwargs:
                 kwargs[
                     "masked_value"
                 ] = f"convert({str(ds[var].dtype).capitalize()},NaN)"
-            kwargs_str = ", " + ", ".join([f"{k}={v}" for k, v in kwargs.items()])
+            if "set_zero_insignificant" not in kwargs:
+                kwargs["set_zero_insignificant"] = True
+            kwargs_str = ", ".join([f"{k}={v}" for k, v in kwargs.items()])
+            # convert python to julia bool
             kwargs_str = kwargs_str.replace("True", "true").replace("False", "false")
-            logging.debug(f"get_bitinformation(X{kwargs_str})")
-            info_per_bit[var] = jl.eval(f"get_bitinformation(X{kwargs_str})")
+            logging.debug(f"get_bitinformation(X, dim={dim}, {kwargs_str})")
+            info_per_bit[var] = jl.eval(
+                f"get_bitinformation(X, dim={dim}, {kwargs_str})"
+            )
         if label is not None:
             with open(label + ".json", "w") as f:
                 logging.debug(f"Save bitinformation to {label+'.json'}")
@@ -117,8 +146,50 @@ def load_bitinformation(label):
         return None
 
 
-def get_keepbits(ds, info_per_bit, inflevel=0.99):
-    """Get the amount of bits to keep for a given information content.
+def get_keepbits(info_per_bit, inflevel=0.99):
+    """Get the number of mantissa bits to keep. To be used in xr_bitround and jl_bitround.
+
+    Inputs
+    ------
+    info_per_bit : dict
+      Information content of each bit for each variable in ds. This is the output from get_bitinformation.
+    inflevel : float or dict
+      Level of information that shall be preserved. Of type `float` if the
+      preserved information content should be equal across variables, otherwise of type `dict`.
+
+    Returns
+    -------
+    keepbits : dict
+      Number of mantissa bits to keep per variable
+
+    Example
+    -------
+    >>> ds = xr.tutorial.load_dataset("air_temperature")
+    >>> info_per_bit = bp.get_bitinformation(ds, dim="lon")
+    >>> bp.get_keepbits(info_per_bit)
+    {'air': 7}
+    >>> bp.get_keepbits(info_per_bit, inflevel=0.99999999)
+    {'air': 14}
+    """
+    keepmantissabits = {}
+    for v, ic in info_per_bit.items():
+        # set below threshold to zero
+        # use something a bit bigger than maximum of the last 4 bits
+        threshold = 1.5 * np.max(ic[-4:])
+        ic_over_threshold = np.where(ic < threshold, 0, ic)
+        ic_over_threshold_cum = np.cumsum(ic_over_threshold)  # CDF
+        # normed CDF
+        ic_over_threshold_cum_normed = ic_over_threshold_cum / ic_over_threshold_cum[-1]
+        # return mantissabits to keep therefore subtract sign and exponent bits
+        il = inflevel[v] if isinstance(inflevel, dict) else inflevel
+        keepmantissabits[v] = (
+            np.argmax(ic_over_threshold_cum_normed > il) + 1 - NMBITS[len(ic)]
+        )
+    return keepmantissabits
+
+
+def _get_keepbits(ds, info_per_bit, inflevel=0.99):
+    """Get the amount of mantissa bits to keep for a given information content.
 
     Inputs
     ------
@@ -133,16 +204,16 @@ def get_keepbits(ds, info_per_bit, inflevel=0.99):
     Returns
     -------
     keepbits : dict
-      Number of bits to keep per variable
+      Number of mantissa bits to keep per variable
 
     Example
     -------
     >>> ds = xr.tutorial.load_dataset("air_temperature")
     >>> info_per_bit = bp.get_bitinformation(ds, dim="lon")
-    >>> bp.get_keepbits(ds, info_per_bit)
-    {'air': 16}
-    >>> bp.get_keepbits(ds, info_per_bit, inflevel=0.99999999)
-    {'air': 23}
+    >>> bp._get_keepbits(ds, info_per_bit)
+    {'air': 7}
+    >>> bp._get_keepbits(ds, info_per_bit, inflevel=0.99999999)
+    {'air': 14}
     """
 
     def get_inflevel(var, inflevel):
@@ -162,6 +233,8 @@ def get_keepbits(ds, info_per_bit, inflevel=0.99):
         }
         Main.config = config[var]
         keepbits[var] = jl.eval("get_keepbits(config)")
+        # keep mantissa bits
+        keepbits[var] = keepbits[var] - NMBITS[len(info_per_bit[var])]
     return keepbits
 
 
@@ -172,24 +245,26 @@ def _jl_bitround(X, keepbits):
     return jl.eval("round!(X, keepbits)")
 
 
-def plot_bitinformation(ds, bitinfo):
-    """Plot bitwise information content
+def plot_bitinformation(bitinfo):
+    """Plot bitwise information content.
+
     Inputs
     ------
     bitinfo : dict
       Dictionary containing the bitwise information content for each variable
+
     Returns
     -------
     fig : matplotlib figure
-    """
 
+    """
     import cmcrameri.cm as cmc
 
     nvars = len(bitinfo)
     varnames = bitinfo.keys()
 
-    infbits_dict = get_keepbits(ds, bitinfo, 0.99)
-    infbits100_dict = get_keepbits(ds, bitinfo, 0.999999999)
+    infbits_dict = get_keepbits(bitinfo, 0.99)
+    infbits100_dict = get_keepbits(bitinfo, 0.999999999)
 
     ICnan = np.zeros((nvars, 64))
     infbits = np.zeros(nvars)
@@ -198,8 +273,9 @@ def plot_bitinformation(ds, bitinfo):
     for v, var in enumerate(varnames):
         ic = bitinfo[var]
         ICnan[v, : len(ic)] = ic
-        infbits[v] = infbits_dict[var]
-        infbits100[v] = infbits100_dict[var]
+        # infbits are all bits, infbits_dict were mantissa bits
+        infbits[v] = infbits_dict[var] + NMBITS[len(ic)]
+        infbits100[v] = infbits100_dict[var] + NMBITS[len(ic)]
     ICnan = np.where(ICnan == 0, np.nan, ICnan)
     ICcsum = np.nancumsum(ICnan, axis=1)
 
@@ -345,7 +421,7 @@ class JsonCustomEncoder(json.JSONEncoder):
 if __name__ == "__main__":
     args = get_user_input()
     ds = xr.open_mfdataset(args.filename)
-    info_per_bit = get_bitinformation(ds)
+    info_per_bit = get_bitinformation(ds, axis=0)
     print(info_per_bit)
-    keepbits = get_keepbits(ds, info_per_bit)
+    keepbits = get_keepbits(info_per_bit)
     print(keepbits)

@@ -30,7 +30,7 @@ def xr_bitround(da, keepbits):
     -------
         >>> ds = xr.tutorial.load_dataset("air_temperature")
         >>> info_per_bit = bp.get_bitinformation(ds, dim="lon")
-        >>> keepbits = bp.get_keepbits(ds, info_per_bit, 0.99)
+        >>> keepbits = bp.get_keepbits(info_per_bit, 0.99)
         >>> ds_bitrounded = bp.xr_bitround(ds, keepbits)
     """
     if isinstance(da, xr.Dataset):
@@ -72,7 +72,7 @@ def jl_bitround(da, keepbits):
     -------
         >>> ds = xr.tutorial.load_dataset("air_temperature")
         >>> info_per_bit = bp.get_bitinformation(ds, dim="lon")
-        >>> keepbits = bp.get_keepbits(ds, info_per_bit, 0.99)
+        >>> keepbits = bp.get_keepbits(info_per_bit, 0.99)
         >>> ds_bitrounded = bp.jl_bitround(ds, keepbits)
     """
     if isinstance(da, xr.Dataset):
