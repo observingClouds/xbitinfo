@@ -3,7 +3,14 @@ import xarray as xr
 
 from bitinformation_pipeline import get_bitinformation
 
-from . import _skip_slow, ensure_loaded, parameterized, randn, requires_dask
+from . import (
+    _skip_slow,
+    ensure_loaded,
+    parameterized,
+    randn,
+    requires_dask,
+    skip_julia_if_GHA,
+)
 
 
 class Base:
@@ -21,12 +28,14 @@ class Base:
 
     def time_get_bitinformation(self, **kwargs):
         """Take time for `get_bitinformation`."""
+        skip_julia_if_GHA()
         self.info_per_bit = ensure_loaded(
             get_bitinformation(self.ds, dim=self.dim, **kwargs)
         )
 
     def peakmem_get_bitinformation(self, **kwargs):
         """Take memory peak for `get_bitinformation`."""
+        skip_julia_if_GHA()
         self.info_per_bit = ensure_loaded(
             get_bitinformation(self.ds, dim=self.dim, **kwargs)
         )

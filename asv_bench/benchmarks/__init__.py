@@ -31,6 +31,13 @@ def requires_distributed():
         raise NotImplementedError
 
 
+def skip_if_GHA():
+    import getpass
+
+    if getpass.get_user() == "runner":
+        raise NotImplementedError
+
+
 def randn(shape, frac_nan=None, chunks=None, seed=0):
     rng = np.random.RandomState(seed)
     if chunks is None:

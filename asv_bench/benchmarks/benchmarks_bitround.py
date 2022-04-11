@@ -10,6 +10,7 @@ from . import (
     randn,
     requires_dask,
     requires_distributed,
+    skip_julia_if_GHA,
 )
 
 
@@ -36,10 +37,12 @@ class Base:
 
     def time_jl_bitround(self, **kwargs):
         """Take time for `jl_bitround`."""
+        skip_julia_if_GHA()
         self.info_per_bit = ensure_loaded(jl_bitround(self.ds, self.keepbits, **kwargs))
 
     def peakmem_jl_bitround(self, **kwargs):
         """Take memory peak for `jl_bitround`."""
+        skip_julia_if_GHA()
         self.info_per_bit = ensure_loaded(jl_bitround(self.ds, self.keepbits, **kwargs))
 
 
