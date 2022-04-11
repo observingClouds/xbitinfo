@@ -21,14 +21,14 @@ def requires_dask():
     try:
         import dask  # noqa
     except ImportError:
-        raise NotImplementedError
+        raise NotImplementedError()
 
 
 def requires_distributed():
     try:
         import dask.distributed  # noqa
     except ImportError:
-        raise NotImplementedError
+        raise NotImplementedError()
 
 
 def skip_julia_if_GHA():
