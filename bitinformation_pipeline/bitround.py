@@ -43,7 +43,6 @@ def xr_bitround(da, keepbits, map_blocks=False):
         return da_bitrounded
 
     assert isinstance(da, xr.DataArray)
-    assert da.dtype == "float32"
     if isinstance(keepbits, int):
         keep = keepbits
     elif isinstance(keepbits, dict):
@@ -91,6 +90,7 @@ def jl_bitround(da, keepbits, map_blocks=False):
             da_bitrounded[v] = jl_bitround(da[v], keepbits, map_blocks=map_blocks)
         return da_bitrounded
 
+    assert isinstance(da, xr.DataArray)
     if isinstance(keepbits, int):
         keep = keepbits
     elif isinstance(keepbits, dict):
