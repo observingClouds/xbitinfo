@@ -103,7 +103,7 @@ Preparing Pull Requests
    ``pre-commit`` automatically beautifies the code, makes it more
    maintainable and catches syntax errors. Afterwards ``pre-commit`` will run
    whenever you commit.
-
+   
    Now you have an environment called ``bitinfo`` that you can work in.
    You’ll need to make sure to activate that environment next time you want
    to use it after closing the terminal or your system.
@@ -134,8 +134,8 @@ Preparing Pull Requests
 #. Run all tests
 
    Once commits are pushed to ``origin``, GitHub Actions runs continuous
-   integration of all tests with `pytest <https://docs.pytest.org/en/7.1.x/getting-started.html#get-started>`__ on all new commits. However, you are already
-   run tests locally::
+   integration of all tests with `pytest <https://docs.pytest.org/en/7.1.x/getting-started.html#get-started>`__ on all new commits.
+   However, you can already run tests locally::
 
     $ pytest  # all
     $ pytest tests/test_bitround.py::test_xr_bitround_dask  # specific tests
