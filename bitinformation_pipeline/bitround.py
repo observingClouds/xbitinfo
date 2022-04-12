@@ -5,7 +5,7 @@ from numcodecs.bitround import BitRound
 from .bitinformation_pipeline import _jl_bitround
 
 
-def _xr_bitround(data, keepbits):
+def _np_bitround(data, keepbits):
     """Bitround for Arrays."""
     codec = BitRound(keepbits=keepbits)
     data = data.copy()  # otherwise overwrites the input
@@ -52,10 +52,10 @@ def xr_bitround(da, keepbits, map_blocks=False):
         else:
             raise ValueError(f"name {v} not for in keepbits: {keepbits.keys()}")
     if map_blocks and is_dask_collection(da):
-        da = da.map_blocks(_xr_bitround, args=[keep], template=da)
+        da = da.map_blocks(_np_bitround, args=[keep], template=da)
     else:
         da = xr.apply_ufunc(
-            _xr_bitround, da, keep, dask="parallelized", keep_attrs=True
+            _np_bitround, da, keep, dask="parallelized", keep_attrs=True
         )
     da.attrs["_QuantizeBitRoundNumberOfSignificantDigits"] = keep
     return da
