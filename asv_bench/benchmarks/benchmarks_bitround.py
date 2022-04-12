@@ -127,31 +127,24 @@ class RandomDask(Random):
 
     def time_xr_bitround_map_blocks(self, **kwargs):
         """Take time for `xr_bitround(map_blocks=True)`."""
-        ensure_loaded(
-            xr_bitround(self.ds, self.keepbits, map_blocks=True, **kwargs)
-        )
+        ensure_loaded(xr_bitround(self.ds, self.keepbits, map_blocks=True, **kwargs))
 
     def peakmem_xr_bitround_map_blocks(self, **kwargs):
         """Take memory peak for `xr_bitround(map_blocks=True)`."""
-        ensure_loaded(
-            xr_bitround(self.ds, self.keepbits, map_blocks=True, **kwargs)
-        )
+        ensure_loaded(xr_bitround(self.ds, self.keepbits, map_blocks=True, **kwargs))
 
     def time_jl_bitround_map_blocks(self, **kwargs):
         """Take time for `jl_bitround(map_blocks=True)`."""
-        ensure_loaded(
-            jl_bitround(self.ds, self.keepbits, map_blocks=True, **kwargs)
-        )
+        ensure_loaded(jl_bitround(self.ds, self.keepbits, map_blocks=True, **kwargs))
 
     def peakmem_jl_bitround_map_blocks(self, **kwargs):
         """Take memory peak for `jl_bitround(map_blocks=True)`."""
-        ensure_loaded(
-            jl_bitround(self.ds, self.keepbits, map_blocks=True, **kwargs)
-        )
+        ensure_loaded(jl_bitround(self.ds, self.keepbits, map_blocks=True, **kwargs))
 
     peakmem_jl_bitround_map_blocks.setup = _skip_julia_if_GHA
     time_jl_bitround_map_blocks.setup = _skip_julia_if_GHA
-        
+
+
 class RandomDaskClient(RandomDask):
     def setup(self, *args, **kwargs):
         requires_distributed()
