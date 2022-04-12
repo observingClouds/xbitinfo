@@ -76,14 +76,15 @@ Ready to contribute? Here's how to set up `bitinformation_pipeline` for local de
 
    Now you can make your changes locally.
 
-5. When you're done making changes, check that your changes pass some tests. For linting, please install the pre-commit hooks:
+5. When you're done making changes, check that your changes pass some tests. For linting, please install the pre-commit hooks::
 
     $ pip install pre-commit
     $ pre-commit install
 
    When you commit your changes, some tests incl. flake8, black, isort are triggered automatically. The CI on github will do these checks as well.
 
-6. In addition, the functionality of the code needs to be tested with
+6. In addition, the functionality of the code needs to be tested with::
+
     $ pytest
 
 7. Commit your changes and push your branch to GitHub::
