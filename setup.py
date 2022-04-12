@@ -30,7 +30,7 @@ class PostInstallCommand(install):
 with open("README.md") as readme_file:
     readme = readme_file.read()
 
-with open("HISTORY.rst") as history_file:
+with open("CHANGELOG.rst") as history_file:
     history = history_file.read()
 
 with open("requirements.txt") as f:
