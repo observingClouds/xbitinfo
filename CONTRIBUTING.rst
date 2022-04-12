@@ -1,130 +1,209 @@
-.. highlight:: shell
+=====================
+Contribution Guide
+=====================
 
-============
-Contributing
-============
+Contributions are highly welcomed and appreciated. Every little help counts,
+so do not hesitate! You can make a high impact on ``bitinformation_pipeline`` just by using
+it and reporting `issues <https://github.com/observingClouds/bitinformation_pipeline/issues>`__.
 
-Contributions are welcome, and they are greatly appreciated! Every little bit
-helps, and credit will always be given.
+The following sections cover some general guidelines
+regarding development in ``bitinformation_pipeline`` for maintainers and contributors.
 
-You can contribute in many ways:
 
-Types of Contributions
-----------------------
+Nothing here is set in stone and can't be changed.
+Feel free to suggest improvements or changes in the workflow.
 
-Report Bugs
-~~~~~~~~~~~
 
-Report bugs at https://github.com/observingClouds/bitinformation_pipeline/issues.
+.. _submitfeedback:
+
+Feature requests and feedback
+-----------------------------
+
+We are eager to hear about your requests for new features and any suggestions
+about the API, infrastructure, and so on. Feel free to submit these as
+`issues <https://github.com/observingClouds/bitinformation_pipeline/issues/new>`__ with the label
+``"enhancement"``.
+
+Please make sure to explain in detail how the feature should work and keep the
+scope as narrow as possible. This will make it easier to implement in small
+PRs.
+
+
+.. _reportbugs:
+
+Report bugs
+-----------
+
+Report bugs for ``bitinformation_pipeline`` in the
+`issue tracker <https://github.com/observingClouds/bitinformation_pipeline/issues>`_ with the
+label "bug".
 
 If you are reporting a bug, please include:
 
-* Your operating system name and version.
-* Any details about your local setup that might be helpful in troubleshooting.
-* Detailed steps to reproduce the bug.
+* Any details about your local setup that might be helpful in troubleshooting,
+  specifically the Python interpreter version, installed libraries, and
+  ``bitinformation_pipeline`` version.
+* Detailed steps `how to reproduce the bug <https://matthewrocklin.com/blog/work/2018/02/28/minimal-bug-reports>__`
 
-Fix Bugs
-~~~~~~~~
+If you can write a demonstration test that currently fails but should pass,
+that is a very useful commit to make as well, even if you cannot fix the bug
+itself.
 
-Look through the GitHub issues for bugs. Anything tagged with "bug" and "help
-wanted" is open to whoever wants to implement it.
 
-Implement Features
-~~~~~~~~~~~~~~~~~~
+.. _fixbugs:
 
-Look through the GitHub issues for features. Anything tagged with "enhancement"
-and "help wanted" is open to whoever wants to implement it.
+Bug Fix
+-------
 
-Write Documentation
-~~~~~~~~~~~~~~~~~~~
+Look through the
+`GitHub issues for bugs <https://github.com/observingClouds/bitinformation_pipeline/labels/bug>`_.
 
-bitinformation_pipeline could always use more documentation, whether as part of the
-official bitinformation_pipeline docs, in docstrings, or even on the web in blog posts,
-articles, and such.
+Talk to developers to find out how you can fix specific bugs.
 
-Submit Feedback
-~~~~~~~~~~~~~~~
 
-The best way to send feedback is to file an issue at https://github.com/observingClouds/bitinformation_pipeline/issues.
 
-If you are proposing a feature:
-
-* Explain in detail how it would work.
-* Keep the scope as narrow as possible, to make it easier to implement.
-* Remember that this is a volunteer-driven project, and that contributions
-  are welcome :)
-
-Get Started!
-------------
-
-Ready to contribute? Here's how to set up `bitinformation_pipeline` for local development.
-
-1. Fork the `bitinformation_pipeline` repo on GitHub.
-2. Clone your fork locally::
-
-    $ git clone git@github.com:your_name_here/bitinformation_pipeline.git
-
-3. Install your local copy into a virtualenv. Assuming you have virtualenvwrapper installed, this is how you set up your fork for local development::
-
-    $ mkvirtualenv bitinformation_pipeline
-    $ cd bitinformation_pipeline/
-    $ python setup.py develop
-
-4. Create a branch for local development::
-
-    $ git checkout -b name-of-your-bugfix-or-feature
-
-   Now you can make your changes locally.
-
-5. When you're done making changes, check that your changes pass some tests. For linting, please install the pre-commit hooks::
-
-    $ pip install pre-commit
-    $ pre-commit install
-
-   When you commit your changes, some tests incl. flake8, black, isort are triggered automatically. The CI on github will do these checks as well.
-
-6. In addition, the functionality of the code needs to be tested with::
-
-    $ pytest
-
-7. Commit your changes and push your branch to GitHub::
-
-    $ git add .
-    $ git commit -m "Your detailed description of your changes."
-    $ git push origin name-of-your-bugfix-or-feature
-
-8. Submit a pull request through the GitHub website.
-
-Pull Request Guidelines
+Preparing Pull Requests
 -----------------------
 
-Before you submit a pull request, check that it meets these guidelines:
+#. Fork the `bitinformation_pipeline GitHub repository <https://github.com/observingClouds/bitinformation_pipeline>`__.
+   It's fine to use ``bitinformation_pipeline`` as your fork repository name because it will
+   live under your user.
 
-1. The pull request should include tests.
-2. If the pull request adds functionality, the docs should be updated. Put
-   your new functionality into a function with a docstring, and add the
-   feature to the list in README.rst.
-3. The pull request should work for Python 3.5, 3.6, 3.7 and 3.8, and for PyPy. Check
-   https://travis-ci.com/observingClouds/bitinformation_pipeline/pull_requests
-   and make sure that the tests pass for all supported Python versions.
+#. Clone your fork locally using `git <https://git-scm.com/>`_, connect your
+   repository to the upstream (main project), and create a branch::
 
-Tips
-----
+    $ git clone git@github.com:YOUR_GITHUB_USERNAME/bitinformation_pipeline.git
+    $ cd bitinformation_pipeline
+    $ git remote add upstream git@github.com:observingClouds/bitinformation_pipeline.git
 
-To run a subset of tests::
+    # now, to fix a bug or add feature create your own branch off "main":
 
-$ pytest tests.test_bitinformation_pipeline
+    $ git checkout -b your-bugfix-feature-branch-name main
+
+   If you need some help with Git, follow this quick start
+   `guide <https://git.wiki.kernel.org/index.php/QuickStart>`_.
+
+#. Install dependencies into a new
+   `conda <https://conda.io/projects/conda/en/latest/user-guide/getting-started.html>`_
+   environment::
+
+    $ conda env create -f environment.yml
+    $ conda activate bitinfo
+
+#. Make an editable install of ``bitinformation_pipeline`` by running::
+
+    $ pip install -e .
+
+#. Install `pre-commit <https://pre-commit.com>`_ and its hook on the
+   ``bitinformation_pipeline`` repo::
+
+     $ pip install --user pre-commit
+     $ pre-commit install
+
+   ``pre-commit`` automatically beautifies the code, makes it more
+   maintainable and catches syntax errors. Afterwards ``pre-commit`` will run
+   whenever you commit.
+
+   Now you have an environment called ``bitinfo`` that you can work in.
+   You’ll need to make sure to activate that environment next time you want
+   to use it after closing the terminal or your system.
+
+   You can now edit your local working copy and run/add tests as necessary.
+   Please try to follow
+   `PEP-8 <https://www.python.org/dev/peps/pep-0008/#naming-conventions>`_ for
+   naming. When committing, ``pre-commit`` will modify the files as
+   needed, or will generally be quite clear about what you need to do to pass
+   the commit test.
+
+   ``pre-commit`` also runs::
+
+    * `mypy <http://mypy-lang.org/>`_ for static type checking on
+      `type hints <https://docs.python.org/3/library/typing.html>`_.
+    * `isort <https://pycqa.github.io/isort/>`_ sorting imports
+    * `black <https://black.readthedocs.io/en/stable/>`_ code formatting
+    * `flake8 <https://flake8.pycqa.org/en/latest/>`_ code linting
+    ..
+        * `blackdoc <https://blackdoc.readthedocs.io/en/latest/>`_ docstring code formatter
 
 
-Deploying
----------
+#. Break your edits up into reasonably sized commits::
 
-A reminder for the maintainers on how to deploy.
-Make sure all your changes are committed (including an entry in HISTORY.rst).
-Then run::
+    $ git commit -m "<commit message>"
+    $ git push -u
 
-$ bump2version patch # possible: major / minor / patch
-$ git push
-$ git push --tags
+#. Run all tests
 
-Travis will then deploy to PyPI if tests pass.
+   Once commits are pushed to ``origin``, GitHub Actions runs continuous
+   integration of all tests with `pytest <https://docs.pytest.org/en/7.1.x/getting-started.html#get-started>`__ on all new commits.
+   However, you can already run tests locally::
+
+    $ pytest  # all
+    $ pytest tests/test_bitround.py::test_xr_bitround_dask  # specific tests
+
+   Check that `doctests <https://docs.pytest.org/en/stable/doctest.html>`_ are
+   passing::
+
+    $ pytest --doctest-modules bitinformation_pipeline
+
+   Please stick to
+   `xarray <http://xarray.pydata.org/en/stable/contributing.html>`_'s testing
+   recommendations.
+
+#. Running the performance test suite
+
+   If you considerably changed to core of code of ``bitinformation_pipeline``, it is worth
+   considering whether your code has introduced performance regressions.
+   ``bitinformation_pipeline`` has a suite of benchmarking tests using
+   `asv <https://asv.readthedocs.io/en/stable/>`_
+   to enable easy monitoring of the performance of critical ``bitinformation_pipeline``
+   operations. These benchmarks are all found in the ``asv_bench`` directory.
+
+   If you need to run a benchmark, change your directory to ``asv_bench/`` and
+   run::
+
+      $ asv continuous -f 1.1 upstream/main HEAD
+
+   You can replace ``HEAD`` with the name of the branch you are working on,
+   and report benchmarks that changed by more than 10%.
+   The command uses ``conda`` by default for creating the benchmark
+   environments.
+
+   Running the full benchmark suite can take some time and use up a
+   few GBs of RAM. Usually it is sufficient to paste only a subset of the
+   results into the pull request to show that the committed changes do not
+   cause unexpected performance regressions.
+   If you want to only run a specific group of tests from a file, you can do it
+   using ``.`` as a separator. For example::
+
+      $ asv continuous -f 1.1 upstream/main HEAD -b benchmarks_bitround.rasm.time_xr_bitround
+
+   will only run the ``time_xr_bitround`` benchmark of class
+   ``rasm`` loading the ``xr.tutorial.load_dataset("rasm")`` defined in ``benchmarks_bitround.py``.
+
+
+#. Create a new changelog entry in `CHANGELOG.rst <CHANGELOG.rst>`_:
+
+   The entry should be entered as:
+
+   ``<description>`` (``:pr:`#<pull request number>```) ```<author's names>`_``
+
+   where ``<description>`` is the description of the PR related to the change
+   and ``<pull request number>`` is the pull request number and
+   ``<author's names>`` are your first and last names.
+
+   Add yourself to list of authors at the end of `CHANGELOG.rst <CHANGELOG.rst>`_ file if
+   not there yet, in alphabetical order.
+
+#. Add yourself to the `authors <AUTHORS.rst>`_.
+
+#. Finally, submit a `Pull Request <https://docs.github.com/en/github/collaborating-with-pull-requests/proposing-changes-to-your-work-with-pull-requests/about-pull-requests>`_ through the GitHub website using this data::
+
+    head-fork: YOUR_GITHUB_USERNAME/bitinformation_pipeline
+    compare: your-branch-name
+
+    base-fork: observingClouds/bitinformation_pipeline
+    base: main
+
+Note that you can create the ``Pull Request`` while you're working on this.
+The PR will update as you add more commits. ``bitinformation_pipeline`` developers and
+contributors can then review your code and offer suggestions.
