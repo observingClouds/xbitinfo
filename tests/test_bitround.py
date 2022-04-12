@@ -59,7 +59,10 @@ def test_bitround_dask(air_temperature, implementation, dask, map_blocks):
         assert ds_bitrounded.compute()
 
 
-@pytest.mark.parametrize("dtype,keepbits", [("float16", range(1, 9)), ("float32", range(1, 23)), ("float64", range(1, 52))])
+@pytest.mark.parametrize(
+    "dtype,keepbits",
+    [("float16", range(1, 9)), ("float32", range(1, 23)), ("float64", range(1, 52))],
+)
 def test_bitround_xarray_julia_equal(air_temperature, dtype, keepbits):
     """Test jl_bitround and xr_bitround yield identical results."""
     ds = air_temperature.astype(dtype)
