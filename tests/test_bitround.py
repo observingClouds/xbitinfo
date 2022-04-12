@@ -6,13 +6,14 @@ from xarray.testing import assert_allclose, assert_equal
 import bitinformation_pipeline as bp
 
 
+@pytest.mark.parametrize("dtype", ["float16", "float32", "float64"])
 @pytest.mark.parametrize("implementation", ["xarray", "julia"])
 @pytest.mark.parametrize("input_type", ["Dataset", "DataArray"])
 @pytest.mark.parametrize("keepbits", ["dict", "int"])
-def test_xr_bitround(air_temperature, input_type, implementation, keepbits):
+def test_xr_bitround(air_temperature, dtype, input_type, implementation, keepbits):
     """Test xr_bitround to different keepbits of type dict or int."""
-    ds = air_temperature
-    i = 15
+    ds = air_temperature.astype(dtype)
+    i = 6
     if keepbits == "dict":
         keepbits = {v: i for v in ds.data_vars}
     elif keepbits == "int":
@@ -58,10 +59,11 @@ def test_xr_bitround_dask(air_temperature, implementation, dask):
     assert is_dask_collection(ds_bitrounded) == dask
 
 
-@pytest.mark.parametrize("keepbits", list(range(1, 23)))
-def test_bitround_xarray_julia_equal(air_temperature, keepbits):
+@pytest.mark.parametrize("dtype", ["float16", "float32", "float64"])
+@pytest.mark.parametrize("keepbits", list(range(1, 6)))
+def test_bitround_xarray_julia_equal(air_temperature, dtype, keepbits):
     """Test jl_bitround and xr_bitround yield identical results."""
-    ds = air_temperature
+    ds = air_temperature.astype(dtype)
     ds_xr_bitrounded = bp.xr_bitround(ds, keepbits)
     ds_jl_bitrounded = bp.jl_bitround(ds, keepbits)
     assert_equal(ds_jl_bitrounded, ds_xr_bitrounded)
