@@ -19,6 +19,7 @@ dependencies:
   - pytest
   - nb_conda_kernels
   - cmcrameri
+  - tqdm
   - pip
   - pip:
     - git+https://github.com/rabernat/numcodecs@bitround
