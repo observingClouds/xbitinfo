@@ -23,5 +23,5 @@ dependencies:
   - asv
   - pip
   - pip:
-    - git+https://github.com/observingClouds/numcodecs@bitround
+    - git+https://github.com/rabernat/numcodecs@bitround
     - -e .

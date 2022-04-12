@@ -39,7 +39,6 @@ def xr_bitround(da, keepbits):
             da_bitrounded[v] = xr_bitround(da[v], keepbits)
         return da_bitrounded
 
-    assert da.dtype == "float32"
     da_bitrounded = da.copy()
     if isinstance(keepbits, int):
         keep = keepbits
