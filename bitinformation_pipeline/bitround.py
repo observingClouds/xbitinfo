@@ -19,9 +19,9 @@ def xr_bitround(da, keepbits, map_blocks=False):
     Inputs
     ------
     da : xr.DataArray or xr.Dataset
-      input netcdf to bitround with dtype float32
+      input data to bitround
     keepbits : int or dict of {str: int}
-      how many bits to keep. int
+      how many bits to keep as int
     map_blocks : bool
       if True and da is chunked, use xr.map_blocks, else use xr.apply_ufunc. Defaults to False.
 
@@ -51,8 +51,12 @@ def xr_bitround(da, keepbits, map_blocks=False):
             keep = keepbits[v]
         else:
             raise ValueError(f"name {v} not for in keepbits: {keepbits.keys()}")
-    if map_blocks and is_dask_collection(da):
-        da = da.map_blocks(_np_bitround, args=[keep], template=da)
+    if map_blocks:
+        if not is_dask_collection(da):
+            raise ValueError("da.map_blocks requires `dask.is_dask_collection(da)==True`, found `False`. "
+                             "Please chunk your inputs, e.g. `xr_bitround(da.chunk('auto'), keepbits)`.")
+        else:
+            da = da.map_blocks(_np_bitround, args=[keep], template=da)
     else:
         da = xr.apply_ufunc(
             _np_bitround, da, keep, dask="parallelized", keep_attrs=True
@@ -67,9 +71,9 @@ def jl_bitround(da, keepbits, map_blocks=False):
     Inputs
     ------
     da : xr.DataArray or xr.Dataset
-      input netcdf to bitround with dtype float32
+      input data to bitround
     keepbits : int or dict of {str: int}
-      how many bits to keep. int
+      how many bits to keep as int
     map_blocks : bool
       if True and da is chunked, use xr.map_blocks, else use xr.apply_ufunc. Defaults to False.
 
@@ -99,8 +103,12 @@ def jl_bitround(da, keepbits, map_blocks=False):
             keep = keepbits[v]
         else:
             raise ValueError(f"name {v} not for in keepbits: {keepbits.keys()}")
-    if map_blocks and is_dask_collection(is_dask_collection):
-        da = da.map_blocks(_jl_bitround, args=[keep], template=da)
+    if map_blocks:
+        if not is_dask_collection(da):
+            raise ValueError("da.map_blocks requires `dask.is_dask_collection(da)==True`, found `False`. "
+                             "Please chunk your inputs, e.g. `jl_bitround(da.chunk('auto'), keepbits)`.")
+        else:
+            da = da.map_blocks(_jl_bitround, args=[keep], template=da)
     else:
         da = xr.apply_ufunc(
             _jl_bitround, da, keep, dask="parallelized", keep_attrs=True
