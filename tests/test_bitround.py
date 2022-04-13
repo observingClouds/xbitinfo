@@ -42,7 +42,8 @@ def test_xr_bitround(air_temperature, dtype, input_type, implementation, keepbit
 
 
 @pytest.mark.parametrize(
-    "implementation,dask", [("xarray", True), ("xarray", False), ("julia", True), ("julia", False)]
+    "implementation,dask",
+    [("xarray", True), ("xarray", False), ("julia", True), ("julia", False)],
 )
 def test_bitround_dask(air_temperature, implementation, dask):
     """Test xr_bitround and jl_bitround keeps dask and successfully computes."""
