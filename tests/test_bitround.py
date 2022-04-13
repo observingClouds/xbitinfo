@@ -66,6 +66,7 @@ def test_bitround_dask(air_temperature, implementation, dask):
 def test_bitround_xarray_julia_equal(air_temperature, dtype, keepbits):
     """Test jl_bitround and xr_bitround yield identical results."""
     ds = air_temperature.astype(dtype)
-    ds_xr_bitrounded = bp.xr_bitround(ds, keepbits)
-    ds_jl_bitrounded = bp.jl_bitround(ds, keepbits)
-    assert_equal(ds_jl_bitrounded, ds_xr_bitrounded)
+    for keep in keepbits:
+        ds_xr_bitrounded = bp.xr_bitround(ds, keep)
+        ds_jl_bitrounded = bp.jl_bitround(ds, keep)
+        assert_equal(ds_jl_bitrounded, ds_xr_bitrounded)
