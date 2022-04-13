@@ -5,7 +5,7 @@ import os
 
 import matplotlib.pyplot as plt
 import numpy as np
-import tqdm
+from tqdm.auto import tqdm
 import xarray as xr
 from julia.api import Julia
 
