@@ -138,14 +138,8 @@ class RandomDask(Random):
             "map_blocks not working, see https://github.com/observingClouds/bitinformation_pipeline/issues/56"
         )
 
-    def _skip_dask():
-        raise NotImplementedError("jl_bitround doesnt work with dask")
-
     peakmem_xr_bitround_map_blocks.setup = _skip_map_blocks
     time_xr_bitround_map_blocks.setup = _skip_map_blocks
-
-    peakmem_jl_bitround.setup = _skip_dask
-    time_jl_bitround.setup = _skip_dask
 
 
 class RandomDaskClient(RandomDask):
