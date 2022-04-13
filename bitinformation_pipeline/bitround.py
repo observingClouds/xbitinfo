@@ -13,7 +13,7 @@ def _np_bitround(data, keepbits):
     return codec.decode(encoded)
 
 
-def xr_bitround(da, keepbits, map_blocks=False):
+def xr_bitround(da, keepbits):
     """Apply bitrounding based on keepbits from bp.get_keepbits for xarray.Dataset or xr.DataArray wrapping numcodecs.bitround
 
     Inputs
@@ -22,8 +22,6 @@ def xr_bitround(da, keepbits, map_blocks=False):
       input data to bitround
     keepbits : int or dict of {str: int}
       how many bits to keep as int
-    map_blocks : bool
-      if True and da is chunked, use xr.map_blocks, else use xr.apply_ufunc. Defaults to False.
 
     Returns
     -------
@@ -51,16 +49,7 @@ def xr_bitround(da, keepbits, map_blocks=False):
             keep = keepbits[v]
         else:
             raise ValueError(f"name {v} not for in keepbits: {keepbits.keys()}")
-    if map_blocks:
-        if not is_dask_collection(da.data):
-            raise ValueError(
-                "da.map_blocks requires `dask.is_dask_collection(da.data)==True`, found `False`. "
-                "Please chunk your inputs, e.g. `xr_bitround(da.chunk('auto'), keepbits)`."
-            )
-        else:
-            da = da.map_blocks(_np_bitround, args=[keep], template=da)
-    else:
-        da = xr.apply_ufunc(
+    da = xr.apply_ufunc(
             _np_bitround, da, keep, dask="parallelized", keep_attrs=True
         )
     da.attrs["_QuantizeBitRoundNumberOfSignificantDigits"] = keep
