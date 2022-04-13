@@ -145,12 +145,15 @@ class RandomDask(Random):
     time_jl_bitround_map_blocks.setup = _skip_julia_if_GHA
 
     def _skip_map_blocks():
-        raise NotImplementedError("map_blocks not working, see https://github.com/observingClouds/bitinformation_pipeline/issues/56")
+        raise NotImplementedError(
+            "map_blocks not working, see https://github.com/observingClouds/bitinformation_pipeline/issues/56"
+        )
 
     peakmem_jl_bitround_map_blocks.setup = _skip_map_blocks
     time_jl_bitround_map_blocks.setup = _skip_map_blocks
     peakmem_xr_bitround_map_blocks.setup = _skip_map_blocks
     time_xr_bitround_map_blocks.setup = _skip_map_blocks
+
 
 class RandomDaskClient(RandomDask):
     def setup(self, *args, **kwargs):
