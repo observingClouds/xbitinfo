@@ -40,7 +40,7 @@ def xr_bitround(da, keepbits, map_blocks=False, inplace=False):
         if not inplace:
             da = da.copy()
         for v in da.data_vars:
-            da_bitrounded[v] = xr_bitround(da[v], keepbits, map_blocks=map_blocks)
+            da[v] = xr_bitround(da[v], keepbits, map_blocks=map_blocks)
         return da
 
     assert isinstance(da, xr.DataArray)
