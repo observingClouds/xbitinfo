@@ -5,9 +5,9 @@ import os
 
 import matplotlib.pyplot as plt
 import numpy as np
-from tqdm.auto import tqdm
 import xarray as xr
 from julia.api import Julia
+from tqdm.auto import tqdm
 
 jl = Julia(compiled_modules=False, debug=False)
 from julia import Main  # noqa: E402
