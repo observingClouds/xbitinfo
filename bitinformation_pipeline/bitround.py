@@ -94,7 +94,7 @@ def jl_bitround(da, keepbits):
             da_bitrounded[v] = jl_bitround(da[v], keepbits)
         return da_bitrounded
 
-    da_bitrounded = da.copy()
+    assert isinstance(da, xr.DataArray)
     if isinstance(keepbits, int):
         keep = keepbits
     elif isinstance(keepbits, dict):
@@ -103,9 +103,6 @@ def jl_bitround(da, keepbits):
             keep = keepbits[v]
         else:
             raise ValueError(f"name {v} not for in keepbits: {keepbits.keys()}")
-    # fails for .data
-    da_bitrounded.values = _jl_bitround(da.values, keep)
-    da_bitrounded.attrs[
-        "_QuantizeBitRoundNumberOfSignificantDigits"
-    ] = keep  # document keepbits
-    return da_bitrounded
+    da = xr.apply_ufunc(_jl_bitround, da, keep, dask="parallelized", keep_attrs=True)
+    da.attrs["_QuantizeBitRoundNumberOfSignificantDigits"] = keep
+    return da
