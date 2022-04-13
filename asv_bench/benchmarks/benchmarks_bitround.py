@@ -141,6 +141,11 @@ class RandomDask(Random):
         """Take memory peak for `jl_bitround(map_blocks=True)`."""
         ensure_loaded(jl_bitround(self.ds, self.keepbits, map_blocks=True, **kwargs))
 
+    peakmem_jl_bitround_map_blocks.setup = raise NotImplementedError()
+    time_jl_bitround_map_blocks.setup = raise NotImplementedError()
+    peakmem_xr_bitround_map_blocks.setup = raise NotImplementedError()
+    time_xr_bitround_map_blocks.setup = raise NotImplementedError()
+
     peakmem_jl_bitround_map_blocks.setup = _skip_julia_if_GHA
     time_jl_bitround_map_blocks.setup = _skip_julia_if_GHA
 
