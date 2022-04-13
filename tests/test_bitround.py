@@ -11,7 +11,9 @@ import bitinformation_pipeline as bp
 @pytest.mark.parametrize("implementation", ["xarray", "julia"])
 @pytest.mark.parametrize("input_type", ["Dataset", "DataArray"])
 @pytest.mark.parametrize("keepbits", ["dict", "int"])
-def test_xr_bitround(air_temperature, dtype, input_type, implementation, keepbits, inplace):
+def test_xr_bitround(
+    air_temperature, dtype, input_type, implementation, keepbits, inplace
+):
     """Test xr_bitround to different keepbits of type dict or int."""
     ds = air_temperature.astype(dtype)
     i = 6
