@@ -2,4 +2,5 @@ xarray
 dask
 julia
 matplotlib
+tqdm
 numcodecs @ git+https://github.com/rabernat/numcodecs@bitround
