@@ -4,7 +4,7 @@ import xarray as xr
 from bitinformation_pipeline import jl_bitround, xr_bitround
 
 from . import (
-    _skip_julia_if_GHA,
+    _skip_julia,
     _skip_slow,
     ensure_loaded,
     parameterized,
@@ -43,8 +43,8 @@ class Base:
         """Take memory peak for `jl_bitround`."""
         ensure_loaded(jl_bitround(self.ds, self.keepbits, **kwargs))
 
-    peakmem_jl_bitround.setup = _skip_julia_if_GHA
-    time_jl_bitround.setup = _skip_julia_if_GHA
+    peakmem_jl_bitround.setup = _skip_julia
+    time_jl_bitround.setup = _skip_julia
 
 
 class xr_tutorial_datasets(Base):

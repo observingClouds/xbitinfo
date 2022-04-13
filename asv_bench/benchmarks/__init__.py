@@ -82,6 +82,5 @@ def _skip_slow():
         raise NotImplementedError("Skipping this test...")
 
 
-def _skip_julia_if_GHA():
-    if getpass.getuser() == "runner":
-        raise NotImplementedError("Skipping this test...")
+def _skip_julia():
+    raise NotImplementedError("Skipping this test...")
