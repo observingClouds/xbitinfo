@@ -52,9 +52,9 @@ def xr_bitround(da, keepbits, map_blocks=False):
         else:
             raise ValueError(f"name {v} not for in keepbits: {keepbits.keys()}")
     if map_blocks:
-        if not is_dask_collection(da):
+        if not is_dask_collection(da.data):
             raise ValueError(
-                "da.map_blocks requires `dask.is_dask_collection(da)==True`, found `False`. "
+                "da.map_blocks requires `dask.is_dask_collection(da.data)==True`, found `False`. "
                 "Please chunk your inputs, e.g. `xr_bitround(da.chunk('auto'), keepbits)`."
             )
         else:
