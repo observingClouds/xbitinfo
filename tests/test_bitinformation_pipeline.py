@@ -12,7 +12,8 @@ def test_full():
     # bitinformation_pipeline
     bitinfo = bp.get_bitinformation(ds, dim="lon")
     keepbits = bp.get_keepbits(bitinfo)
-    ds_bitrounded = bp.jl_bitround(ds, keepbits)
+    # ds_bitrounded = bp.jl_bitround(ds, keepbits) 
+    ds_bitrounded = bp.xr_bitround(ds, keepbits) # identical
     # save
     ds.to_netcdf(f"{label}.nc")
     ds.to_compressed_netcdf(f"{label}_compressed.nc")
