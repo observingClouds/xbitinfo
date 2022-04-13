@@ -37,7 +37,7 @@ def xr_bitround(da, keepbits):
     if isinstance(da, xr.Dataset):
         da_bitrounded = da.copy()
         for v in da.data_vars:
-            da_bitrounded[v] = xr_bitround(da[v], keepbits, map_blocks=map_blocks)
+            da_bitrounded[v] = xr_bitround(da[v], keepbits)
         return da_bitrounded
 
     assert isinstance(da, xr.DataArray)
