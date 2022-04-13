@@ -10,6 +10,7 @@ dependencies:
   - pooch
   - xarray
   - dask-core
+  - distributed
   - jupyterlab
   - netcdf4
   - zarr
@@ -19,7 +20,9 @@ dependencies:
   - pytest
   - nb_conda_kernels
   - cmcrameri
+  - tqdm
+  - asv
   - pip
   - pip:
-    - git+https://github.com/observingClouds/numcodecs@bitround
+    - git+https://github.com/rabernat/numcodecs@bitround
     - -e .
