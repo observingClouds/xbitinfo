@@ -53,10 +53,14 @@ def test_bitround_dask(air_temperature, implementation, dask, map_blocks):
         ds = ds.chunk("auto")
 
     bitround = bp.xr_bitround if implementation == "xarray" else bp.jl_bitround
-    ds_bitrounded = bitround(ds, keepbits, map_blocks=map_blocks)
-    assert is_dask_collection(ds_bitrounded) == dask
-    if dask:
-        assert ds_bitrounded.compute()
+    if map_blocks and not dask:
+        with pytest.raises(ValueError, match="map_blocks requires `dask.is_dask_collection(da)==True`"):
+            ds_bitrounded = bitround(ds, keepbits, map_blocks=map_blocks)
+    else:
+        ds_bitrounded = bitround(ds, keepbits, map_blocks=map_blocks)
+        assert is_dask_collection(ds_bitrounded) == dask
+        if dask:
+            assert ds_bitrounded.compute()
 
 
 @pytest.mark.parametrize(
