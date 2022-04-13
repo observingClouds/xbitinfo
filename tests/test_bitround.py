@@ -54,7 +54,9 @@ def test_bitround_dask(air_temperature, implementation, dask, map_blocks):
 
     bitround = bp.xr_bitround if implementation == "xarray" else bp.jl_bitround
     if map_blocks and not dask:
-        with pytest.raises(ValueError, match="map_blocks requires `dask.is_dask_collection(da)==True`"):
+        with pytest.raises(
+            ValueError, match="map_blocks requires `dask.is_dask_collection(da)==True`"
+        ):
             ds_bitrounded = bitround(ds, keepbits, map_blocks=map_blocks)
     else:
         ds_bitrounded = bitround(ds, keepbits, map_blocks=map_blocks)
