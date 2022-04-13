@@ -1,10 +1,11 @@
 import xarray as xr
+from dask import is_dask_collection
 from numcodecs.bitround import BitRound
 
 from .bitinformation_pipeline import _jl_bitround
 
 
-def _bitround(data, keepbits):
+def _np_bitround(data, keepbits):
     """Bitround for Arrays."""
     codec = BitRound(keepbits=keepbits)
     data = data.copy()  # otherwise overwrites the input
@@ -12,15 +13,17 @@ def _bitround(data, keepbits):
     return codec.decode(encoded)
 
 
-def xr_bitround(da, keepbits):
+def xr_bitround(da, keepbits, map_blocks=False):
     """Apply bitrounding based on keepbits from bp.get_keepbits for xarray.Dataset or xr.DataArray wrapping numcodecs.bitround
 
     Inputs
     ------
     da : xr.DataArray or xr.Dataset
-      input netcdf to bitround with dtype float32
+      input data to bitround
     keepbits : int or dict of {str: int}
-      how many bits to keep. int
+      how many bits to keep as int
+    map_blocks : bool
+      if True and da is chunked, use xr.map_blocks, else use xr.apply_ufunc. Defaults to False.
 
     Returns
     -------
@@ -36,10 +39,10 @@ def xr_bitround(da, keepbits):
     if isinstance(da, xr.Dataset):
         da_bitrounded = da.copy()
         for v in da.data_vars:
-            da_bitrounded[v] = xr_bitround(da[v], keepbits)
+            da_bitrounded[v] = xr_bitround(da[v], keepbits, map_blocks=map_blocks)
         return da_bitrounded
 
-    da_bitrounded = da.copy()
+    assert isinstance(da, xr.DataArray)
     if isinstance(keepbits, int):
         keep = keepbits
     elif isinstance(keepbits, dict):
@@ -48,10 +51,20 @@ def xr_bitround(da, keepbits):
             keep = keepbits[v]
         else:
             raise ValueError(f"name {v} not for in keepbits: {keepbits.keys()}")
-    # fails for .data
-    da_bitrounded.values = _bitround(da.values, keep)
-    da_bitrounded.attrs["_QuantizeBitRoundNumberOfSignificantDigits"] = keep
-    return da_bitrounded
+    if map_blocks:
+        if not is_dask_collection(da.data):
+            raise ValueError(
+                "da.map_blocks requires `dask.is_dask_collection(da.data)==True`, found `False`. "
+                "Please chunk your inputs, e.g. `xr_bitround(da.chunk('auto'), keepbits)`."
+            )
+        else:
+            da = da.map_blocks(_np_bitround, args=[keep], template=da)
+    else:
+        da = xr.apply_ufunc(
+            _np_bitround, da, keep, dask="parallelized", keep_attrs=True
+        )
+    da.attrs["_QuantizeBitRoundNumberOfSignificantDigits"] = keep
+    return da
 
 
 def jl_bitround(da, keepbits):
@@ -60,9 +73,9 @@ def jl_bitround(da, keepbits):
     Inputs
     ------
     da : xr.DataArray or xr.Dataset
-      input netcdf to bitround with dtype float32
+      input data to bitround
     keepbits : int or dict of {str: int}
-      how many bits to keep. int
+      how many bits to keep as int
 
     Returns
     -------
@@ -81,7 +94,7 @@ def jl_bitround(da, keepbits):
             da_bitrounded[v] = jl_bitround(da[v], keepbits)
         return da_bitrounded
 
-    da_bitrounded = da.copy()
+    assert isinstance(da, xr.DataArray)
     if isinstance(keepbits, int):
         keep = keepbits
     elif isinstance(keepbits, dict):
@@ -90,9 +103,6 @@ def jl_bitround(da, keepbits):
             keep = keepbits[v]
         else:
             raise ValueError(f"name {v} not for in keepbits: {keepbits.keys()}")
-    # fails for .data
-    da_bitrounded.values = _jl_bitround(da.values, keep)
-    da_bitrounded.attrs[
-        "_QuantizeBitRoundNumberOfSignificantDigits"
-    ] = keep  # document keepbits
-    return da_bitrounded
+    da = xr.apply_ufunc(_jl_bitround, da, keep, dask="forbidden", keep_attrs=True)
+    da.attrs["_QuantizeBitRoundNumberOfSignificantDigits"] = keep
+    return da

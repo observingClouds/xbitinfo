@@ -4,7 +4,7 @@ import xarray as xr
 from bitinformation_pipeline import get_bitinformation
 
 from . import (
-    _skip_julia_if_GHA,
+    _skip_julia,
     _skip_slow,
     ensure_loaded,
     parameterized,
@@ -44,7 +44,7 @@ class xr_tutorial_datasets(Base):
         raise NotImplementedError()
 
     def get_data(self, label="rasm", dim="x"):
-        _skip_julia_if_GHA()
+        _skip_julia()
         self.ds = xr.tutorial.load_dataset(label)
         self.dim = dim
 
@@ -109,5 +109,5 @@ class Random(Base):
         )
 
     def setup(self, *args, **kwargs):
-        _skip_julia_if_GHA()
+        _skip_julia()
         self.get_data()

@@ -4,7 +4,7 @@ import xarray as xr
 from bitinformation_pipeline import jl_bitround, xr_bitround
 
 from . import (
-    _skip_julia_if_GHA,
+    _skip_julia,
     _skip_slow,
     ensure_loaded,
     parameterized,
@@ -29,22 +29,22 @@ class Base:
 
     def time_xr_bitround(self, **kwargs):
         """Take time for `xr_bitround`."""
-        self.info_per_bit = ensure_loaded(xr_bitround(self.ds, self.keepbits, **kwargs))
+        ensure_loaded(xr_bitround(self.ds, self.keepbits, **kwargs))
 
     def peakmem_xr_bitround(self, **kwargs):
         """Take memory peak for `xr_bitround`."""
-        self.info_per_bit = ensure_loaded(xr_bitround(self.ds, self.keepbits, **kwargs))
+        ensure_loaded(xr_bitround(self.ds, self.keepbits, **kwargs))
 
     def time_jl_bitround(self, **kwargs):
         """Take time for `jl_bitround`."""
-        self.info_per_bit = ensure_loaded(jl_bitround(self.ds, self.keepbits, **kwargs))
+        ensure_loaded(jl_bitround(self.ds, self.keepbits, **kwargs))
 
     def peakmem_jl_bitround(self, **kwargs):
         """Take memory peak for `jl_bitround`."""
-        self.info_per_bit = ensure_loaded(jl_bitround(self.ds, self.keepbits, **kwargs))
+        ensure_loaded(jl_bitround(self.ds, self.keepbits, **kwargs))
 
-    peakmem_jl_bitround.setup = _skip_julia_if_GHA
-    time_jl_bitround.setup = _skip_julia_if_GHA
+    peakmem_jl_bitround.setup = _skip_julia
+    time_jl_bitround.setup = _skip_julia
 
 
 class xr_tutorial_datasets(Base):
@@ -122,12 +122,27 @@ class Random(Base):
 class RandomDask(Random):
     def setup(self, *args, **kwargs):
         requires_dask()
-        _skip_slow()
         self.get_data(keepbits=7, spatial_res=1, ntime=12 * 100)  # 100yr monthly 1deg
         self.ds = self.ds.chunk("auto")
 
+    def time_xr_bitround_map_blocks(self, **kwargs):
+        """Take time for `xr_bitround(map_blocks=True)`."""
+        ensure_loaded(xr_bitround(self.ds, self.keepbits, map_blocks=True, **kwargs))
 
-class RandomDaskClient(Random):
+    def peakmem_xr_bitround_map_blocks(self, **kwargs):
+        """Take memory peak for `xr_bitround(map_blocks=True)`."""
+        ensure_loaded(xr_bitround(self.ds, self.keepbits, map_blocks=True, **kwargs))
+
+    def _skip_map_blocks():
+        raise NotImplementedError(
+            "map_blocks not working, see https://github.com/observingClouds/bitinformation_pipeline/issues/56"
+        )
+
+    peakmem_xr_bitround_map_blocks.setup = _skip_map_blocks
+    time_xr_bitround_map_blocks.setup = _skip_map_blocks
+
+
+class RandomDaskClient(RandomDask):
     def setup(self, *args, **kwargs):
         requires_distributed()
         requires_dask()

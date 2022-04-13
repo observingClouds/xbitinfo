@@ -42,12 +42,11 @@ def test_xr_bitround(air_temperature, dtype, input_type, implementation, keepbit
 
 
 @pytest.mark.parametrize(
-    "dask",
-    [pytest.param(True, marks=pytest.mark.skip(reason="require .values")), False],
+    "implementation,dask",
+    [("xarray", True), ("xarray", False), ("julia", False)],
 )
-@pytest.mark.parametrize("implementation", ["xarray", "julia"])
-def test_xr_bitround_dask(air_temperature, implementation, dask):
-    """Test xr_bitround keeps dask."""
+def test_bitround_dask(air_temperature, implementation, dask):
+    """Test xr_bitround and jl_bitround keeps dask and successfully computes."""
     ds = air_temperature
     i = 15
     keepbits = i
@@ -57,13 +56,18 @@ def test_xr_bitround_dask(air_temperature, implementation, dask):
     bitround = bp.xr_bitround if implementation == "xarray" else bp.jl_bitround
     ds_bitrounded = bitround(ds, keepbits)
     assert is_dask_collection(ds_bitrounded) == dask
+    if dask:
+        assert ds_bitrounded.compute()
 
 
-@pytest.mark.parametrize("dtype", ["float16", "float32", "float64"])
-@pytest.mark.parametrize("keepbits", list(range(1, 6)))
+@pytest.mark.parametrize(
+    "dtype,keepbits",
+    [("float16", range(1, 9)), ("float32", range(1, 23)), ("float64", range(1, 52))],
+)
 def test_bitround_xarray_julia_equal(air_temperature, dtype, keepbits):
     """Test jl_bitround and xr_bitround yield identical results."""
     ds = air_temperature.astype(dtype)
-    ds_xr_bitrounded = bp.xr_bitround(ds, keepbits)
-    ds_jl_bitrounded = bp.jl_bitround(ds, keepbits)
-    assert_equal(ds_jl_bitrounded, ds_xr_bitrounded)
+    for keep in keepbits:
+        ds_xr_bitrounded = bp.xr_bitround(ds, keep)
+        ds_jl_bitrounded = bp.jl_bitround(ds, keep)
+        assert_equal(ds_jl_bitrounded, ds_xr_bitrounded)
