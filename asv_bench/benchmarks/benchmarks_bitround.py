@@ -133,26 +133,19 @@ class RandomDask(Random):
         """Take memory peak for `xr_bitround(map_blocks=True)`."""
         ensure_loaded(xr_bitround(self.ds, self.keepbits, map_blocks=True, **kwargs))
 
-    def time_jl_bitround_map_blocks(self, **kwargs):
-        """Take time for `jl_bitround(map_blocks=True)`."""
-        ensure_loaded(jl_bitround(self.ds, self.keepbits, map_blocks=True, **kwargs))
-
-    def peakmem_jl_bitround_map_blocks(self, **kwargs):
-        """Take memory peak for `jl_bitround(map_blocks=True)`."""
-        ensure_loaded(jl_bitround(self.ds, self.keepbits, map_blocks=True, **kwargs))
-
-    peakmem_jl_bitround_map_blocks.setup = _skip_julia_if_GHA
-    time_jl_bitround_map_blocks.setup = _skip_julia_if_GHA
-
     def _skip_map_blocks():
         raise NotImplementedError(
             "map_blocks not working, see https://github.com/observingClouds/bitinformation_pipeline/issues/56"
         )
 
-    peakmem_jl_bitround_map_blocks.setup = _skip_map_blocks
-    time_jl_bitround_map_blocks.setup = _skip_map_blocks
+    def _skip_dask():
+        raise NotImplementedError("jl_bitround doesnt work with dask")
+
     peakmem_xr_bitround_map_blocks.setup = _skip_map_blocks
     time_xr_bitround_map_blocks.setup = _skip_map_blocks
+
+    peakmem_jl_bitround.setup = _skip_dask
+    time_jl_bitround.setup = _skip_dask
 
 
 class RandomDaskClient(RandomDask):
