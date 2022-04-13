@@ -33,7 +33,7 @@ class Base:
 
     def peakmem_xr_bitround(self, **kwargs):
         """Take memory peak for `xr_bitround`."""
-        ensure_loaded(xr_bitround(self.ds, self.keepbits, **kwargs))
+        ensure_loaded(xr_bitround(self.ds, self.keepbits, inplace=True, **kwargs))
 
     def time_jl_bitround(self, **kwargs):
         """Take time for `jl_bitround`."""
@@ -41,7 +41,7 @@ class Base:
 
     def peakmem_jl_bitround(self, **kwargs):
         """Take memory peak for `jl_bitround`."""
-        ensure_loaded(jl_bitround(self.ds, self.keepbits, **kwargs))
+        ensure_loaded(jl_bitround(self.ds, self.keepbits, inplace=True, **kwargs))
 
     peakmem_jl_bitround.setup = _skip_julia
     time_jl_bitround.setup = _skip_julia
