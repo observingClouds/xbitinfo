@@ -125,22 +125,6 @@ class RandomDask(Random):
         self.get_data(keepbits=7, spatial_res=1, ntime=12 * 100)  # 100yr monthly 1deg
         self.ds = self.ds.chunk("auto")
 
-    def time_xr_bitround_map_blocks(self, **kwargs):
-        """Take time for `xr_bitround(map_blocks=True)`."""
-        ensure_loaded(xr_bitround(self.ds, self.keepbits, map_blocks=True, **kwargs))
-
-    def peakmem_xr_bitround_map_blocks(self, **kwargs):
-        """Take memory peak for `xr_bitround(map_blocks=True)`."""
-        ensure_loaded(xr_bitround(self.ds, self.keepbits, map_blocks=True, **kwargs))
-
-    def _skip_map_blocks():
-        raise NotImplementedError(
-            "map_blocks not working, see https://github.com/observingClouds/bitinformation_pipeline/issues/56"
-        )
-
-    peakmem_xr_bitround_map_blocks.setup = _skip_map_blocks
-    time_xr_bitround_map_blocks.setup = _skip_map_blocks
-
 
 class RandomDaskClient(RandomDask):
     def setup(self, *args, **kwargs):
