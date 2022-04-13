@@ -41,22 +41,9 @@ def test_xr_bitround(air_temperature, dtype, input_type, implementation, keepbit
             check(ds[v], ds_bitrounded[v])
 
 
-@pytest.mark.parametrize(
-    "map_blocks",
-    [
-        pytest.param(
-            True,
-            marks=pytest.mark.skip(
-                reason="not yet working, see https://github.com/observingClouds/bitinformation_pipeline/issues/56"
-            ),
-        ),
-        False,
-    ],
-)
-@pytest.mark.parametrize("dask", [True, False])
-@pytest.mark.parametrize("implementation", ["xarray", "julia"])
-def test_bitround_dask(air_temperature, implementation, dask, map_blocks):
-    """Test xr_bitround and jl_bitround keeps dask."""
+@pytest.mark.parametrize("implementation,dask", [("xarray",True), ("xarray",False), ("julia",False)])
+def test_bitround_dask(air_temperature, implementation, dask):
+    """Test xr_bitround keeps dask and successfully computes."""
     ds = air_temperature
     i = 15
     keepbits = i
@@ -64,16 +51,10 @@ def test_bitround_dask(air_temperature, implementation, dask, map_blocks):
         ds = ds.chunk("auto")
 
     bitround = bp.xr_bitround if implementation == "xarray" else bp.jl_bitround
-    if map_blocks and not dask:
-        with pytest.raises(
-            ValueError, match="map_blocks requires `dask.is_dask_collection(da)==True`"
-        ):
-            bitround(ds, keepbits, map_blocks=map_blocks)
-    else:
-        ds_bitrounded = bitround(ds, keepbits, map_blocks=map_blocks)
-        assert is_dask_collection(ds_bitrounded) == dask
-        if dask:
-            assert ds_bitrounded.compute()
+    ds_bitrounded = bitround(ds, keepbits, map_blocks=map_blocks)
+    assert is_dask_collection(ds_bitrounded) == dask
+    if dask:
+        assert ds_bitrounded.compute()
 
 
 @pytest.mark.parametrize(
