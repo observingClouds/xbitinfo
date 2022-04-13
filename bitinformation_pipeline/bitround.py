@@ -53,8 +53,10 @@ def xr_bitround(da, keepbits, map_blocks=False):
             raise ValueError(f"name {v} not for in keepbits: {keepbits.keys()}")
     if map_blocks:
         if not is_dask_collection(da):
-            raise ValueError("da.map_blocks requires `dask.is_dask_collection(da)==True`, found `False`. "
-                             "Please chunk your inputs, e.g. `xr_bitround(da.chunk('auto'), keepbits)`.")
+            raise ValueError(
+                "da.map_blocks requires `dask.is_dask_collection(da)==True`, found `False`. "
+                "Please chunk your inputs, e.g. `xr_bitround(da.chunk('auto'), keepbits)`."
+            )
         else:
             da = da.map_blocks(_np_bitround, args=[keep], template=da)
     else:
@@ -105,8 +107,10 @@ def jl_bitround(da, keepbits, map_blocks=False):
             raise ValueError(f"name {v} not for in keepbits: {keepbits.keys()}")
     if map_blocks:
         if not is_dask_collection(da):
-            raise ValueError("da.map_blocks requires `dask.is_dask_collection(da)==True`, found `False`. "
-                             "Please chunk your inputs, e.g. `jl_bitround(da.chunk('auto'), keepbits)`.")
+            raise ValueError(
+                "da.map_blocks requires `dask.is_dask_collection(da)==True`, found `False`. "
+                "Please chunk your inputs, e.g. `jl_bitround(da.chunk('auto'), keepbits)`."
+            )
         else:
             da = da.map_blocks(_jl_bitround, args=[keep], template=da)
     else:
