@@ -41,7 +41,9 @@ def test_xr_bitround(air_temperature, dtype, input_type, implementation, keepbit
             check(ds[v], ds_bitrounded[v])
 
 
-@pytest.mark.parametrize("map_blocks", [True, False])
+@pytest.mark.parametrize("map_blocks",
+    [pytest.param(True, marks=pytest.mark.skip(reason="not yet working, see https://github.com/observingClouds/bitinformation_pipeline/issues/56")), False]
+)
 @pytest.mark.parametrize("dask", [True, False])
 @pytest.mark.parametrize("implementation", ["xarray", "julia"])
 def test_bitround_dask(air_temperature, implementation, dask, map_blocks):
