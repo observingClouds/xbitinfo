@@ -7,6 +7,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 import xarray as xr
 from julia.api import Julia
+from tqdm.auto import tqdm
 
 jl = Julia(compiled_modules=False, debug=False)
 from julia import Main  # noqa: E402
@@ -102,7 +103,7 @@ def get_bitinformation(ds, dim=None, axis=None, label=None, overwrite=False, **k
             )
 
         info_per_bit = {}
-        for var in ds.data_vars:
+        for var in tqdm.tqdm(ds.data_vars):
             X = ds[var].values
             Main.X = X
             if axis is not None:
