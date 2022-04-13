@@ -109,9 +109,9 @@ def jl_bitround(da, keepbits, map_blocks=False):
         da = da.map_blocks(_jl_bitround, args=[keep], template=da)
     elif map_blocks and not is_dask_collection(da):
         raise ValueError(
-                "da.map_blocks requires `dask.is_dask_collection(da)==True`, found `False`. "
-                "Please chunk your inputs, e.g. `jl_bitround(da.chunk('auto'), keepbits)`."
-            )
+            "da.map_blocks requires `dask.is_dask_collection(da)==True`, found `False`. "
+            "Please chunk your inputs, e.g. `jl_bitround(da.chunk('auto'), keepbits)`."
+        )
     else:
         da = xr.apply_ufunc(
             _jl_bitround, da, keep, dask="parallelized", keep_attrs=True
