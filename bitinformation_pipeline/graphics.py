@@ -191,23 +191,21 @@ def plot_distribution(ds, nbins=1000, cmap="husl"):
 
     Example
     -------
-    >>> ds = xr.tutorial.load_dataset("air_temperature")
-    >>> into_per_bit = bp.get_bitinformation(ds, dim="lon")
-    >>> bp.plot_distribution(into_per_bit)
+    >>> ds = xr.tutorial.load_dataset("eraint_uvz")
+    >>> bp.plot_distribution(ds)
     <Figure size 1200x400 with 3 Axes>
 
     """
     # only works for positive values: todo add neg
-    # subsetting is clever ds = ds.isel(ncells=slice(None,None,2**5),ncells_2=slice(None,None,2**5))
 
     mean = ds.mean().compute()
     varnames = list(ds.data_vars)
     ds = ds[varnames].squeeze()
 
     nvars = len(ds.data_vars)
-
+    
+    # positive range
     gmin, gmax = mean.to_array().min() / 10, mean.to_array().max() * 10
-
     bins = np.geomspace(gmin, gmax, nbins + 1, dtype=float)
 
     H = np.zeros((nvars, nbins))
