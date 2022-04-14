@@ -1,7 +1,5 @@
-import cmcrameri.cm as cmc
 import matplotlib.pyplot as plt
 import numpy as np
-import seaborn as sns
 import xarray as xr
 from tqdm.auto import tqdm
 
@@ -28,6 +26,7 @@ def plot_bitinformation(bitinfo):
     <Figure size 1200x400 with 3 Axes>
 
     """
+    import cmcrameri.cm as cmc
 
     nvars = len(bitinfo)
     varnames = bitinfo.keys()
@@ -197,6 +196,7 @@ def plot_distribution(ds, nbins=1000, cmap="husl"):
 
     """
     # only works for positive values: todo add neg
+    import seaborn as sns
 
     mean = ds.mean().compute()
     varnames = list(ds.data_vars)
