@@ -243,4 +243,5 @@ def plot_distribution(ds, nbins=1000, cmap="husl"):
     plt.xlabel("value")
     ax.set_ylabel("Probability density")
     plt.title("Statistical distributions")
+    fig.show()
     return fig
