@@ -1,9 +1,9 @@
 import cmcrameri.cm as cmc
 import matplotlib.pyplot as plt
 import numpy as np
+import seaborn as sns
 import xarray as xr
 from tqdm.auto import tqdm
-import seaborn as sns
 
 from .bitinformation_pipeline import NMBITS, get_keepbits
 
