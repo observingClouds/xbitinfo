@@ -203,7 +203,7 @@ def plot_distribution(ds, nbins=1000, cmap="husl"):
     ds = ds[varnames].squeeze()
 
     nvars = len(ds.data_vars)
-    
+
     # positive range
     gmin, gmax = mean.to_array().min() / 10, mean.to_array().max() * 10
     bins = np.geomspace(gmin, gmax, nbins + 1, dtype=float)
