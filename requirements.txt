@@ -3,4 +3,5 @@ dask
 julia
 matplotlib
 tqdm
+seaborn
 numcodecs @ git+https://github.com/rabernat/numcodecs@bitround
