@@ -192,7 +192,7 @@ def plot_distribution(ds, nbins=1000, cmap="husl"):
     -------
     >>> ds = xr.tutorial.load_dataset("eraint_uvz")
     >>> bp.plot_distribution(ds)
-    <Figure size 1200x400 with 3 Axes>
+    <Figure size 500x60 with 2 Axes>
 
     """
     # only works for positive values: todo add neg
@@ -210,7 +210,6 @@ def plot_distribution(ds, nbins=1000, cmap="husl"):
 
     H = np.zeros((nvars, nbins))
     for i, v in tqdm(enumerate(varnames)):
-        print(v)
         H[i, :], _ = np.histogram(ds[v].data.flatten(), bins=bins, density=True)
         # normalize
         H[i, :] = H[i, :] / np.sum(H[i, :])
