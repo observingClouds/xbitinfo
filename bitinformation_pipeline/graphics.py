@@ -2,6 +2,8 @@ import cmcrameri.cm as cmc
 import matplotlib.pyplot as plt
 import numpy as np
 import xarray as xr
+from tqdm.auto import tqdm
+import seaborn as sns
 
 from .bitinformation_pipeline import NMBITS, get_keepbits
 
@@ -199,6 +201,7 @@ def plot_distribution(ds, nbins=1000, cmap="husl"):
     # subsetting is clever ds = ds.isel(ncells=slice(None,None,2**5),ncells_2=slice(None,None,2**5))
 
     mean = ds.mean().compute()
+    varnames = list(ds.data_vars)
     ds = ds[varnames].squeeze()
 
     nvars = len(ds.data_vars)
@@ -242,5 +245,5 @@ def plot_distribution(ds, nbins=1000, cmap="husl"):
     )
     plt.xlabel("value")
     ax.set_ylabel("Probability density")
-    plt.title(f"Statistical distributions")
+    plt.title("Statistical distributions")
     return fig
