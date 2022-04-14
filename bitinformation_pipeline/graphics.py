@@ -202,39 +202,43 @@ def plot_distribution(ds, nbins=1000, cmap="husl", offset=0.01, close_zero=1e-2)
 
     """
     if not isinstance(ds, xr.Dataset):
-        raise ValueError(f"plot_distribution(ds), requires xr.Dataset, found {type(ds)}")
+        raise ValueError(
+            f"plot_distribution(ds), requires xr.Dataset, found {type(ds)}"
+        )
     import seaborn as sns
 
     varnames = list(ds.data_vars)
     nvars = len(varnames)
     ds = ds[varnames].squeeze()
     gmin, gmax = ds.to_array().min(), ds.to_array().max()
-    f = 2 # factor for bounds
-    if gmin<0 and gmax>0:
-        bins_neg = np.geomspace(gmin*f,-close_zero, nbins//2 + 1, dtype=float)
-        bins_pos = np.geomspace(close_zero, gmax*f, nbins//2, dtype=float)
-        bins = np.concatenate([bins_neg, bins_pos],axis=-1)
+    f = 2  # factor for bounds
+    if gmin < 0 and gmax > 0:
+        bins_neg = np.geomspace(gmin * f, -close_zero, nbins // 2 + 1, dtype=float)
+        bins_pos = np.geomspace(close_zero, gmax * f, nbins // 2, dtype=float)
+        bins = np.concatenate([bins_neg, bins_pos], axis=-1)
     else:
-        bins = np.geomspace(gmin/f, gmax*f, nbins + 1, dtype=float)
+        bins = np.geomspace(gmin / f, gmax * f, nbins + 1, dtype=float)
 
     H = np.zeros((nvars, nbins))
     for i, v in enumerate(varnames):
-        d=ds[v].data.flatten()
-        d=d[~np.isnan(d)] # drop NaN
+        d = ds[v].data.flatten()
+        d = d[~np.isnan(d)]  # drop NaN
         H[i, :], _ = np.histogram(d, bins=bins, density=True)
-        H[i, :] = H[i, :] / np.sum(H[i, :]) # normalize
+        H[i, :] = H[i, :] / np.sum(H[i, :])  # normalize
 
     fig, ax = plt.subplots(1, 1, figsize=(5, 2 + nvars / 10))
     colors = sns.color_palette(cmap, nvars)
-    
+
     for i in range(nvars):
         c = colors[i]
         plt.plot(bins[:-1], H[i, :] + offset * i, color=c)
         plt.fill_between(
             bins[:-1], H[i, :] + offset * i, offset * i, alpha=0.5, color=c
         )
-    ax.set_xscale("symlog")  # https://stackoverflow.com/questions/43372499/plot-negative-values-on-a-log-scale
-    ymax = max(0.1, nvars / 100 + 0.02) # at least 10% y
+    ax.set_xscale(
+        "symlog"
+    )  # https://stackoverflow.com/questions/43372499/plot-negative-values-on-a-log-scale
+    ymax = max(0.1, nvars / 100 + 0.02)  # at least 10% y
     ax.set_ylim([-offset / 2, ymax])
     ax.set_xlim([bins[0], bins[-1]])
     minyticks = np.arange(0, ymax + 0.01, offset)
