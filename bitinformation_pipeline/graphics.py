@@ -198,7 +198,7 @@ def plot_distribution(ds, nbins=1000, cmap="husl", offset=0.01, close_zero=1e-2)
     -------
     >>> ds = xr.tutorial.load_dataset("eraint_uvz")
     >>> bp.plot_distribution(ds)
-    <Figure size 500x60 with 2 Axes>
+    <AxesSubplot:title={'center':'Statistical distributions'}, xlabel='value', ylabel='Probability density'>
 
     """
     if not isinstance(ds, xr.Dataset):
@@ -238,7 +238,7 @@ def plot_distribution(ds, nbins=1000, cmap="husl", offset=0.01, close_zero=1e-2)
     ax.set_xscale(
         "symlog"
     )  # https://stackoverflow.com/questions/43372499/plot-negative-values-on-a-log-scale
-    ymax = max(0.1, nvars / 100 + 0.02)  # at least 10% y
+    ymax = max(0.05, nvars / 100 + 0.02)  # at least 10% y
     ax.set_ylim([-offset / 2, ymax])
     ax.set_xlim([bins[0], bins[-1]])
     minyticks = np.arange(0, ymax + 0.01, offset)
