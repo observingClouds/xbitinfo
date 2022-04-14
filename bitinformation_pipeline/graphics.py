@@ -170,3 +170,73 @@ def plot_bitinformation(bitinfo):
     fig.show()
 
     return fig
+
+
+def plot_distribution(ds, nbins=1000, cmap="husl"):
+    """Plot statistical distributions of all variables as in Klöwer et al. 2021 Fig. SI 1.
+    For large data subsetting, i.e. ds = ds.isel(x=slice(None, None, 100)) is recommended.
+
+    Klöwer, M., Razinger, M., Dominguez, J. J., Düben, P. D., & Palmer, T. N. (2021). Compressing atmospheric data into its real information content. Nature Computational Science, 1(11), 713–724. doi: 10/gnm4jj
+
+    Inputs
+    ------
+    bitinfo : xr.Dataset
+      raw input values for distributions
+
+    Returns
+    -------
+    fig : matplotlib figure
+
+    Example
+    -------
+    >>> ds = xr.tutorial.load_dataset("air_temperature")
+    >>> into_per_bit = bp.get_bitinformation(ds, dim="lon")
+    >>> bp.plot_distribution(into_per_bit)
+    <Figure size 1200x400 with 3 Axes>
+
+    """
+    # only works for positive values: todo add neg
+    # subsetting is clever ds = ds.isel(ncells=slice(None,None,2**5),ncells_2=slice(None,None,2**5))
+
+    mean = ds.mean().compute()
+    ds = ds[varnames].squeeze()
+
+    nvars=len(ds.data_vars)
+
+    gmin,gmax = mean.to_array().min()/10,mean.to_array().max()*10
+
+    bins = np.geomspace(gmin,gmax,nbins+1, dtype=float)
+
+    H=np.zeros((nvars,nbins))
+    for i,v in tqdm(enumerate(varnames)):
+        print(v)
+        H[i,:], _ = np.histogram(ds[v].data.flatten(),bins=bins,density=True)
+        # normalize
+        H[i,:]=H[i,:]/np.sum(H[i,:])
+
+    fig,ax=plt.subplots(1,1,figsize=(5,nvars/5))
+    colors = sns.color_palette(cmap,nvars) # maybe need to adapt for matplotlib
+    offset=0.01
+    for i in range(nvars):
+        c=colors[i]
+        plt.plot(bins[:-1],H[i,:]+offset*i, color=c)
+        plt.fill_between(bins[:-1],H[i,:]+offset*i,offset*i,alpha=.5, color=c)
+    plt.xscale('log')
+    ymax=nvars/100 + 0.02
+    plt.ylim([-offset/2,ymax])
+    plt.xlim([bins[0],bins[-1]])
+    minyticks=np.arange(0,ymax+0.01,offset)
+    majyticks=np.arange(0,ymax+0.01,offset*5)
+    ax.set_yticks(minyticks,minor=True)
+    ax.set_yticks(majyticks,minor=False)
+    ax.set_yticklabels([str(int(i*100))+'%' for i in majyticks])
+
+    axright = ax.twinx()
+    #axright.set_yticklabels([],minor=False)
+    axright.set_ylim([-offset/2,ymax])
+    axright.set_yticks(minyticks,minor=False)
+    axright.set_yticklabels(varnames+[""]*(len(minyticks)-len(varnames)),minor=False)
+    plt.xlabel("value")
+    ax.set_ylabel("Probability density")
+    plt.title(f"Statistical distributions")
+    return fig
