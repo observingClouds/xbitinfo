@@ -201,41 +201,45 @@ def plot_distribution(ds, nbins=1000, cmap="husl"):
     mean = ds.mean().compute()
     ds = ds[varnames].squeeze()
 
-    nvars=len(ds.data_vars)
+    nvars = len(ds.data_vars)
 
-    gmin,gmax = mean.to_array().min()/10,mean.to_array().max()*10
+    gmin, gmax = mean.to_array().min() / 10, mean.to_array().max() * 10
 
-    bins = np.geomspace(gmin,gmax,nbins+1, dtype=float)
+    bins = np.geomspace(gmin, gmax, nbins + 1, dtype=float)
 
-    H=np.zeros((nvars,nbins))
-    for i,v in tqdm(enumerate(varnames)):
+    H = np.zeros((nvars, nbins))
+    for i, v in tqdm(enumerate(varnames)):
         print(v)
-        H[i,:], _ = np.histogram(ds[v].data.flatten(),bins=bins,density=True)
+        H[i, :], _ = np.histogram(ds[v].data.flatten(), bins=bins, density=True)
         # normalize
-        H[i,:]=H[i,:]/np.sum(H[i,:])
+        H[i, :] = H[i, :] / np.sum(H[i, :])
 
-    fig,ax=plt.subplots(1,1,figsize=(5,nvars/5))
-    colors = sns.color_palette(cmap,nvars) # maybe need to adapt for matplotlib
-    offset=0.01
+    fig, ax = plt.subplots(1, 1, figsize=(5, nvars / 5))
+    colors = sns.color_palette(cmap, nvars)  # maybe need to adapt for matplotlib
+    offset = 0.01
     for i in range(nvars):
-        c=colors[i]
-        plt.plot(bins[:-1],H[i,:]+offset*i, color=c)
-        plt.fill_between(bins[:-1],H[i,:]+offset*i,offset*i,alpha=.5, color=c)
-    plt.xscale('log')
-    ymax=nvars/100 + 0.02
-    plt.ylim([-offset/2,ymax])
-    plt.xlim([bins[0],bins[-1]])
-    minyticks=np.arange(0,ymax+0.01,offset)
-    majyticks=np.arange(0,ymax+0.01,offset*5)
-    ax.set_yticks(minyticks,minor=True)
-    ax.set_yticks(majyticks,minor=False)
-    ax.set_yticklabels([str(int(i*100))+'%' for i in majyticks])
+        c = colors[i]
+        plt.plot(bins[:-1], H[i, :] + offset * i, color=c)
+        plt.fill_between(
+            bins[:-1], H[i, :] + offset * i, offset * i, alpha=0.5, color=c
+        )
+    plt.xscale("log")
+    ymax = nvars / 100 + 0.02
+    plt.ylim([-offset / 2, ymax])
+    plt.xlim([bins[0], bins[-1]])
+    minyticks = np.arange(0, ymax + 0.01, offset)
+    majyticks = np.arange(0, ymax + 0.01, offset * 5)
+    ax.set_yticks(minyticks, minor=True)
+    ax.set_yticks(majyticks, minor=False)
+    ax.set_yticklabels([str(int(i * 100)) + "%" for i in majyticks])
 
     axright = ax.twinx()
-    #axright.set_yticklabels([],minor=False)
-    axright.set_ylim([-offset/2,ymax])
-    axright.set_yticks(minyticks,minor=False)
-    axright.set_yticklabels(varnames+[""]*(len(minyticks)-len(varnames)),minor=False)
+    # axright.set_yticklabels([],minor=False)
+    axright.set_ylim([-offset / 2, ymax])
+    axright.set_yticks(minyticks, minor=False)
+    axright.set_yticklabels(
+        varnames + [""] * (len(minyticks) - len(varnames)), minor=False
+    )
     plt.xlabel("value")
     ax.set_ylabel("Probability density")
     plt.title(f"Statistical distributions")
