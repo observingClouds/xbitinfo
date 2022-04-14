@@ -1,7 +1,6 @@
 import matplotlib.pyplot as plt
 import numpy as np
 import xarray as xr
-from tqdm.auto import tqdm
 
 from .bitinformation_pipeline import NMBITS, get_keepbits
 
