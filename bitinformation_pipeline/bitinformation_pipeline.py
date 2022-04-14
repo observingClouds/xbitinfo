@@ -104,8 +104,8 @@ def get_bitinformation(ds, dim=None, axis=None, label=None, overwrite=False, **k
 
         info_per_bit = {}
         pbar = tqdm(ds.data_vars)
-        for char in pbar:
-            pbar.set_description("Processing %s" % char)
+        for var in pbar:
+            pbar.set_description("Processing %s" % var)
             X = ds[var].values
             Main.X = X
             if axis is not None:
