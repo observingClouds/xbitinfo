@@ -33,7 +33,7 @@ import xarray as xr
 import bitinformation_pipeline as bp
 ds = xr.tutorial.load_dataset(inpath)
 bitinfo = bp.get_bitinformation(ds, dim="lon")  # calling bitinformation.jl.bitinformation
-keepbits = bp.get_keepbits(bitinfo, inflevel=0.99)  # get number of mantissa bits to keep for 99% real information 
+keepbits = bp.get_keepbits(bitinfo, inflevel=0.99)  # get number of mantissa bits to keep for 99% real information
 ds_bitrounded = bp.xr_bitround(ds, keepbits)  # bitrounding keeping only keepbits mantissa bits
 ds_bitrounded.to_compressed_netcdf(outpath)  # save to netcdf with compression
 ```
