@@ -58,7 +58,7 @@ def get_compress_encoding(
 @xr.register_dataset_accessor("to_compressed_netcdf")
 class ToCompressed_Netcdf:
     """Save to compressed netcdf wrapping ds.to_netcdf(encoding=get_compress_encoding(ds)).
-    
+
     Inputs
     ------
     path : str, path-like or file-like
