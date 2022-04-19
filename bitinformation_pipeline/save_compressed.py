@@ -80,6 +80,7 @@ class ToCompressed_Netcdf:
         for_cdo=False,
         time_dim="time",
         chunks=None,
+        **kwargs
     ):
         self._obj.to_netcdf(
             path,
@@ -92,4 +93,5 @@ class ToCompressed_Netcdf:
                 time_dim=time_dim,
                 chunks=chunks,
             ),
+            **kwargs
         )
