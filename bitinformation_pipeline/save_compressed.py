@@ -57,11 +57,33 @@ def get_compress_encoding(
 
 @xr.register_dataset_accessor("to_compressed_netcdf")
 class ToCompressed_Netcdf:
-    """Save to compressed netcdf wrapper.
+    """Save to compressed netcdf wrapping ds.to_netcdf(encoding=get_compress_encoding(ds)).
+    
+    Inputs
+    ------
+    path : str, path-like or file-like
+      Path to which to save this dataset
+    compression : str
+      compression library, used for encoding. Defaults to "zlib".
+    shuffle : bool
+      netcdf shuffle, used for encording. Defaults to True.
+    complevel : int
+      compression level, used for encoding.
+      Ranges for 2 (little compression, fast) to 9 (strong compression, slow). Defaults to 7.
+    for_cdo : bool
+      Continue working with cdo. If True, sets time chunksize to 1,
+      context https://code.mpimet.mpg.de/boards/2/topics/12598. Defaults to False.
+    time_dim : str
+      name of the time dimension. Defaults to "time".
+    chunks : str, dict
+      how should the data be chunked on disk. None keeps defaults. "auto" uses dask.chunk("auto"),
+      dict individual chunking. Defaults to None.
+    kwargs : dict
+      to be passed to xr.Dataset.to_netcdf(**kwargs)
 
     Example:
         >>> ds = xr.tutorial.load_dataset("rasm")
-        >>> path = "rasm.nc"
+        >>> path = "compressed_rasm.nc"
         >>> ds.to_compressed_netcdf(path)
         >>> ds.to_compressed_netcdf(path, complevel=4)
         >>> ds.to_compressed_netcdf(path, for_cdo=True)
