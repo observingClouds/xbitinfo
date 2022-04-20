@@ -4,7 +4,7 @@
 
 Retrieve information content and compress accordingly.
 
-This will be a wrapper around [BitInformation.jl](https://github.com/milankl/BitInformation.jl) to retrieve and apply bitrounding from within python.
+This is an [`xarray`](xarray.pydata.org/)-wrapper around [BitInformation.jl](https://github.com/milankl/BitInformation.jl) to retrieve and apply bitrounding from within python.
 The package intends to present an easy pipeline to compress (climate) datasets based on the real information content.
 
 
