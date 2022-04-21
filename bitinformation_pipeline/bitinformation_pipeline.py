@@ -453,7 +453,8 @@ def get_prefect_flow(paths=[]):
 
     Inspect flow state
     >>> st = flow.run()
-    >>> flow.visualize(st)  # doctest: +ELLIPSIS # requires graphviz
+    >>> # requires graphviz
+    >>> flow.visualize(st)  # doctest: +ELLIPSIS
 
     Run in parallel with dask:
     >>> import os  # https://docs.xarray.dev/en/stable/user-guide/dask.html
@@ -461,7 +462,7 @@ def get_prefect_flow(paths=[]):
     >>> from prefect.executors import DaskExecutor
     >>> flow.run(executor=DaskExecutor)  # doctest: +ELLIPSIS
 
-    Modify parameters:
+    Modify parameters of a flow:
     >>> flow.run(parameters=dict(inflevel=0.9999))  # doctest: +ELLIPSIS
 
     See also

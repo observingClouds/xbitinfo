@@ -43,9 +43,12 @@ def flow_paths(rasm):
         rasm.isel(time=slice(stride * i, stride * (i + 1) - 1)).to_netcdf(f)
     flow = bp.get_prefect_flow(paths)
     yield flow, paths
+    # cleanup
     for p in paths:
         if os.path.exists(p):
             os.remove(p)
+        if os.path.exists(p.replace(".nc", "_bitrounded_compressed.nc")):
+            os.remove(p.replace(".nc", "_bitrounded_compressed.nc"))
 
 
 @pytest.mark.parametrize("executor", [LocalExecutor, DaskExecutor])
@@ -53,32 +56,15 @@ def test_get_prefect_flow_executor(flow_paths, executor):
     """Test get_prefect_flow runs for different executors."""
     flow, paths = flow_paths
     flow.run(executor=executor)
-    for p in paths:
-        if os.path.exists(p.replace(".nc", "_bitrounded_compressed.nc")):
-            os.remove(p.replace(".nc", "_bitrounded_compressed.nc"))
 
 
 def test_get_prefect_flow_inflevel_parameter(flow_paths):
     """Test get_prefect_flow runs for different parameters."""
     flow, paths = flow_paths
-    flow.run(parameters=dict(inflevel=0.90))
-    os.rename("file_0_bitrounded_compressed.nc", "file_0_bitrounded_compressed_bu.nc")
-    for p in paths:
-        if os.path.exists(p.replace(".nc", "_bitrounded_compressed.nc")):
-            os.remove(p.replace(".nc", "_bitrounded_compressed.nc"))
-
-    flow.run(parameters=dict(inflevel=0.99999999))
-
-    inflevel090 = xr.open_dataset("file_0_bitrounded_compressed_bu.nc")
-    inflevel099999999 = xr.open_dataset("file_0_bitrounded_compressed.nc")
-    assert not inflevel090.equals(inflevel099999999)
+    st090 = flow.run(parameters=dict(inflevel=0.90))
+    st099999999 = flow.run(parameters=dict(inflevel=0.99999999))
+    keepbits = flow.get_tasks()[5]
     assert (
-        inflevel090.Tair.attrs["_QuantizeBitRoundNumberOfSignificantDigits"]
-        <= inflevel099999999.Tair.attrs["_QuantizeBitRoundNumberOfSignificantDigits"]
+        st099999999.result[keepbits]._result.value
+        != st090.result[keepbits]._result.value
     )
-    for p in paths:
-        if os.path.exists(p.replace(".nc", "_bitrounded_compressed.nc")):
-            os.remove(p.replace(".nc", "_bitrounded_compressed.nc"))
-
-    if os.path.exists("file_0_bitrounded_compressed_bu.nc"):
-        os.remove("file_0_bitrounded_compressed_bu.nc")
