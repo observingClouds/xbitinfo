@@ -459,10 +459,10 @@ def get_prefect_flow(paths=[]):
     >>> # flow.visualize(st)
 
     Run in parallel with dask:
-    >>> import os  # https://docs.xarray.dev/en/stable/user-guide/dask.html
-    >>> os.environ["HDF5_USE_FILE_LOCKING"] = "FALSE"
+    >>> # import os  # https://docs.xarray.dev/en/stable/user-guide/dask.html
+    >>> # os.environ["HDF5_USE_FILE_LOCKING"] = "FALSE"
     >>> from dask.distributed import Client
-    >>> client = Client(n_workers=4, threads_per_worker=1, processes=True)
+    >>> client = Client(n_workers=2, threads_per_worker=1, processes=True, memory_limit="1GB")
     >>> from prefect.executors import DaskExecutor
     >>> executor = DaskExecutor(address=client.scheduler.address)
     >>> flow.run(executor=executor)
