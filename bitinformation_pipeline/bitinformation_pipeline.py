@@ -447,42 +447,14 @@ def get_prefect_flow(paths=[]):
 
     Create prefect.Flow and run sequentially
     >>> flow = bp.get_prefect_flow(paths=paths)
-    >>> flow.run()  # doctest: +ELLIPSIS
-    [2022-04-21 14:37:32+0000] INFO - prefect.FlowRunner | Beginning Flow run for 'bitinformation_pipeline'
-    [2022-04-21 14:37:32+0000] INFO - prefect.TaskRunner | Task 'analyse_paths': Starting task run...
-    [2022-04-21 14:37:32+0000] INFO - prefect.TaskRunner | Task 'analyse_paths': Finished task run for task with final state: 'Success'
-    [2022-04-21 14:37:32+0000] INFO - prefect.TaskRunner | Task 'label': Starting task run...
-    [2022-04-21 14:37:32+0000] INFO - prefect.TaskRunner | Task 'label': Finished task run for task with final state: 'Success'
-    [2022-04-21 14:37:32+0000] INFO - prefect.TaskRunner | Task 'dim': Starting task run...
-    [2022-04-21 14:37:32+0000] INFO - prefect.TaskRunner | Task 'dim': Finished task run for task with final state: 'Success'
-    [2022-04-21 14:37:32+0000] INFO - prefect.TaskRunner | Task 'chunks': Starting task run...
-    [2022-04-21 14:37:32+0000] INFO - prefect.TaskRunner | Task 'chunks': Finished task run for task with final state: 'Success'
-    [2022-04-21 14:37:32+0000] INFO - prefect.TaskRunner | Task 'paths': Starting task run...
-    [2022-04-21 14:37:32+0000] INFO - prefect.TaskRunner | Task 'paths': Finished task run for task with final state: 'Success'
-    [2022-04-21 14:37:32+0000] INFO - prefect.TaskRunner | Task 'inflevel': Starting task run...
-    [2022-04-21 14:37:32+0000] INFO - prefect.TaskRunner | Task 'inflevel': Finished task run for task with final state: 'Success'
-    [2022-04-21 14:37:32+0000] INFO - prefect.TaskRunner | Task 'axis': Starting task run...
-    [2022-04-21 14:37:32+0000] INFO - prefect.TaskRunner | Task 'axis': Finished task run for task with final state: 'Success'
-    [2022-04-21 14:37:32+0000] INFO - prefect.TaskRunner | Task 'complevel': Starting task run...
-    [2022-04-21 14:37:32+0000] INFO - prefect.TaskRunner | Task 'complevel': Finished task run for task with final state: 'Success'
-    [2022-04-21 14:37:32+0000] INFO - prefect.TaskRunner | Task 'rename': Starting task run...
-    [2022-04-21 14:37:32+0000] INFO - prefect.TaskRunner | Task 'rename': Finished task run for task with final state: 'Success'
-    [2022-04-21 14:37:32+0000] INFO - prefect.TaskRunner | Task 'get_bitinformation_keepbits': Starting task run...
-    [2022-04-21 14:37:33+0000] INFO - prefect.TaskRunner | Task 'get_bitinformation_keepbits': Finished task run for task with final state: 'Success'
-    [2022-04-21 14:37:33+0000] INFO - prefect.TaskRunner | Task 'bitround_and_save': Starting task run...
-    [2022-04-21 14:37:33+0000] INFO - prefect.TaskRunner | Task 'bitround_and_save': Finished task run for task with final state: 'Mapped'
-    [2022-04-21 14:37:33+0000] INFO - prefect.TaskRunner | Task 'bitround_and_save[0]': Starting task run...
-    [2022-04-21 14:37:33+0000] INFO - prefect.TaskRunner | Task 'bitround_and_save[0]': Finished task run for task with final state: 'Success'
-    [2022-04-21 14:37:33+0000] INFO - prefect.TaskRunner | Task 'bitround_and_save[1]': Starting task run...
-    [2022-04-21 14:37:33+0000] INFO - prefect.TaskRunner | Task 'bitround_and_save[1]': Finished task run for task with final state: 'Success'
-    [2022-04-21 14:37:33+0000] INFO - prefect.TaskRunner | Task 'bitround_and_save[2]': Starting task run...
-    [2022-04-21 14:37:33+0000] INFO - prefect.TaskRunner | Task 'bitround_and_save[2]': Finished task run for task with final state: 'Success'
-    [2022-04-21 14:37:33+0000] INFO - prefect.TaskRunner | Task 'bitround_and_save[3]': Starting task run...
-    [2022-04-21 14:37:33+0000] INFO - prefect.TaskRunner | Task 'bitround_and_save[3]': Finished task run for task with final state: 'Success'
-    [2022-04-21 14:37:33+0000] INFO - prefect.FlowRunner | Flow run SUCCESS: all reference tasks succeeded
+    >>> import prefect
+    >>> logger = prefect.context.get('logger')
+    >>> logger.setLevel('ERROR')
+    >>> flow.run()
+    <Success: "All reference tasks succeeded.">
 
     Inspect flow state
-    >>> st = flow.run()  # doctest: +ELLIPSIS
+    >>> st = flow.run()
     >>> # requires graphviz
     >>> flow.visualize(st)  # doctest: +ELLIPSIS
 
@@ -490,10 +462,12 @@ def get_prefect_flow(paths=[]):
     >>> import os  # https://docs.xarray.dev/en/stable/user-guide/dask.html
     >>> os.environ["HDF5_USE_FILE_LOCKING"] = "FALSE"
     >>> from prefect.executors import DaskExecutor
-    >>> flow.run(executor=DaskExecutor)  # doctest: +ELLIPSIS
+    >>> flow.run(executor=DaskExecutor)
+    <Success: "All reference tasks succeeded.">
 
     Modify parameters of a flow:
-    >>> flow.run(parameters=dict(inflevel=0.9999))  # doctest: +ELLIPSIS
+    >>> flow.run(parameters=dict(inflevel=0.9999))
+    <Success: "All reference tasks succeeded.">
 
     See also
     --------
