@@ -2,8 +2,7 @@ import os
 
 import pytest
 import xarray as xr
-from prefect.executors import DaskExecutor, LocalExecutor
-
+from prefect.executors import LocalExecutor, LocalDaskExecutor
 import bitinformation_pipeline as bp
 
 
