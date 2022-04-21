@@ -405,6 +405,101 @@ def plot_bitinformation(bitinfo):
     return fig
 
 
+def get_prefect_flow(paths, rename=[".nc", "_bitrounded_compressed.nc"]):
+    """
+    Create prefect.Flow for bitinformation_pipeline bitrounding paths.
+
+    1. Analyse bitwise real information content
+    2. Retrieve keepbits
+    3. Apply bitrounding with `xr_bitround`
+    4. Save as compressed netcdf with `to_compressed_netcdf`
+
+    Inputs
+    ------
+    paths : list
+      list of Paths of files to analyse, xr_bitround and to_compressed_netcdf.
+    rename : list
+      renaming replace mapping, i.e. replace rename[0] with rename[1]
+
+    Returns
+    -------
+    prefect.Flow
+      see https://docs.prefect.io/core/concepts/flows.html#overview
+
+    Example
+    -------
+
+    Imagine n files of similar content:
+    >>> ds = xr.tutorial.load_dataset("rasm")
+    >>> year, datasets = zip(*ds.groupby("time.year"))
+    >>> paths = [f"{y}.nc" for y in year]
+    >>> xr.save_mfdataset(datasets, paths)
+
+    Create prefect.Flow and run sequentially
+    >>> flow = bp.get_prefect_flow(paths)
+    >>> flow.visualize()
+    >>> flow.run()
+
+    Run in parallel with dask:
+    >>> import os  # https://docs.xarray.dev/en/stable/user-guide/dask.html
+    >>> os.environ["HDF5_USE_FILE_LOCKING"] = "FALSE"
+    >>> from prefect.executors import DaskExecutor
+    >>> flow.run(executor=DaskExecutor)
+
+    Modify parameters:
+    >>> flow.run(parameters=dict(INFLEVEL=0.9999))
+    """
+
+    from prefect import Flow, Parameter, task, unmapped
+    from prefect.engine.signals import SKIP
+
+    from .bitround import xr_bitround
+
+    @task
+    def get_bitinformation(
+        paths, label=None, inflevel=0.99, **get_bitinformation_kwargs
+    ):
+        # take subset only for analysis in bitinformation
+        ds = xr.open_mfdataset([paths[0], paths[-1]])
+        info_per_bit = get_keepbits(
+            get_bitinformation(ds, label=label, **get_bitinformation_kwargs)
+        )
+        keepbits = get_keepbits(info_per_bit, inflevel=inflevel)
+        keepbits = {v: max(0, k) for v, k in keepbits.items()}  # ensure no negative
+        return keepbits
+
+    @task
+    def bitround_and_save(path, keepbits, chunks=None, complevel=4):
+        new_path = path.replace(rename[0], rename[1])
+        if os.path.exists(new_path):
+            try:
+                ds_new = xr.open_dataset(new_path, chunks=chunks)
+                ds = xr.open_dataset(path, chunks=chunks)
+                if (
+                    ds.nbytes == ds_new.nbytes
+                ):  # bitrounded and original have same number of bytes in memory
+                    raise SKIP(f"{new_path} already exists.")
+            except Exception as e:
+                print(
+                    f"{type(e)} when xr.open_dataset({new_path}), therefore delete and recalculate."
+                )
+                os.remove(new_path)
+        ds = xr.open_dataset(
+            path, chunks=chunks
+        )  # .set_coords(vertices) # dont bitround vertices
+        ds_bitround = xr_bitround(ds, keepbits)  # .reset_coords(vertices)
+        ds_bitround.to_compressed_netcdf(new_path, complevel=complevel)
+        return
+
+    with Flow("bitinformation_pipeline") as flow:
+        PATHS = Parameter("PATHS", default=paths)
+        # add more parameter options
+        INFLEVEL = Parameter("INFLEVEL", default=0.99)
+        keepbits = get_bitinformation(PATHS, inflevel=INFLEVEL)  # once
+        bitround_and_save.map(path=PATHS, keepbits=unmapped(keepbits))  # parallel map
+    return flow
+
+
 class JsonCustomEncoder(json.JSONEncoder):
     def default(self, obj):
         if isinstance(obj, (np.ndarray, np.number)):
