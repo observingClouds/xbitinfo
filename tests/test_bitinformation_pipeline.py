@@ -58,11 +58,9 @@ def test_get_prefect_flow_executor(flow_paths, executor):
         flow.run()
     elif executor == "dask":
         from dask.distributed import Client
-
         client = Client(n_workers=4, threads_per_worker=1, processes=True)
         # point Prefect's DaskExecutor to our Dask cluster
-        from prefect.engine.executors import DaskExecutor
-
+        from prefect.executors import DaskExecutor
         executor = DaskExecutor(address=client.scheduler.address)
         flow.run(executor=executor)
 
