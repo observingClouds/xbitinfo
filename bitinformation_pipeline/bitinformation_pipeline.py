@@ -442,14 +442,7 @@ def get_prefect_flow(paths=[]):
     >>> xr.save_mfdataset(datasets, paths)
 
     Create prefect.Flow and run sequentially
-    >>> flow = bp.get_prefect_flow(paths=paths)
-    [2022-04-21 13:25:12+0000] INFO - prefect.FlowRunner | Beginning Flow run for 'bitinformation_pipeline'
-    [2022-04-21 13:25:12+0000] INFO - prefect.TaskRunner | Task 'label': Starting task run...
-    [2022-04-21 13:25:12+0000] INFO - prefect.TaskRunner | Task 'label': Finished task run for task with final state: 'Success'
-    [2022-04-21 13:25:12+0000] INFO - prefect.TaskRunner | Task 'analyse_paths': Starting task run...
-    ...
-    [2022-04-21 13:25:13+0000] INFO - prefect.FlowRunner | Flow run SUCCESS: all reference tasks succeeded
-    <Success: "All reference tasks succeeded.">
+    >>> flow = bp.get_prefect_flow(paths=paths)  # doctest: +ELLIPSIS
 
     Inspect flow state
     >>> st = flow.run()
