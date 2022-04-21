@@ -505,8 +505,8 @@ def get_prefect_flow(paths=[]):
         return
 
     with Flow("bitinformation_pipeline") as flow:
-        if paths == []:
-            raise ValueError("Please provide paths of files to bitround, found [].")
+        # if paths == []:
+        #    raise ValueError("Please provide paths of files to bitround, found [].")
         paths = Parameter("paths", default=paths)
         dim = Parameter("dim", default=None)
         axis = Parameter("axis", default=None)

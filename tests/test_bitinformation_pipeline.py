@@ -28,13 +28,13 @@ def test_full():
     assert bitrounded_compressed_size < compressed_size
 
 
-im = 3
+imax = 3
 
 
 @pytest.fixture()
 def flow_paths(rasm):
     paths = []
-    for i in range(im):
+    for i in range(imax):
         f = f"file_{i}.nc"
         paths.append(f)
         rasm.to_netcdf(f)
@@ -54,6 +54,8 @@ def test_get_prefect_flow_inflevel_parameter(flow, flow_paths):
     flow, paths = flow_paths
     flow.run(parameters=dict(inflevel=0.90))
     os.move("file_0_bitrounded_compressed.nc", "file_0_bitrounded_compressed_bu.nc")
+    for i in range(imax):
+        os.remove(paths[i].replace(".nc", "_bitrounded_compressed.nc"))
 
     flow.run(parameters=dict(inflevel=0.99999999))
 
@@ -64,11 +66,13 @@ def test_get_prefect_flow_inflevel_parameter(flow, flow_paths):
         inflevel090.Tair.attrs["_QuantizeBitRoundNumberOfSignificantDigits"]
         <= inflevel099999999.Tair.attrs["_QuantizeBitRoundNumberOfSignificantDigits"]
     )
+    for i in range(imax):
+        os.remove(paths[i].replace(".nc", "_bitrounded_compressed.nc"))
 
 
 def test_cleanup(flow_paths):
     flow, paths = flow_paths
     # cleanup
-    for i in range(im):
+    os.remove("file_0_bitrounded_compressed_bu.nc")
+    for i in range(imax):
         os.remove(paths[i])
-        os.remove(paths[i].replace(".nc", "_bitrounded_compressed.nc"))
