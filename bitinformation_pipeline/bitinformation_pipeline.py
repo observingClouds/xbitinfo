@@ -437,7 +437,7 @@ def get_prefect_flow(paths, rename=[".nc", "_bitrounded_compressed.nc"]):
 
     Create prefect.Flow and run sequentially
     >>> flow = bp.get_prefect_flow(paths)
-    >>> flow.visualize()
+    >>> # flow.visualize() # requires graphviz
     >>> flow.run()
 
     Run in parallel with dask:
