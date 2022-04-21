@@ -61,8 +61,8 @@ def test_get_prefect_flow_executor(flow_paths, executor):
 def test_get_prefect_flow_inflevel_parameter(flow_paths):
     """Test get_prefect_flow runs for different parameters."""
     flow, paths = flow_paths
-    st090 = flow.run(parameters=dict(inflevel=0.90))
-    st099999999 = flow.run(parameters=dict(inflevel=0.99999999))
+    st090 = flow.run(parameters=dict(axis=-1, inflevel=0.90))
+    st099999999 = flow.run(parameters=dict(axis=-1, inflevel=0.99999999))
     keepbits = flow.get_tasks(name="get_bitinformation_keepbits")[0]
     assert (
         st099999999.result[keepbits]._result.value
