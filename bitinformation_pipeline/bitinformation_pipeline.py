@@ -463,7 +463,7 @@ def get_prefect_flow(paths=[]):
     from .bitround import xr_bitround
 
     @task
-    def get_bitinformation(
+    def get_bitinformation_keepbits(
         paths, label=None, inflevel=0.99, **get_bitinformation_kwargs
     ):
         # take subset only for analysis in bitinformation
@@ -505,8 +505,8 @@ def get_prefect_flow(paths=[]):
         return
 
     with Flow("bitinformation_pipeline") as flow:
-        # if paths == []:
-        #    raise ValueError("Please provide paths of files to bitround, found [].")
+        if paths == []:
+            raise ValueError("Please provide paths of files to bitround, found [].")
         paths = Parameter("paths", default=paths)
         dim = Parameter("dim", default=None)
         axis = Parameter("axis", default=None)
@@ -515,7 +515,7 @@ def get_prefect_flow(paths=[]):
         rename = Parameter("rename", default=[".nc", "_bitrounded_compressed.nc"])
         complevel = Parameter("complevel", default=4)
         chunks = Parameter("chunks", default=None)
-        keepbits = get_bitinformation(
+        keepbits = get_bitinformation_keepbits(
             paths, dim=dim, axis=axis, inflevel=inflevel, label=label
         )  # once
         bitround_and_save.map(
