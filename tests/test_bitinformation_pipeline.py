@@ -37,6 +37,8 @@ def flow_paths(rasm):
     stride = rasm.time.size // imax
     for i in range(imax):
         f = f"file_{i}.nc"
+        if os.path.exists(f.replace(".nc", "_bitrounded_compressed.nc")):
+            os.remove(f.replace(".nc", "_bitrounded_compressed.nc"))
         paths.append(f)
         rasm.isel(time=slice(stride * i, stride * (i + 1) - 1)).to_netcdf(f)
     flow = bp.get_prefect_flow(paths)
@@ -74,6 +76,8 @@ def test_get_prefect_flow_inflevel_parameter(flow_paths):
 def test_cleanup(flow_paths):
     flow, paths = flow_paths
     # cleanup
-    os.remove("file_0_bitrounded_compressed_bu.nc")
+    if os.path.exists("file_0_bitrounded_compressed_bu.nc"):
+        os.remove("file_0_bitrounded_compressed_bu.nc")
     for i in range(imax):
-        os.remove(paths[i])
+        if os.path.exists(paths[i]):
+            os.remove(paths[i])
