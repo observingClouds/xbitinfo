@@ -25,5 +25,4 @@ dependencies:
   - pip
   - pip:
     - git+https://github.com/rabernat/numcodecs@bitround
-    - prefect[viz]
     - -e .
