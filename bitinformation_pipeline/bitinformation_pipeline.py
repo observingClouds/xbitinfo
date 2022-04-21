@@ -462,7 +462,7 @@ def get_prefect_flow(paths=[]):
     >>> import os  # https://docs.xarray.dev/en/stable/user-guide/dask.html
     >>> os.environ["HDF5_USE_FILE_LOCKING"] = "FALSE"
     >>> from prefect.executors import DaskExecutor
-    >>> flow.run(executor=DaskExecutor())
+    >>> flow.run(executor=DaskExecutor)
     <Success: "All reference tasks succeeded.">
 
     Modify parameters of a flow:
