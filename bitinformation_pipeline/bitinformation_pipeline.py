@@ -415,13 +415,17 @@ def get_prefect_flow(paths=[]):
     4. Save as compressed netcdf with `to_compressed_netcdf`
 
     Many parameters can be changed when running the flow `flow.run(parameters=dict(chunk="auto"))`:
-    - paths
-    - label
-    - dim/axis
-    - inflevel
-    - chunks
-    - complevel
-    - rename
+    - paths: list of Paths
+        paths to be bitrounded
+    - analyse_paths: str or int
+        which paths to be passed to `bp.get_bitinformation`. choose from ["first_last", "all", int], where int is interpreted as stride, i.e. paths[::stride]. Defaults to "first".
+    - label : see get_bitinformation
+    - dim/axis : see get_bitinformation
+    - inflevel : see get_keepbits
+    - chunks : see https://xarray.pydata.org/en/stable/generated/xarray.open_mfdataset.html. Note that with `chunks=None`, `dask` is not used for I/O and the flow is still parallelized when using `DaskExecutor`.
+    - complevel : see to_compressed_netcdf, defaults to 7.
+    - rename : list
+      replace mapping for paths for new_path for bitrounded file, i.e. replace=[".nc", "_bitrounded_compressed.nc"]
 
     Inputs
     ------
@@ -505,7 +509,7 @@ def get_prefect_flow(paths=[]):
     @task
     def get_bitinformation_keepbits(
         paths,
-        analyse_paths="first_last",
+        analyse_paths="first",
         label=None,
         inflevel=0.99,
         **get_bitinformation_kwargs,
@@ -521,7 +525,7 @@ def get_prefect_flow(paths=[]):
             p = paths[::analyse_paths]
         else:
             raise ValueError(
-                "Please provide analyse_paths as int or from ['first_land','all','first','last']."
+                "Please provide analyse_paths as int or from ['first_last','all','first','last']."
             )
         ds = xr.open_mfdataset(p)
         info_per_bit = get_bitinformation(ds, label=label, **get_bitinformation_kwargs)
@@ -562,13 +566,13 @@ def get_prefect_flow(paths=[]):
         if paths == []:
             raise ValueError("Please provide paths of files to bitround, found [].")
         paths = Parameter("paths", default=paths)
-        analyse_paths = Parameter("analyse_paths", default="first_last")
+        analyse_paths = Parameter("analyse_paths", default="first")
         dim = Parameter("dim", default=None)
         axis = Parameter("axis", default=0)
         inflevel = Parameter("inflevel", default=0.99)
         label = Parameter("label", default=None)
         rename = Parameter("rename", default=[".nc", "_bitrounded_compressed.nc"])
-        complevel = Parameter("complevel", default=4)
+        complevel = Parameter("complevel", default=7)
         chunks = Parameter("chunks", default=None)
         keepbits = get_bitinformation_keepbits(
             paths,
