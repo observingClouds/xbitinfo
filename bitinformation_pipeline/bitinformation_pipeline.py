@@ -405,7 +405,7 @@ def plot_bitinformation(bitinfo):
     return fig
 
 
-def get_prefect_flow(paths, rename=[".nc", "_bitrounded_compressed.nc"]):
+def get_prefect_flow(paths=[]):
     """
     Create prefect.Flow for bitinformation_pipeline bitrounding paths.
 
@@ -414,12 +414,19 @@ def get_prefect_flow(paths, rename=[".nc", "_bitrounded_compressed.nc"]):
     3. Apply bitrounding with `xr_bitround`
     4. Save as compressed netcdf with `to_compressed_netcdf`
 
+    Many parameters can be changed when running the flow `flow.run(parameters=dict(chunk="auto"))`:
+    - paths
+    - label
+    - dim/axis
+    - inflevel
+    - chunks
+    - complevel
+    - rename
+
     Inputs
     ------
     paths : list
       list of Paths of files to analyse, xr_bitround and to_compressed_netcdf.
-    rename : list
-      renaming replace mapping, i.e. replace rename[0] with rename[1]
 
     Returns
     -------
@@ -436,7 +443,7 @@ def get_prefect_flow(paths, rename=[".nc", "_bitrounded_compressed.nc"]):
     >>> xr.save_mfdataset(datasets, paths)
 
     Create prefect.Flow and run sequentially
-    >>> flow = bp.get_prefect_flow(paths)
+    >>> flow = bp.get_prefect_flow(paths=paths)
     >>> # flow.visualize() # requires graphviz
     >>> flow.run()
 
@@ -447,7 +454,7 @@ def get_prefect_flow(paths, rename=[".nc", "_bitrounded_compressed.nc"]):
     >>> flow.run(executor=DaskExecutor)
 
     Modify parameters:
-    >>> flow.run(parameters=dict(INFLEVEL=0.9999))
+    >>> flow.run(parameters=dict(inflevel=0.9999))
     """
 
     from prefect import Flow, Parameter, task, unmapped
@@ -469,7 +476,13 @@ def get_prefect_flow(paths, rename=[".nc", "_bitrounded_compressed.nc"]):
         return keepbits
 
     @task
-    def bitround_and_save(path, keepbits, chunks=None, complevel=4):
+    def bitround_and_save(
+        path,
+        keepbits,
+        chunks=None,
+        complevel=4,
+        rename=[".nc", "_bitrounded_compressed.nc"],
+    ):
         new_path = path.replace(rename[0], rename[1])
         if os.path.exists(new_path):
             try:
@@ -492,11 +505,26 @@ def get_prefect_flow(paths, rename=[".nc", "_bitrounded_compressed.nc"]):
         return
 
     with Flow("bitinformation_pipeline") as flow:
-        PATHS = Parameter("PATHS", default=paths)
-        # add more parameter options
-        INFLEVEL = Parameter("INFLEVEL", default=0.99)
-        keepbits = get_bitinformation(PATHS, inflevel=INFLEVEL)  # once
-        bitround_and_save.map(path=PATHS, keepbits=unmapped(keepbits))  # parallel map
+        if paths == []:
+            raise ValueError("Please provide paths of files to bitround, found [].")
+        paths = Parameter("paths", default=paths)
+        dim = Parameter("dim", default=None)
+        axis = Parameter("axis", default=None)
+        inflevel = Parameter("inflevel", default=0.99)
+        label = Parameter("label", default=None)
+        rename = Parameter("rename", default=[".nc", "_bitrounded_compressed.nc"])
+        complevel = Parameter("complevel", default=4)
+        chunks = Parameter("chunks", default=None)
+        keepbits = get_bitinformation(
+            paths, dim=dim, axis=axis, inflevel=inflevel, label=label
+        )  # once
+        bitround_and_save.map(
+            paths,
+            keepbits=unmapped(keepbits),
+            rename=unmapped(rename),
+            chunks=unmapped(chunks),
+            complevel=unmapped(complevel),
+        )  # parallel map
     return flow
 
 
