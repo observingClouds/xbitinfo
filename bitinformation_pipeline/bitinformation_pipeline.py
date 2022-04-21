@@ -435,26 +435,39 @@ def get_prefect_flow(paths=[]):
 
     Example
     -------
-
-    Imagine n files of similar content:
+    Imagine n files of similar content, i.e. 1-year per file climate model output:
     >>> ds = xr.tutorial.load_dataset("rasm")
     >>> year, datasets = zip(*ds.groupby("time.year"))
     >>> paths = [f"{y}.nc" for y in year]
     >>> xr.save_mfdataset(datasets, paths)
 
     Create prefect.Flow and run sequentially
-    >>> flow = bp.get_prefect_flow(paths=paths)
-    >>> # flow.visualize() # requires graphviz
-    >>> flow.run()
+    >>> flow = bp.get_prefect_flow(paths=paths)  # doctest: +ELLIPSIS
+    [2022-04-21 13:25:12+0000] INFO - prefect.FlowRunner | Beginning Flow run for 'bitinformation_pipeline'
+    [2022-04-21 13:25:12+0000] INFO - prefect.TaskRunner | Task 'label': Starting task run...
+    [2022-04-21 13:25:12+0000] INFO - prefect.TaskRunner | Task 'label': Finished task run for task with final state: 'Success'
+    [2022-04-21 13:25:12+0000] INFO - prefect.TaskRunner | Task 'analyse_paths': Starting task run...
+    ...
+    [2022-04-21 13:25:13+0000] INFO - prefect.FlowRunner | Flow run SUCCESS: all reference tasks succeeded
+    <Success: "All reference tasks succeeded.">
+
+    Inspect flow state
+    >>> st = flow.run()
+    >>> flow.visualize(st)  # doctest: +ELLIPSIS # requires graphviz
 
     Run in parallel with dask:
     >>> import os  # https://docs.xarray.dev/en/stable/user-guide/dask.html
     >>> os.environ["HDF5_USE_FILE_LOCKING"] = "FALSE"
     >>> from prefect.executors import DaskExecutor
-    >>> flow.run(executor=DaskExecutor)
+    >>> flow.run(executor=DaskExecutor)  # doctest: +ELLIPSIS
 
     Modify parameters:
-    >>> flow.run(parameters=dict(inflevel=0.9999))
+    >>> flow.run(parameters=dict(inflevel=0.9999))  # doctest: +ELLIPSIS
+
+    See also
+    --------
+    - https://examples.dask.org/applications/prefect-etl.html
+    - https://docs.prefect.io/core/getting_started/basic-core-flow.html
 
     """
 
@@ -478,6 +491,12 @@ def get_prefect_flow(paths=[]):
             p = paths
         elif analyse_paths == "first":
             p = paths[0]
+        elif isinstance(analyse_paths, int):  # interpret as strides
+            p = paths[::analyse_paths]
+        else:
+            raise ValueError(
+                "Please provide analyse_paths as int or from ['first_land','all','first','last']."
+            )
         ds = xr.open_mfdataset(p)
         info_per_bit = get_bitinformation(ds, label=label, **get_bitinformation_kwargs)
         keepbits = get_keepbits(info_per_bit, inflevel=inflevel)
