@@ -435,17 +435,49 @@ def get_prefect_flow(paths=[]):
 
     Example
     -------
-    Imagine n files of similar content, i.e. 1-year per file climate model output:
+    Imagine n files of identical structure, i.e. 1-year per file climate model output:
     >>> ds = xr.tutorial.load_dataset("rasm")
     >>> year, datasets = zip(*ds.groupby("time.year"))
     >>> paths = [f"{y}.nc" for y in year]
     >>> xr.save_mfdataset(datasets, paths)
 
     Create prefect.Flow and run sequentially
-    >>> flow = bp.get_prefect_flow(paths=paths)  # doctest: +ELLIPSIS
+    >>> flow = bp.get_prefect_flow(paths=paths)
+        [2022-04-21 16:16:41+0200] INFO - prefect.FlowRunner | Beginning Flow run for 'bitinformation_pipeline'
+    [2022-04-21 16:16:41+0200] INFO - prefect.TaskRunner | Task 'analyse_paths': Starting task run...
+    [2022-04-21 16:16:41+0200] INFO - prefect.TaskRunner | Task 'analyse_paths': Finished task run for task with final state: 'Success'
+    [2022-04-21 16:16:41+0200] INFO - prefect.TaskRunner | Task 'paths': Starting task run...
+    [2022-04-21 16:16:41+0200] INFO - prefect.TaskRunner | Task 'paths': Finished task run for task with final state: 'Success'
+    [2022-04-21 16:16:41+0200] INFO - prefect.TaskRunner | Task 'chunks': Starting task run...
+    [2022-04-21 16:16:41+0200] INFO - prefect.TaskRunner | Task 'chunks': Finished task run for task with final state: 'Success'
+    [2022-04-21 16:16:41+0200] INFO - prefect.TaskRunner | Task 'rename': Starting task run...
+    [2022-04-21 16:16:41+0200] INFO - prefect.TaskRunner | Task 'rename': Finished task run for task with final state: 'Success'
+    [2022-04-21 16:16:41+0200] INFO - prefect.TaskRunner | Task 'inflevel': Starting task run...
+    [2022-04-21 16:16:41+0200] INFO - prefect.TaskRunner | Task 'inflevel': Finished task run for task with final state: 'Success'
+    [2022-04-21 16:16:41+0200] INFO - prefect.TaskRunner | Task 'label': Starting task run...
+    [2022-04-21 16:16:41+0200] INFO - prefect.TaskRunner | Task 'label': Finished task run for task with final state: 'Success'
+    [2022-04-21 16:16:41+0200] INFO - prefect.TaskRunner | Task 'dim': Starting task run...
+    [2022-04-21 16:16:41+0200] INFO - prefect.TaskRunner | Task 'dim': Finished task run for task with final state: 'Success'
+    [2022-04-21 16:16:41+0200] INFO - prefect.TaskRunner | Task 'axis': Starting task run...
+    [2022-04-21 16:16:41+0200] INFO - prefect.TaskRunner | Task 'axis': Finished task run for task with final state: 'Success'
+    [2022-04-21 16:16:41+0200] INFO - prefect.TaskRunner | Task 'complevel': Starting task run...
+    [2022-04-21 16:16:41+0200] INFO - prefect.TaskRunner | Task 'complevel': Finished task run for task with final state: 'Success'
+    [2022-04-21 16:16:41+0200] INFO - prefect.TaskRunner | Task 'get_bitinformation_keepbits': Starting task run...
+    [2022-04-21 16:16:42+0200] INFO - prefect.TaskRunner | Task 'get_bitinformation_keepbits': Finished task run for task with final state: 'Success'
+    [2022-04-21 16:16:42+0200] INFO - prefect.TaskRunner | Task 'bitround_and_save': Starting task run...
+    [2022-04-21 16:16:42+0200] INFO - prefect.TaskRunner | Task 'bitround_and_save': Finished task run for task with final state: 'Mapped'
+    [2022-04-21 16:16:42+0200] INFO - prefect.TaskRunner | Task 'bitround_and_save[0]': Starting task run...
+    [2022-04-21 16:16:42+0200] INFO - prefect.TaskRunner | Task 'bitround_and_save[0]': Finished task run for task with final state: 'Success'
+    [2022-04-21 16:16:42+0200] INFO - prefect.TaskRunner | Task 'bitround_and_save[1]': Starting task run...
+    [2022-04-21 16:16:42+0200] INFO - prefect.TaskRunner | Task 'bitround_and_save[1]': Finished task run for task with final state: 'Success'
+    [2022-04-21 16:16:42+0200] INFO - prefect.TaskRunner | Task 'bitround_and_save[2]': Starting task run...
+    [2022-04-21 16:16:42+0200] INFO - prefect.TaskRunner | Task 'bitround_and_save[2]': Finished task run for task with final state: 'Success'
+    [2022-04-21 16:16:42+0200] INFO - prefect.TaskRunner | Task 'bitround_and_save[3]': Starting task run...
+    [2022-04-21 16:16:42+0200] INFO - prefect.TaskRunner | Task 'bitround_and_save[3]': Finished task run for task with final state: 'Success'
+    [2022-04-21 16:16:42+0200] INFO - prefect.FlowRunner | Flow run SUCCESS: all reference tasks succeeded
 
     Inspect flow state
-    >>> st = flow.run()
+    >>> st = flow.run()  # doctest: +ELLIPSIS
     >>> # requires graphviz
     >>> flow.visualize(st)  # doctest: +ELLIPSIS
 
