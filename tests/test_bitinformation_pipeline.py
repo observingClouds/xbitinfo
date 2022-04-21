@@ -51,7 +51,7 @@ def flow_paths(rasm):
             os.remove(p.replace(".nc", "_bitrounded_compressed.nc"))
 
 
-@pytest.mark.parametrize("executor", [LocalExecutor, DaskExecutor])
+@pytest.mark.parametrize("executor", [LocalExecutor, LocalDaskExecutor])
 def test_get_prefect_flow_executor(flow_paths, executor):
     """Test get_prefect_flow runs for different executors."""
     flow, paths = flow_paths
