@@ -448,9 +448,8 @@ def get_prefect_flow(paths=[]):
     Create prefect.Flow and run sequentially
     >>> flow = bp.get_prefect_flow(paths=paths)
     >>> import prefect
-    ...
-    ... logger = prefect.context.get("logger")
-    ... logger.setLevel("ERROR")
+    >>> logger = prefect.context.get("logger")
+    >>> logger.setLevel("ERROR")
     >>> flow.run()
     <Success: "All reference tasks succeeded.">
 
