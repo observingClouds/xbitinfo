@@ -479,9 +479,7 @@ def get_prefect_flow(paths=[]):
         elif analyse_paths == "first":
             p = paths[0]
         ds = xr.open_mfdataset(p)
-        info_per_bit = get_keepbits(
-            get_bitinformation(ds, label=label, **get_bitinformation_kwargs)
-        )
+        info_per_bit = get_bitinformation(ds, label=label, **get_bitinformation_kwargs)
         keepbits = get_keepbits(info_per_bit, inflevel=inflevel)
         keepbits = {v: max(0, k) for v, k in keepbits.items()}  # ensure no negative
         return keepbits
