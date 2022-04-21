@@ -447,10 +447,15 @@ def get_prefect_flow(paths=[]):
 
     Create prefect.Flow and run sequentially
     >>> flow = bp.get_prefect_flow(paths=paths)
-    >>> flow.run()  # doctest: +ELLIPSIS
+    >>> import prefect
+    ...
+    ... logger = prefect.context.get("logger")
+    ... logger.setLevel("ERROR")
+    >>> flow.run()
+    <Success: "All reference tasks succeeded.">
 
     Inspect flow state
-    >>> st = flow.run()  # doctest: +ELLIPSIS
+    >>> st = flow.run()
     >>> # requires graphviz
     >>> flow.visualize(st)  # doctest: +ELLIPSIS
 
@@ -458,10 +463,12 @@ def get_prefect_flow(paths=[]):
     >>> import os  # https://docs.xarray.dev/en/stable/user-guide/dask.html
     >>> os.environ["HDF5_USE_FILE_LOCKING"] = "FALSE"
     >>> from prefect.executors import DaskExecutor
-    >>> flow.run(executor=DaskExecutor)  # doctest: +ELLIPSIS
+    >>> flow.run(executor=DaskExecutor)
+    <Success: "All reference tasks succeeded.">
 
     Modify parameters of a flow:
-    >>> flow.run(parameters=dict(inflevel=0.9999))  # doctest: +ELLIPSIS
+    >>> flow.run(parameters=dict(inflevel=0.9999))
+    <Success: "All reference tasks succeeded.">
 
     See also
     --------
