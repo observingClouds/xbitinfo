@@ -4,6 +4,7 @@ from .bitinformation_pipeline import (
     _get_keepbits,
     get_bitinformation,
     get_keepbits,
+    get_prefect_flow,
     plot_bitinformation,
 )
 from .bitround import jl_bitround, xr_bitround
