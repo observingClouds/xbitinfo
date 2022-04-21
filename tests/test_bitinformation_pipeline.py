@@ -34,10 +34,11 @@ imax = 3
 @pytest.fixture()
 def flow_paths(rasm):
     paths = []
+    stride = rasm.time.size // imax
     for i in range(imax):
         f = f"file_{i}.nc"
         paths.append(f)
-        rasm.to_netcdf(f)
+        rasm.isel(time=slice(stride * i, stride * (i + 1) - 1)).to_netcdf(f)
     flow = bp.get_prefect_flow(paths)
     return flow, paths
 
@@ -53,7 +54,7 @@ def test_get_prefect_flow_inflevel_parameter(flow_paths):
     """Test get_prefect_flow runs for different parameters."""
     flow, paths = flow_paths
     flow.run(parameters=dict(inflevel=0.90))
-    os.move("file_0_bitrounded_compressed.nc", "file_0_bitrounded_compressed_bu.nc")
+    os.rename("file_0_bitrounded_compressed.nc", "file_0_bitrounded_compressed_bu.nc")
     for i in range(imax):
         os.remove(paths[i].replace(".nc", "_bitrounded_compressed.nc"))
 
