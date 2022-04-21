@@ -46,10 +46,10 @@ def flow_paths(rasm):
 def test_get_prefect_flow_executor(flow_paths, executor):
     """Test get_prefect_flow runs for different executors."""
     flow, paths = flow_paths
-    flow.run(executor)
+    flow.run(executor=executor)
 
 
-def test_get_prefect_flow_inflevel_parameter(flow, flow_paths):
+def test_get_prefect_flow_inflevel_parameter(flow_paths):
     """Test get_prefect_flow runs for different parameters."""
     flow, paths = flow_paths
     flow.run(parameters=dict(inflevel=0.90))
