@@ -456,8 +456,7 @@ def get_prefect_flow(paths=[]):
     Inspect flow state
     >>> st = flow.run()
     >>> # requires graphviz
-    >>> flow.visualize(st)
-    <graphviz.graphs.Digraph object at 0x7fed3596efb0>
+    >>> # flow.visualize(st)
 
     Run in parallel with dask:
     >>> import os  # https://docs.xarray.dev/en/stable/user-guide/dask.html
