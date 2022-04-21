@@ -455,6 +455,7 @@ def get_prefect_flow(paths=[]):
 
     Modify parameters:
     >>> flow.run(parameters=dict(inflevel=0.9999))
+
     """
 
     from prefect import Flow, Parameter, task, unmapped
@@ -464,10 +465,20 @@ def get_prefect_flow(paths=[]):
 
     @task
     def get_bitinformation_keepbits(
-        paths, label=None, inflevel=0.99, **get_bitinformation_kwargs
+        paths,
+        analyse_paths="first_last",
+        label=None,
+        inflevel=0.99,
+        **get_bitinformation_kwargs,
     ):
         # take subset only for analysis in bitinformation
-        ds = xr.open_mfdataset([paths[0], paths[-1]])
+        if analyse_paths == "first_last":
+            p = [paths[0], paths[-1]]
+        elif analyse_paths == "all":
+            p = paths
+        elif analyse_paths == "first":
+            p = paths[0]
+        ds = xr.open_mfdataset(p)
         info_per_bit = get_keepbits(
             get_bitinformation(ds, label=label, **get_bitinformation_kwargs)
         )
@@ -508,15 +519,21 @@ def get_prefect_flow(paths=[]):
         if paths == []:
             raise ValueError("Please provide paths of files to bitround, found [].")
         paths = Parameter("paths", default=paths)
+        analyse_paths = Parameter("analyse_paths", default="first_last")
         dim = Parameter("dim", default=None)
-        axis = Parameter("axis", default=None)
+        axis = Parameter("axis", default=0)
         inflevel = Parameter("inflevel", default=0.99)
         label = Parameter("label", default=None)
         rename = Parameter("rename", default=[".nc", "_bitrounded_compressed.nc"])
         complevel = Parameter("complevel", default=4)
         chunks = Parameter("chunks", default=None)
         keepbits = get_bitinformation_keepbits(
-            paths, dim=dim, axis=axis, inflevel=inflevel, label=label
+            paths,
+            analyse_paths=analyse_paths,
+            dim=dim,
+            axis=axis,
+            inflevel=inflevel,
+            label=label,
         )  # once
         bitround_and_save.map(
             paths,
