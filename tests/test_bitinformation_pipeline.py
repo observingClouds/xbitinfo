@@ -54,6 +54,9 @@ def flow_paths(rasm):
 def test_get_prefect_flow_executor(flow_paths, executor):
     """Test get_prefect_flow runs for different executors."""
     flow, paths = flow_paths
+    for f in paths:
+        if os.path.exists(f.replace(".nc", "_bitrounded_compressed.nc")):
+            os.remove(f.replace(".nc", "_bitrounded_compressed.nc"))
     if executor == "local":
         flow.run()
     elif executor == "dask":
@@ -70,6 +73,9 @@ def test_get_prefect_flow_executor(flow_paths, executor):
 def test_get_prefect_flow_inflevel_parameter(flow_paths):
     """Test get_prefect_flow runs for different parameters."""
     flow, paths = flow_paths
+    for f in paths:
+        if os.path.exists(f.replace(".nc", "_bitrounded_compressed.nc")):
+            os.remove(f.replace(".nc", "_bitrounded_compressed.nc"))
     st090 = flow.run(parameters=dict(axis=-1, inflevel=0.90))
     st099999999 = flow.run(parameters=dict(axis=-1, inflevel=0.99999999))
     keepbits = flow.get_tasks(name="get_bitinformation_keepbits")[0]
