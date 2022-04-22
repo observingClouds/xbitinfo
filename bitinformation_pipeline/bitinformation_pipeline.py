@@ -419,6 +419,8 @@ def get_prefect_flow(paths=[]):
         paths to be bitrounded
     - analyse_paths: str or int
         which paths to be passed to `bp.get_bitinformation`. choose from ["first_last", "all", int], where int is interpreted as stride, i.e. paths[::stride]. Defaults to "first".
+    - enforce_dtype : str or None
+        Enforce dype for all variables. Currently `get_bitinformation` fails for different dtypes in variables. Do nothing if None. Defaults to None.
     - label : see get_bitinformation
     - dim/axis : see get_bitinformation
     - inflevel : see get_keepbits
@@ -492,6 +494,7 @@ def get_prefect_flow(paths=[]):
         analyse_paths="first",
         label=None,
         inflevel=0.99,
+        enforce_dtype=None,
         **get_bitinformation_kwargs,
     ):
         # take subset only for analysis in bitinformation
@@ -508,6 +511,8 @@ def get_prefect_flow(paths=[]):
                 "Please provide analyse_paths as int or from ['first_last','all','first','last']."
             )
         ds = xr.open_mfdataset(p)
+        if enforce_dtype:
+            ds = ds.astype(enforce_dtype)
         info_per_bit = get_bitinformation(ds, label=label, **get_bitinformation_kwargs)
         keepbits = get_keepbits(info_per_bit, inflevel=inflevel)
         keepbits = {v: max(0, k) for v, k in keepbits.items()}  # ensure no negative
@@ -521,6 +526,7 @@ def get_prefect_flow(paths=[]):
         complevel=4,
         rename=[".nc", "_bitrounded_compressed.nc"],
         overwrite=False,
+        enforce_dtype=None,
     ):
         new_path = path.replace(rename[0], rename[1])
         if not overwrite:
@@ -539,8 +545,10 @@ def get_prefect_flow(paths=[]):
                     os.remove(new_path)
         ds = xr.open_dataset(
             path, chunks=chunks
-        )  # .set_coords(vertices) # dont bitround vertices
-        ds_bitround = xr_bitround(ds, keepbits)  # .reset_coords(vertices)
+        )
+        if enforce_dtype:
+            ds = ds.astype(enforce_dtype)
+        ds_bitround = xr_bitround(ds, keepbits)
         ds_bitround.to_compressed_netcdf(new_path, complevel=complevel)
         return
 
@@ -557,6 +565,7 @@ def get_prefect_flow(paths=[]):
         overwrite = Parameter("overwrite", default=False)
         complevel = Parameter("complevel", default=7)
         chunks = Parameter("chunks", default=None)
+        enforce_dtype = Parameter("enforce_dtype", default=None)
         keepbits = get_bitinformation_keepbits(
             paths,
             analyse_paths=analyse_paths,
@@ -564,6 +573,7 @@ def get_prefect_flow(paths=[]):
             axis=axis,
             inflevel=inflevel,
             label=label,
+            enforce_dtype=enforce_dtype,
         )  # once
         bitround_and_save.map(
             paths,
@@ -572,6 +582,7 @@ def get_prefect_flow(paths=[]):
             chunks=unmapped(chunks),
             complevel=unmapped(complevel),
             overwrite=unmapped(overwrite),
+            enforce_dtype=unmapped(enforce_dtype),
         )  # parallel map
     return flow
 
