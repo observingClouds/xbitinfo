@@ -143,7 +143,6 @@ def load_bitinformation(label):
         with open(label_file) as f:
             logging.debug(f"Load bitinformation from {label+'.json'}")
             info_per_bit = json.load(f)
-        print(info_per_bit)
         return info_per_bit
     else:
         return None
