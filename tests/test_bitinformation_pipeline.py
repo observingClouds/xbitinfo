@@ -50,7 +50,7 @@ def flow_paths(rasm):
             os.remove(p.replace(".nc", "_bitrounded_compressed.nc"))
 
 
-@pytest.mark.parametrize("executor", ["local", "dask"])
+@pytest.mark.parametrize("executor", ["local", "my_dask_client", pytest.param("DaskExecutor", marks=pytest.mark.skip(reason="fails with few resources")),pytest.param("LocalDaskExecutor", marks=pytest.mark.skip(reason="fails with few resources"))])
 def test_get_prefect_flow_executor(flow_paths, executor):
     """Test get_prefect_flow runs for different executors."""
     flow, paths = flow_paths
@@ -59,7 +59,7 @@ def test_get_prefect_flow_executor(flow_paths, executor):
             os.remove(f.replace(".nc", "_bitrounded_compressed.nc"))
     if executor == "local":
         flow.run()
-    elif executor == "dask":
+    elif executor == "my_dask_client":
         from dask.distributed import Client
 
         client = Client(n_workers=4, threads_per_worker=1, processes=True)
@@ -67,6 +67,11 @@ def test_get_prefect_flow_executor(flow_paths, executor):
         from prefect.executors import DaskExecutor
 
         executor = DaskExecutor(address=client.scheduler.address)
+        flow.run(executor=executor)
+        client.close()
+    else:
+        import prefect
+        executor = getattr(prefect.executors, executor)()
         flow.run(executor=executor)
 
 

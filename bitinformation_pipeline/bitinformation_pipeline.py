@@ -458,15 +458,18 @@ def get_prefect_flow(paths=[]):
     >>> # flow.visualize(st)  # requires graphviz
 
     Run in parallel with dask:
-    >>> # import os  # https://docs.xarray.dev/en/stable/user-guide/dask.html
-    >>> # os.environ["HDF5_USE_FILE_LOCKING"] = "FALSE"
-    >>> from prefect.executors import LocalDaskExecutor
-    >>> executor = LocalDaskExecutor(scheduler="processes")
-    >>> flow.run(executor=executor, parameters=dict(overwrite=True))
-    <Success: "All reference tasks succeeded.">
+    >>> import os  # https://docs.xarray.dev/en/stable/user-guide/dask.html
+    >>> os.environ["HDF5_USE_FILE_LOCKING"] = "FALSE"
+    >>> from prefect.executors import DaskExecutor, LocalDaskExecutor
+    >>> from dask.distributed import Client
+    >>> client = Client(n_workers=2, threads_per_worker=1, processes=True) 
+    >>> executor = DaskExecutor(address=client.scheduler.address)  # take your own client
+    >>> executor = DaskExecutor()  # use dask from prefect
+    >>> executor = LocalDaskExecutor()  # use dask local from prefect
+    >>> # flow.run(executor=executor, parameters=dict(overwrite=True)) 
 
     Modify parameters of a flow:
-    >>> flow.run(parameters=dict(inflevel=0.9999), parameters=dict(overwrite=True))
+    >>> flow.run(parameters=dict(inflevel=0.9999, overwrite=True))
     <Success: "All reference tasks succeeded.">
 
     See also
