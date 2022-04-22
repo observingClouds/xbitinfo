@@ -416,20 +416,24 @@ def get_prefect_flow(paths=[]):
 
     Many parameters can be changed when running the flow `flow.run(parameters=dict(chunk="auto"))`:
     - paths: list of Paths
-        paths to be bitrounded
+        Paths to be bitrounded
     - analyse_paths: str or int
-        which paths to be passed to `bp.get_bitinformation`. choose from ["first_last", "all", int], where int is interpreted as stride, i.e. paths[::stride]. Defaults to "first".
+        Which paths to be passed to `bp.get_bitinformation`. choose from ["first_last", "all", int], where int is interpreted as stride, i.e. paths[::stride]. Defaults to "first".
     - enforce_dtype : str or None
         Enforce dype for all variables. Currently `get_bitinformation` fails for different dtypes in variables. Do nothing if None. Defaults to None.
     - label : see get_bitinformation
     - dim/axis : see get_bitinformation
     - inflevel : see get_keepbits
+    - non_negative_keepbits : bool
+        Set negative keepbits from `get_keepbits` to 0. Required when using `xr_bitround`. Defaults to True.
     - chunks : see https://xarray.pydata.org/en/stable/generated/xarray.open_mfdataset.html. Note that with `chunks=None`, `dask` is not used for I/O and the flow is still parallelized when using `DaskExecutor`.
+    - bitround_in_julia : bool
+        Use `jl_bitround` instead of `xr_bitround`. Both should yield identical results. Defaults to False.
     - overwrite : bool
-        whether to overwrite bitrounded netcdf files. False (default) skips existing files.
+        Whether to overwrite bitrounded netcdf files. False (default) skips existing files.
     - complevel : see to_compressed_netcdf, defaults to 7.
     - rename : list
-        replace mapping for paths towards new_path of bitrounded file, i.e. replace=[".nc", "_bitrounded_compressed.nc"]
+        Replace mapping for paths towards new_path of bitrounded file, i.e. replace=[".nc", "_bitrounded_compressed.nc"]
 
     Inputs
     ------
@@ -486,7 +490,7 @@ def get_prefect_flow(paths=[]):
     from prefect import Flow, Parameter, task, unmapped
     from prefect.engine.signals import SKIP
 
-    from .bitround import xr_bitround
+    from .bitround import xr_bitround, jl_bitround
 
     @task
     def get_bitinformation_keepbits(
@@ -495,6 +499,7 @@ def get_prefect_flow(paths=[]):
         label=None,
         inflevel=0.99,
         enforce_dtype=None,
+        non_negative_keepbits=True
         **get_bitinformation_kwargs,
     ):
         # take subset only for analysis in bitinformation
@@ -515,7 +520,8 @@ def get_prefect_flow(paths=[]):
             ds = ds.astype(enforce_dtype)
         info_per_bit = get_bitinformation(ds, label=label, **get_bitinformation_kwargs)
         keepbits = get_keepbits(info_per_bit, inflevel=inflevel)
-        keepbits = {v: max(0, k) for v, k in keepbits.items()}  # ensure no negative
+        if non_negative_keepbits:
+            keepbits = {v: max(0, k) for v, k in keepbits.items()}  # ensure no negative
         return keepbits
 
     @task
@@ -527,6 +533,7 @@ def get_prefect_flow(paths=[]):
         rename=[".nc", "_bitrounded_compressed.nc"],
         overwrite=False,
         enforce_dtype=None,
+        bitround_in_julia=False,
     ):
         new_path = path.replace(rename[0], rename[1])
         if not overwrite:
@@ -546,7 +553,8 @@ def get_prefect_flow(paths=[]):
         ds = xr.open_dataset(path, chunks=chunks)
         if enforce_dtype:
             ds = ds.astype(enforce_dtype)
-        ds_bitround = xr_bitround(ds, keepbits)
+        bitround_func = jl_bitround if bitround_in_julia else xr_bitround
+        ds_bitround = bitround_func(ds, keepbits)
         ds_bitround.to_compressed_netcdf(new_path, complevel=complevel)
         return
 
@@ -561,9 +569,11 @@ def get_prefect_flow(paths=[]):
         label = Parameter("label", default=None)
         rename = Parameter("rename", default=[".nc", "_bitrounded_compressed.nc"])
         overwrite = Parameter("overwrite", default=False)
+        bitround_in_julia = Parameter("bitround_in_julia", default=False)
         complevel = Parameter("complevel", default=7)
         chunks = Parameter("chunks", default=None)
         enforce_dtype = Parameter("enforce_dtype", default=None)
+        non_negative_keepbits = Parameter("non_negative_keepbits", defaults=True)
         keepbits = get_bitinformation_keepbits(
             paths,
             analyse_paths=analyse_paths,
@@ -572,6 +582,7 @@ def get_prefect_flow(paths=[]):
             inflevel=inflevel,
             label=label,
             enforce_dtype=enforce_dtype,
+            non_negative_keepbits=non_negative_keepbits,
         )  # once
         bitround_and_save.map(
             paths,
@@ -581,6 +592,7 @@ def get_prefect_flow(paths=[]):
             complevel=unmapped(complevel),
             overwrite=unmapped(overwrite),
             enforce_dtype=unmapped(enforce_dtype),
+            bitround_in_julia=unmapped(bitround_in_julia),
         )  # parallel map
     return flow
 
