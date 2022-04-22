@@ -573,7 +573,7 @@ def get_prefect_flow(paths=[]):
         complevel = Parameter("complevel", default=7)
         chunks = Parameter("chunks", default=None)
         enforce_dtype = Parameter("enforce_dtype", default=None)
-        non_negative_keepbits = Parameter("non_negative_keepbits", defaults=True)
+        non_negative_keepbits = Parameter("non_negative_keepbits", default=True)
         keepbits = get_bitinformation_keepbits(
             paths,
             analyse_paths=analyse_paths,
