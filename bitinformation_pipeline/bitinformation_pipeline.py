@@ -543,9 +543,7 @@ def get_prefect_flow(paths=[]):
                         f"{type(e)} when xr.open_dataset({new_path}), therefore delete and recalculate."
                     )
                     os.remove(new_path)
-        ds = xr.open_dataset(
-            path, chunks=chunks
-        )
+        ds = xr.open_dataset(path, chunks=chunks)
         if enforce_dtype:
             ds = ds.astype(enforce_dtype)
         ds_bitround = xr_bitround(ds, keepbits)
