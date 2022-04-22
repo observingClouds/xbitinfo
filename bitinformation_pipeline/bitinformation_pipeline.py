@@ -462,11 +462,13 @@ def get_prefect_flow(paths=[]):
     >>> os.environ["HDF5_USE_FILE_LOCKING"] = "FALSE"
     >>> from prefect.executors import DaskExecutor, LocalDaskExecutor
     >>> from dask.distributed import Client
-    >>> client = Client(n_workers=2, threads_per_worker=1, processes=True) 
-    >>> executor = DaskExecutor(address=client.scheduler.address)  # take your own client
+    >>> client = Client(n_workers=2, threads_per_worker=1, processes=True)
+    >>> executor = DaskExecutor(
+    ...     address=client.scheduler.address
+    ... )  # take your own client
     >>> executor = DaskExecutor()  # use dask from prefect
     >>> executor = LocalDaskExecutor()  # use dask local from prefect
-    >>> # flow.run(executor=executor, parameters=dict(overwrite=True)) 
+    >>> # flow.run(executor=executor, parameters=dict(overwrite=True))
 
     Modify parameters of a flow:
     >>> flow.run(parameters=dict(inflevel=0.9999, overwrite=True))
