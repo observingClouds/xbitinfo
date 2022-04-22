@@ -423,14 +423,16 @@ def get_prefect_flow(paths=[]):
     - dim/axis : see get_bitinformation
     - inflevel : see get_keepbits
     - chunks : see https://xarray.pydata.org/en/stable/generated/xarray.open_mfdataset.html. Note that with `chunks=None`, `dask` is not used for I/O and the flow is still parallelized when using `DaskExecutor`.
+    - overwrite : bool
+        whether to overwrite bitrounded netcdf files. False (default) skips existing files.
     - complevel : see to_compressed_netcdf, defaults to 7.
     - rename : list
-      replace mapping for paths for new_path for bitrounded file, i.e. replace=[".nc", "_bitrounded_compressed.nc"]
+        replace mapping for paths towards new_path of bitrounded file, i.e. replace=[".nc", "_bitrounded_compressed.nc"]
 
     Inputs
     ------
     paths : list
-      list of Paths of files to analyse, xr_bitround and to_compressed_netcdf.
+      list of Paths of files to be processed by `get_bitinformation`, `get_keepbits`, `xr_bitround` and `to_compressed_netcdf`.
 
     Returns
     -------
@@ -456,21 +458,15 @@ def get_prefect_flow(paths=[]):
     >>> # flow.visualize(st)  # requires graphviz
 
     Run in parallel with dask:
-    >>> for p in paths:
-    ...     os.remove(p.replace(".nc", "_bitrounded_compressed.nc"))
-    ...
     >>> # import os  # https://docs.xarray.dev/en/stable/user-guide/dask.html
     >>> # os.environ["HDF5_USE_FILE_LOCKING"] = "FALSE"
     >>> from prefect.executors import LocalDaskExecutor
     >>> executor = LocalDaskExecutor(scheduler="processes")
-    >>> flow.run(executor=executor)
+    >>> flow.run(executor=executor, parameters=dict(overwrite=True))
     <Success: "All reference tasks succeeded.">
 
     Modify parameters of a flow:
-    >>> for p in paths:
-    ...     os.remove(p.replace(".nc", "_bitrounded_compressed.nc"))
-    ...
-    >>> flow.run(parameters=dict(inflevel=0.9999))
+    >>> flow.run(parameters=dict(inflevel=0.9999), parameters=dict(overwrite=True))
     <Success: "All reference tasks succeeded.">
 
     See also
@@ -519,21 +515,23 @@ def get_prefect_flow(paths=[]):
         chunks=None,
         complevel=4,
         rename=[".nc", "_bitrounded_compressed.nc"],
+        overwrite=False,
     ):
         new_path = path.replace(rename[0], rename[1])
-        if os.path.exists(new_path):
-            try:
-                ds_new = xr.open_dataset(new_path, chunks=chunks)
-                ds = xr.open_dataset(path, chunks=chunks)
-                if (
-                    ds.nbytes == ds_new.nbytes
-                ):  # bitrounded and original have same number of bytes in memory
-                    raise SKIP(f"{new_path} already exists.")
-            except Exception as e:
-                print(
-                    f"{type(e)} when xr.open_dataset({new_path}), therefore delete and recalculate."
-                )
-                os.remove(new_path)
+        if not overwrite:
+            if os.path.exists(new_path):
+                try:
+                    ds_new = xr.open_dataset(new_path, chunks=chunks)
+                    ds = xr.open_dataset(path, chunks=chunks)
+                    if (
+                        ds.nbytes == ds_new.nbytes
+                    ):  # bitrounded and original have same number of bytes in memory
+                        raise SKIP(f"{new_path} already exists.")
+                except Exception as e:
+                    print(
+                        f"{type(e)} when xr.open_dataset({new_path}), therefore delete and recalculate."
+                    )
+                    os.remove(new_path)
         ds = xr.open_dataset(
             path, chunks=chunks
         )  # .set_coords(vertices) # dont bitround vertices
@@ -551,6 +549,7 @@ def get_prefect_flow(paths=[]):
         inflevel = Parameter("inflevel", default=0.99)
         label = Parameter("label", default=None)
         rename = Parameter("rename", default=[".nc", "_bitrounded_compressed.nc"])
+        overwrite = Parameter("overwrite", default=False)
         complevel = Parameter("complevel", default=7)
         chunks = Parameter("chunks", default=None)
         keepbits = get_bitinformation_keepbits(
@@ -567,6 +566,7 @@ def get_prefect_flow(paths=[]):
             rename=unmapped(rename),
             chunks=unmapped(chunks),
             complevel=unmapped(complevel),
+            overwrite=unmapped(overwrite),
         )  # parallel map
     return flow
 
