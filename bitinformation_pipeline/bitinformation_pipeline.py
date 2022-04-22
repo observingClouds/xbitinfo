@@ -490,7 +490,7 @@ def get_prefect_flow(paths=[]):
     from prefect import Flow, Parameter, task, unmapped
     from prefect.engine.signals import SKIP
 
-    from .bitround import xr_bitround, jl_bitround
+    from .bitround import jl_bitround, xr_bitround
 
     @task
     def get_bitinformation_keepbits(
@@ -499,8 +499,7 @@ def get_prefect_flow(paths=[]):
         label=None,
         inflevel=0.99,
         enforce_dtype=None,
-        non_negative_keepbits=True
-        **get_bitinformation_kwargs,
+        non_negative_keepbits=True**get_bitinformation_kwargs,
     ):
         # take subset only for analysis in bitinformation
         if analyse_paths == "first_last":
