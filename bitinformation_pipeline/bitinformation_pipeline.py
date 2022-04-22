@@ -499,7 +499,8 @@ def get_prefect_flow(paths=[]):
         label=None,
         inflevel=0.99,
         enforce_dtype=None,
-        non_negative_keepbits=True**get_bitinformation_kwargs,
+        non_negative_keepbits=True,
+        **get_bitinformation_kwargs,
     ):
         # take subset only for analysis in bitinformation
         if analyse_paths == "first_last":
@@ -508,11 +509,11 @@ def get_prefect_flow(paths=[]):
             p = paths
         elif analyse_paths == "first":
             p = paths[0]
-        elif isinstance(analyse_paths, int):  # interpret as strides
+        elif isinstance(analyse_paths, int):  # interpret as stride
             p = paths[::analyse_paths]
         else:
             raise ValueError(
-                "Please provide analyse_paths as int or from ['first_last','all','first','last']."
+                "Please provide analyse_paths as int interpreted as stride or from ['first_last','all','first','last']."
             )
         ds = xr.open_mfdataset(p)
         if enforce_dtype:
