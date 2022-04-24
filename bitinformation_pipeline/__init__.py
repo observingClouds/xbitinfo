@@ -8,3 +8,4 @@ from .bitinformation_pipeline import (
 )
 from .bitround import jl_bitround, xr_bitround
 from .save_compressed import get_compress_encoding
+from .save_compressed_zarr import get_compress_encoding_zarr
