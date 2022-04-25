@@ -9,7 +9,7 @@ import bitinformation_pipeline as bp
 @pytest.mark.parametrize("for_cdo", [True, False])
 def test_get_compress_encoding_for_cdo(rasm, for_cdo):
     ds = rasm
-    encoding = bp.get_compress_encoding(ds, for_cdo=for_cdo)
+    encoding = bp.get_compress_encoding_nc(ds, for_cdo=for_cdo)
     v = list(ds.data_vars)[0]
     time_axis = ds[v].get_axis_num("time")
     if for_cdo:
