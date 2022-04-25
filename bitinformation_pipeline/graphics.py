@@ -55,7 +55,7 @@ def add_labels_fig3(
     >>> ds = xr.tutorial.load_dataset("air_temperature")
     >>> info_per_bit = bp.get_bitinformation(ds, dim="lon")
     >>> inflevels = [1.0, 0.9999, 0.99, 0.975, 0.95]
-    >>> ds_bitrounded_along_lon = bitround_along_dim(
+    >>> ds_bitrounded_along_lon = bp.bitround.bitround_along_dim(
     ...     ds, info_per_bit, dim="lon", inflevels=inflevels
     ... )
     >>> diff = (ds - ds_bitrounded_along_lon)["air"].isel(time=0)
