@@ -37,9 +37,9 @@ def add_labels_fig3(
     y_dim_name : str
       name of the y dimension. Defaults to "lat".
     lon_coord_name : str
-      name of the longitude coordinate. Only matters when plotting with `cartopy` (when `transform=ccrs.Geodetic()` must be also set via `kwargs`). Defaults to x_dim_name.
+      name of the longitude coordinate. Only matters when plotting curvilinear grids with `cartopy` (when `transform=ccrs.Geodetic()` must be also set via `kwargs`). Defaults to x_dim_name.
     lat_coord_name : str
-      name of the latitude coordinate. Only matters when plotting with `cartopy` (when `transform=ccrs.Geodetic()` must be also set via `kwargs`). Defaults to y_dim_name.
+      name of the latitude coordinate. Only matters when plotting curvilinear grids with `cartopy` (when `transform=ccrs.Geodetic()` must be also set via `kwargs`). Defaults to y_dim_name.
     label_latitude :  float or str
       Latitude for the label. Defaults to "center", which uses the mean lat_coord_name.
     label_latitude_offset : float
@@ -60,7 +60,7 @@ def add_labels_fig3(
     ... )
     >>> diff = (ds - ds_bitrounded_along_lon)["air"].isel(time=0)
     >>> diff.plot()
-    ... add_labels_fig3(diff, info_per_bit, inflevels)
+    >>> add_labels_fig3(diff, info_per_bit, inflevels)
 
     """
     if lon_coord_name == "guess":
