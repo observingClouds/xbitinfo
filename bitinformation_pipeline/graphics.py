@@ -59,9 +59,33 @@ def add_labels_fig3(
     ...     ds, info_per_bit, dim="lon", inflevels=inflevels
     ... )
     >>> diff = (ds - ds_bitrounded_along_lon)["air"].isel(time=0)
-    >>> diff.plot()  # +doctest: +ELLIPSIS
+    >>> diff.plot()  # doctest: +ELLIPSIS
     <matplotlib.collections.QuadMesh object at 0x7fc9ee61f730>
-    >>> add_labels_fig3(diff, info_per_bit, inflevels)  # +doctest: +ELLIPSIS
+    >>> add_labels_fig3(diff, info_per_bit, inflevels)  # doctest: +ELLIPSIS
+
+    Plotting an multi-dimensional coordinate dataset:
+    >>> v = "Tair"
+    >>> ds = xr.tutorial.load_dataset("rasm")
+    >>> dim = "y"
+    >>> bitinfo = bp.get_bitinformation(ds, dim=dim)
+    >>> ds_bitrounded_along_lon = bp.bitround.bitround_along_dim(
+    ...     ds, info_per_bit, dim=dim, inflevels=inflevels
+    ... )
+    >>> import cartopy.crs as ccrs  # doctest: +SKIP
+    >>> fig, axis = plt.subplots(  # doctest: +SKIP
+    ...     1, 1, subplot_kw=dict(projection=ccrs.PlateCarree())
+    ... )
+    >>> (ds - ds_bitrounded_along_lon)[v].isel(time=-10).plot(
+    ...     ax=axis, transform=ccrs.PlateCarree()
+    ... )  # doctest: +SKIP
+    >>> add_lines_fig3(
+    ...     (ds - ds_bitrounded_along_lon)[v].isel(time=0),
+    ...     lon_coord_name="xc",
+    ...     lat_coord_name="yc",
+    ...     x_dim_name="x",
+    ...     y_dim_name="y",
+    ...     transform=ccrs.Geodetic(),
+    ... )  # doctest: +SKIP
 
     """
     if lon_coord_name == "guess":
