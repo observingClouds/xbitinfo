@@ -214,7 +214,7 @@ def _get_keepbits(ds, info_per_bit, inflevel=0.99):
     {'air': 7}
     >>> bp._get_keepbits(ds, info_per_bit, inflevel=0.99999999)
     {'air': 14}
-    >>> bp._get_keepbits(ds, info_per_bit, inflevel=1.)
+    >>> bp._get_keepbits(ds, info_per_bit, inflevel=1.0)
     {'air': 23}
     """
 
