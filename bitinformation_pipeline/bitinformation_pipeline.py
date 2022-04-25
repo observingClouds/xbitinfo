@@ -177,7 +177,7 @@ def get_keepbits(info_per_bit, inflevel=0.99):
         # use something a bit bigger than maximum of the last 4 bits
         threshold = 1.5 * np.max(ic[-4:])
         ic_over_threshold = np.where(ic < threshold, 0, ic)
-        ic_over_threshold_cum = np.cumsum(ic_over_threshold)  # CDF
+        ic_over_threshold_cum = np.nancumsum(ic_over_threshold)  # CDF
         # normed CDF
         ic_over_threshold_cum_normed = ic_over_threshold_cum / ic_over_threshold_cum[-1]
         # return mantissabits to keep therefore subtract sign and exponent bits
