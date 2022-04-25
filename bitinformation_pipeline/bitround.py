@@ -128,6 +128,7 @@ def bitround_along_dim(
     ...     ds, info_per_bit, dim="lon"
     ... )
     >>> (ds - ds_bitrounded_along_lon)["air"].isel(time=0).plot()
+    <matplotlib.collections.QuadMesh object at 0x7f079af138b0>
     """
     stride = ds[dim].size // len(inflevels)
     new_ds = []
