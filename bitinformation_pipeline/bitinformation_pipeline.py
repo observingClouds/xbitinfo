@@ -174,11 +174,11 @@ def get_keepbits(info_per_bit, inflevel=0.99):
     {'air': 23}
     """
     keepmantissabits = {}
-    if isinstance(inflevel, (int,float)):
-        if inflevel < 0 or inflevel > 1.:
+    if isinstance(inflevel, (int, float)):
+        if inflevel < 0 or inflevel > 1.0:
             raise ValueError("Please provide `inflevel` from interval [0.,1.]")
     for v, ic in info_per_bit.items():
-        if inflevel == 1.:
+        if inflevel == 1.0:
             keepmantissabits[v] = len(ic) - NMBITS[len(ic)]
         else:
             # set below threshold to zero
@@ -187,7 +187,9 @@ def get_keepbits(info_per_bit, inflevel=0.99):
             ic_over_threshold = np.where(ic < threshold, 0, ic)
             ic_over_threshold_cum = np.nancumsum(ic_over_threshold)  # CDF
             # normed CDF
-            ic_over_threshold_cum_normed = ic_over_threshold_cum / ic_over_threshold_cum[-1]
+            ic_over_threshold_cum_normed = (
+                ic_over_threshold_cum / ic_over_threshold_cum[-1]
+            )
             # return mantissabits to keep therefore subtract sign and exponent bits
             il = inflevel[v] if isinstance(inflevel, dict) else inflevel
             keepmantissabits[v] = (
