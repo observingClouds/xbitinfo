@@ -170,7 +170,7 @@ def get_keepbits(info_per_bit, inflevel=0.99):
     {'air': 7}
     >>> bp.get_keepbits(info_per_bit, inflevel=0.99999999)
     {'air': 14}
-    >>> bp.get_keepbits(info_per_bit, inflevel=1.)
+    >>> bp.get_keepbits(info_per_bit, inflevel=1.0)
     {'air': 23}
     """
     keepmantissabits = {}
