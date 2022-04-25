@@ -173,9 +173,11 @@ class ToCompressed_Zarr:
     Example:
         >>> ds = xr.tutorial.load_dataset("rasm")
         >>> path = "compressed_rasm.zarr"
-        >>> ds.to_compressed_zarr(path)
-        >>> ds.to_compressed_zarr(path, compressor=numcodecs.Blosc("zlib"))
-        >>> ds.to_compressed_zarr(path, compressor={"Tair": numcodecs.Blosc("zstd")})
+        >>> ds.to_compressed_zarr(path, mode="w")
+        >>> ds.to_compressed_zarr(path, compressor=numcodecs.Blosc("zlib"), mode="w")
+        >>> ds.to_compressed_zarr(
+        ...     path, compressor={"Tair": numcodecs.Blosc("zstd")}, mode="w"
+        ... )
 
     """
 
