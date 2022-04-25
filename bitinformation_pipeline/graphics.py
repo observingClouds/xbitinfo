@@ -59,8 +59,8 @@ def add_labels_fig3(
     ...     ds, info_per_bit, dim="lon", inflevels=inflevels
     ... )
     >>> diff = (ds - ds_bitrounded_along_lon)["air"].isel(time=0)
-    >>> diff.plot()  # doctest: +SLIP
-    <matplotlib.collections.QuadMesh object at 0x7fc9ee61f730>
+    >>> diff.plot()  # doctest: +ELLIPSIS
+    <matplotlib.collections.QuadMesh object at ...>
     >>> add_labels_fig3(diff, info_per_bit, inflevels)  # doctest: +SLIP
 
     Plotting an multi-dimensional coordinate dataset:
