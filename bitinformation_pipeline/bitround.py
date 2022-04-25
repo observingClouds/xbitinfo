@@ -113,7 +113,7 @@ def bitround_along_dim(
     dim : str
       name of dimension for slicing
     inflevels : list of floats
-      Level of information that shall be preserved.
+      Level of information that shall be preserved. Defaults to [1.0, 0.9999, 0.99, 0.975, 0.95].
 
     Returns
     -------
