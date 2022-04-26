@@ -53,6 +53,7 @@ def add_labels_fig3(
 
     Example
     -------
+    Plotting an single-dimension coordinate dataset:
     >>> ds = xr.tutorial.load_dataset("air_temperature")
     >>> info_per_bit = bp.get_bitinformation(ds, dim="lon")
     >>> inflevels = [1.0, 0.9999, 0.99, 0.975, 0.95]
@@ -65,10 +66,10 @@ def add_labels_fig3(
     >>> add_labels_fig3(diff, info_per_bit, inflevels)  # doctest: +ELLIPSIS
 
     Plotting an multi-dimensional coordinate dataset:
-    >>> v = "air"
+    >>> v = "Tair"
     >>> ds = xr.tutorial.load_dataset("rasm")
     >>> dim = "y"
-    >>> bitinfo = bp.get_bitinformation(ds, dim=dim)
+    >>> info_per_bit = bp.get_bitinformation(ds, dim=dim)
     >>> ds_bitrounded_along_lon = bp.bitround.bitround_along_dim(
     ...     ds, info_per_bit, dim=dim, inflevels=inflevels
     ... )
