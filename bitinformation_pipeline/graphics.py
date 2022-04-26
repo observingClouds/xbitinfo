@@ -172,22 +172,27 @@ def plot_bitinformation(bitinfo):
     return fig
 
 
-def plot_distribution(ds, nbins=1000, cmap="husl", offset=0.01, close_zero=1e-2):
-    """Plot statistical distributions of all variables as in Klöwer et al. 2021 Fig. SI 1.
+def plot_distribution(ds, nbins=1000, cmap="viridis", offset=0.01, close_zero=1e-2):
+    """Plot statistical distributions of all variables as in Klöwer et al. 2021 Figure SI 1.
     For large data subsetting, i.e. ds = ds.isel(x=slice(None, None, 100)) is recommended.
 
-    Klöwer, M., Razinger, M., Dominguez, J. J., Düben, P. D., & Palmer, T. N. (2021). Compressing atmospheric data into its real information content. Nature Computational Science, 1(11), 713–724. doi: 10/gnm4jj
+    Klöwer, M., Razinger, M., Dominguez, J. J., Düben, P. D., & Palmer, T. N. (2021).
+    Compressing atmospheric data into its real information content.
+    Nature Computational Science, 1(11), 713–724. doi: 10/gnm4jj
 
     Inputs
     ------
     bitinfo : xr.Dataset
       raw input values for distributions
     nbints : int
-      number of bins for histograms across all variable range
+      number of bins for histograms across all variable range. Defaults to 1000.
+    cmap : str
+      which matplotlib colormap to use. Defaults to "viridis".
     offset : float
-      offset on the yaxis between variables 0 lines
+      offset on the yaxis between variables 0 lines. Defaults to 0.01.
     close_zero : float
       threshold where to stop close to 0, when distributions ranges from negative to positive.
+      Increase this value when seeing an unexpected dip around 0 in the distribution. Defaults to 0.01.
 
     Returns
     -------
@@ -204,7 +209,6 @@ def plot_distribution(ds, nbins=1000, cmap="husl", offset=0.01, close_zero=1e-2)
         raise ValueError(
             f"plot_distribution(ds), requires xr.Dataset, found {type(ds)}"
         )
-    import seaborn as sns
 
     varnames = list(ds.data_vars)
     nvars = len(varnames)
@@ -226,7 +230,7 @@ def plot_distribution(ds, nbins=1000, cmap="husl", offset=0.01, close_zero=1e-2)
         H[i, :] = H[i, :] / np.sum(H[i, :])  # normalize
 
     fig, ax = plt.subplots(1, 1, figsize=(5, 2 + nvars / 10))
-    colors = sns.color_palette(cmap, nvars)
+    colors = plt.cm.get_cmap(cmap, nvars)
 
     for i in range(nvars):
         c = colors[i]
