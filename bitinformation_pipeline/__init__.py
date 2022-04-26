@@ -1,11 +1,10 @@
 """Top-level package for bitinformation_pipeline."""
 
-__author__ = """Hauke Schulz"""
-__email__ = "hauke.schulz@mpimet.mpg.de"
-__version__ = "0.0.1"
-
 from .bitinformation_pipeline import (
+    _get_keepbits,
     get_bitinformation,
     get_keepbits,
     plot_bitinformation,
 )
+from .bitround import jl_bitround, xr_bitround
+from .save_compressed import get_compress_encoding

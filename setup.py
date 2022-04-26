@@ -30,10 +30,11 @@ class PostInstallCommand(install):
 with open("README.md") as readme_file:
     readme = readme_file.read()
 
-with open("HISTORY.rst") as history_file:
+with open("CHANGELOG.rst") as history_file:
     history = history_file.read()
 
-requirements = ["xarray", "julia", "matplotlib"]
+with open("requirements.txt") as f:
+    requirements = f.read().strip().split("\n")
 
 test_requirements = ["pytest", "pooch", "netcdf4"]
 
