@@ -18,9 +18,10 @@ def add_labels_fig3(
     **kwargs,
 ):
     """
-    Helper function for visualization of in Klöwer et al. 2021.
+    Helper function for visualization of Figure 3 in Klöwer et al. 2021.
 
-    Klöwer, M., Razinger, M., Dominguez, J. J., Düben, P. D., & Palmer, T. N. (2021). Compressing atmospheric data into its real information content. Nature Computational Science, 1(11), 713–724. doi: 10/gnm4jj
+    Klöwer, M., Razinger, M., Dominguez, J. J., Düben, P. D., & Palmer, T. N. (2021).
+    Compressing atmospheric data into its real information content. Nature Computational Science, 1(11), 713–724. doi: 10/gnm4jj
 
     Inputs
     ------
@@ -62,7 +63,6 @@ def add_labels_fig3(
     >>> diff.plot()  # doctest: +ELLIPSIS
     <matplotlib.collections.QuadMesh object at ...>
     >>> add_labels_fig3(diff, info_per_bit, inflevels)  # doctest: +ELLIPSIS
-    <matplotlib.collections.QuadMesh object at ...>
 
     Plotting an multi-dimensional coordinate dataset:
     >>> v = "Tair"
