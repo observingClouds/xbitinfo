@@ -1,7 +1,9 @@
 import matplotlib.pyplot as plt
 import xarray as xr
+import numpy as np
 
-from .bitinformation_pipeline import get_keepbits
+from .bitinformation_pipeline import get_keepbits, NMBITS
+
 
 
 def add_labels_fig3(
@@ -137,11 +139,6 @@ def add_labels_fig3(
             **kwargs,
         )
         t_keepbits.set_bbox(dict(facecolor="white", alpha=0.9, edgecolor="white"))
-
-
-import numpy as np
-
-from .bitinformation_pipeline import NMBITS, get_keepbits
 
 
 def plot_bitinformation(bitinfo):
