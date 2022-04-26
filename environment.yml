@@ -6,7 +6,6 @@ dependencies:
   - julia
   - pyjulia
   - matplotlib-base
-  - seaborn
   - numpy
   - pooch
   - xarray
