@@ -138,6 +138,7 @@ def add_labels_fig3(
         )
         t_keepbits.set_bbox(dict(facecolor="white", alpha=0.9, edgecolor="white"))
 
+
 import numpy as np
 
 from .bitinformation_pipeline import NMBITS, get_keepbits
