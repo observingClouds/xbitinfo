@@ -131,8 +131,7 @@ def get_compress_encoding_zarr(
     Example:
         >>> ds = xr.tutorial.load_dataset("rasm")
         >>> get_compress_encoding_zarr(ds)
-        {'Tair': {'zlib': True, 'shuffle': True, 'complevel': 9, 'chunksizes': (36, 205, 275)}}
-
+        {'Tair': {'compressor': Blosc(cname='zstd', clevel=5, shuffle=BITSHUFFLE, blocksize=0)}}
     """
     encoding = {}
     if isinstance(compressor, dict):
