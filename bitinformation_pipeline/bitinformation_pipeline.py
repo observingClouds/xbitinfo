@@ -259,6 +259,204 @@ def _jl_bitround(X, keepbits):
     return jl.eval("round!(X, keepbits)")
 
 
+
+
+    
+    
+    
+        
+       
+def get_prefect_flow(paths=[]):
+    """
+    Create prefect.Flow for bitinformation_pipeline bitrounding paths.
+
+    1. Analyse bitwise real information content
+    2. Retrieve keepbits
+    3. Apply bitrounding with `xr_bitround`
+    4. Save as compressed netcdf with `to_compressed_netcdf`
+
+    Many parameters can be changed when running the flow `flow.run(parameters=dict(chunk="auto"))`:
+    - paths: list of Paths
+        Paths to be bitrounded
+    - analyse_paths: str or int
+        Which paths to be passed to `bp.get_bitinformation`. choose from ["first_last", "all", int], where int is interpreted as stride, i.e. paths[::stride]. Defaults to "first".
+    - enforce_dtype : str or None
+        Enforce dype for all variables. Currently `get_bitinformation` fails for different dtypes in variables. Do nothing if None. Defaults to None.
+    - label : see get_bitinformation
+    - dim/axis : see get_bitinformation
+    - inflevel : see get_keepbits
+    - non_negative_keepbits : bool
+        Set negative keepbits from `get_keepbits` to 0. Required when using `xr_bitround`. Defaults to True.
+    - chunks : see https://xarray.pydata.org/en/stable/generated/xarray.open_mfdataset.html. Note that with `chunks=None`, `dask` is not used for I/O and the flow is still parallelized when using `DaskExecutor`.
+    - bitround_in_julia : bool
+        Use `jl_bitround` instead of `xr_bitround`. Both should yield identical results. Defaults to False.
+    - overwrite : bool
+        Whether to overwrite bitrounded netcdf files. False (default) skips existing files.
+    - complevel : see to_compressed_netcdf, defaults to 7.
+    - rename : list
+        Replace mapping for paths towards new_path of bitrounded file, i.e. replace=[".nc", "_bitrounded_compressed.nc"]
+
+    Inputs
+    ------
+    paths : list
+      list of Paths of files to be processed by `get_bitinformation`, `get_keepbits`, `xr_bitround` and `to_compressed_netcdf`.
+
+    Returns
+    -------
+    prefect.Flow
+      see https://docs.prefect.io/core/concepts/flows.html#overview
+
+    Example
+    -------
+    Imagine n files of identical structure, i.e. 1-year per file climate model output:
+    >>> ds = xr.tutorial.load_dataset("rasm")
+    >>> year, datasets = zip(*ds.groupby("time.year"))
+    >>> paths = [f"{y}.nc" for y in year]
+    >>> xr.save_mfdataset(datasets, paths)
+
+    Create prefect.Flow and run sequentially
+    >>> flow = bp.get_prefect_flow(paths=paths)
+    >>> import prefect
+    >>> logger = prefect.context.get("logger")
+    >>> logger.setLevel("ERROR")
+    >>> st = flow.run()
+
+    Inspect flow state
+    >>> # flow.visualize(st)  # requires graphviz
+
+    Run in parallel with dask:
+    >>> import os  # https://docs.xarray.dev/en/stable/user-guide/dask.html
+    >>> os.environ["HDF5_USE_FILE_LOCKING"] = "FALSE"
+    >>> from prefect.executors import DaskExecutor, LocalDaskExecutor
+    >>> from dask.distributed import Client
+    >>> client = Client(n_workers=2, threads_per_worker=1, processes=True)
+    >>> executor = DaskExecutor(
+    ...     address=client.scheduler.address
+    ... )  # take your own client
+    >>> executor = DaskExecutor()  # use dask from prefect
+    >>> executor = LocalDaskExecutor()  # use dask local from prefect
+    >>> # flow.run(executor=executor, parameters=dict(overwrite=True))
+
+    Modify parameters of a flow:
+    >>> flow.run(parameters=dict(inflevel=0.9999, overwrite=True))
+    <Success: "All reference tasks succeeded.">
+
+    See also
+    --------
+    - https://examples.dask.org/applications/prefect-etl.html
+    - https://docs.prefect.io/core/getting_started/basic-core-flow.html
+
+    """
+
+    from prefect import Flow, Parameter, task, unmapped
+    from prefect.engine.signals import SKIP
+
+    from .bitround import jl_bitround, xr_bitround
+
+    @task
+    def get_bitinformation_keepbits(
+        paths,
+        analyse_paths="first",
+        label=None,
+        inflevel=0.99,
+        enforce_dtype=None,
+        non_negative_keepbits=True,
+        **get_bitinformation_kwargs,
+    ):
+        # take subset only for analysis in bitinformation
+        if analyse_paths == "first_last":
+            p = [paths[0], paths[-1]]
+        elif analyse_paths == "all":
+            p = paths
+        elif analyse_paths == "first":
+            p = paths[0]
+        elif isinstance(analyse_paths, int):  # interpret as stride
+            p = paths[::analyse_paths]
+        else:
+            raise ValueError(
+                "Please provide analyse_paths as int interpreted as stride or from ['first_last','all','first','last']."
+            )
+        ds = xr.open_mfdataset(p)
+        if enforce_dtype:
+            ds = ds.astype(enforce_dtype)
+        info_per_bit = get_bitinformation(ds, label=label, **get_bitinformation_kwargs)
+        keepbits = get_keepbits(info_per_bit, inflevel=inflevel)
+        if non_negative_keepbits:
+            keepbits = {v: max(0, k) for v, k in keepbits.items()}  # ensure no negative
+        return keepbits
+
+    @task
+    def bitround_and_save(
+        path,
+        keepbits,
+        chunks=None,
+        complevel=4,
+        rename=[".nc", "_bitrounded_compressed.nc"],
+        overwrite=False,
+        enforce_dtype=None,
+        bitround_in_julia=False,
+    ):
+        new_path = path.replace(rename[0], rename[1])
+        if not overwrite:
+            if os.path.exists(new_path):
+                try:
+                    ds_new = xr.open_dataset(new_path, chunks=chunks)
+                    ds = xr.open_dataset(path, chunks=chunks)
+                    if (
+                        ds.nbytes == ds_new.nbytes
+                    ):  # bitrounded and original have same number of bytes in memory
+                        raise SKIP(f"{new_path} already exists.")
+                except Exception as e:
+                    print(
+                        f"{type(e)} when xr.open_dataset({new_path}), therefore delete and recalculate."
+                    )
+                    os.remove(new_path)
+        ds = xr.open_dataset(path, chunks=chunks)
+        if enforce_dtype:
+            ds = ds.astype(enforce_dtype)
+        bitround_func = jl_bitround if bitround_in_julia else xr_bitround
+        ds_bitround = bitround_func(ds, keepbits)
+        ds_bitround.to_compressed_netcdf(new_path, complevel=complevel)
+        return
+
+    with Flow("bitinformation_pipeline") as flow:
+        if paths == []:
+            raise ValueError("Please provide paths of files to bitround, found [].")
+        paths = Parameter("paths", default=paths)
+        analyse_paths = Parameter("analyse_paths", default="first")
+        dim = Parameter("dim", default=None)
+        axis = Parameter("axis", default=0)
+        inflevel = Parameter("inflevel", default=0.99)
+        label = Parameter("label", default=None)
+        rename = Parameter("rename", default=[".nc", "_bitrounded_compressed.nc"])
+        overwrite = Parameter("overwrite", default=False)
+        bitround_in_julia = Parameter("bitround_in_julia", default=False)
+        complevel = Parameter("complevel", default=7)
+        chunks = Parameter("chunks", default=None)
+        enforce_dtype = Parameter("enforce_dtype", default=None)
+        non_negative_keepbits = Parameter("non_negative_keepbits", default=True)
+        keepbits = get_bitinformation_keepbits(
+            paths,
+            analyse_paths=analyse_paths,
+            dim=dim,
+            axis=axis,
+            inflevel=inflevel,
+            label=label,
+            enforce_dtype=enforce_dtype,
+            non_negative_keepbits=non_negative_keepbits,
+        )  # once
+        bitround_and_save.map(
+            paths,
+            keepbits=unmapped(keepbits),
+            rename=unmapped(rename),
+            chunks=unmapped(chunks),
+            complevel=unmapped(complevel),
+            overwrite=unmapped(overwrite),
+            enforce_dtype=unmapped(enforce_dtype),
+            bitround_in_julia=unmapped(bitround_in_julia),
+        )  # parallel map
+    return flow
+
 class JsonCustomEncoder(json.JSONEncoder):
     def default(self, obj):
         if isinstance(obj, (np.ndarray, np.number)):
