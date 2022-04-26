@@ -65,7 +65,7 @@ def add_labels_fig3(
     >>> add_labels_fig3(diff, info_per_bit, inflevels)  # doctest: +ELLIPSIS
 
     Plotting an multi-dimensional coordinate dataset:
-    >>> v = "Tair"
+    >>> v = "air"
     >>> ds = xr.tutorial.load_dataset("rasm")
     >>> dim = "y"
     >>> bitinfo = bp.get_bitinformation(ds, dim=dim)
