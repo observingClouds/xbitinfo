@@ -103,7 +103,9 @@ def get_bitinformation(ds, dim=None, axis=None, label=None, overwrite=False, **k
             )
 
         info_per_bit = {}
-        for var in tqdm(ds.data_vars):
+        pbar = tqdm(ds.data_vars)
+        for var in pbar:
+            pbar.set_description("Processing %s" % var)
             X = ds[var].values
             Main.X = X
             if axis is not None:
@@ -257,164 +259,196 @@ def _jl_bitround(X, keepbits):
     return jl.eval("round!(X, keepbits)")
 
 
-def plot_bitinformation(bitinfo):
-    """Plot bitwise information content.
+def get_prefect_flow(paths=[]):
+    """
+    Create prefect.Flow for bitinformation_pipeline bitrounding paths.
+
+    1. Analyse bitwise real information content
+    2. Retrieve keepbits
+    3. Apply bitrounding with `xr_bitround`
+    4. Save as compressed netcdf with `to_compressed_netcdf`
+
+    Many parameters can be changed when running the flow `flow.run(parameters=dict(chunk="auto"))`:
+    - paths: list of Paths
+        Paths to be bitrounded
+    - analyse_paths: str or int
+        Which paths to be passed to `bp.get_bitinformation`. choose from ["first_last", "all", int], where int is interpreted as stride, i.e. paths[::stride]. Defaults to "first".
+    - enforce_dtype : str or None
+        Enforce dype for all variables. Currently `get_bitinformation` fails for different dtypes in variables. Do nothing if None. Defaults to None.
+    - label : see get_bitinformation
+    - dim/axis : see get_bitinformation
+    - inflevel : see get_keepbits
+    - non_negative_keepbits : bool
+        Set negative keepbits from `get_keepbits` to 0. Required when using `xr_bitround`. Defaults to True.
+    - chunks : see https://xarray.pydata.org/en/stable/generated/xarray.open_mfdataset.html. Note that with `chunks=None`, `dask` is not used for I/O and the flow is still parallelized when using `DaskExecutor`.
+    - bitround_in_julia : bool
+        Use `jl_bitround` instead of `xr_bitround`. Both should yield identical results. Defaults to False.
+    - overwrite : bool
+        Whether to overwrite bitrounded netcdf files. False (default) skips existing files.
+    - complevel : see to_compressed_netcdf, defaults to 7.
+    - rename : list
+        Replace mapping for paths towards new_path of bitrounded file, i.e. replace=[".nc", "_bitrounded_compressed.nc"]
 
     Inputs
     ------
-    bitinfo : dict
-      Dictionary containing the bitwise information content for each variable
+    paths : list
+      list of Paths of files to be processed by `get_bitinformation`, `get_keepbits`, `xr_bitround` and `to_compressed_netcdf`.
 
     Returns
     -------
-    fig : matplotlib figure
+    prefect.Flow
+      see https://docs.prefect.io/core/concepts/flows.html#overview
+
+    Example
+    -------
+    Imagine n files of identical structure, i.e. 1-year per file climate model output:
+    >>> ds = xr.tutorial.load_dataset("rasm")
+    >>> year, datasets = zip(*ds.groupby("time.year"))
+    >>> paths = [f"{y}.nc" for y in year]
+    >>> xr.save_mfdataset(datasets, paths)
+
+    Create prefect.Flow and run sequentially
+    >>> flow = bp.get_prefect_flow(paths=paths)
+    >>> import prefect
+    >>> logger = prefect.context.get("logger")
+    >>> logger.setLevel("ERROR")
+    >>> st = flow.run()
+
+    Inspect flow state
+    >>> # flow.visualize(st)  # requires graphviz
+
+    Run in parallel with dask:
+    >>> import os  # https://docs.xarray.dev/en/stable/user-guide/dask.html
+    >>> os.environ["HDF5_USE_FILE_LOCKING"] = "FALSE"
+    >>> from prefect.executors import DaskExecutor, LocalDaskExecutor
+    >>> from dask.distributed import Client
+    >>> client = Client(n_workers=2, threads_per_worker=1, processes=True)
+    >>> executor = DaskExecutor(
+    ...     address=client.scheduler.address
+    ... )  # take your own client
+    >>> executor = DaskExecutor()  # use dask from prefect
+    >>> executor = LocalDaskExecutor()  # use dask local from prefect
+    >>> # flow.run(executor=executor, parameters=dict(overwrite=True))
+
+    Modify parameters of a flow:
+    >>> flow.run(parameters=dict(inflevel=0.9999, overwrite=True))
+    <Success: "All reference tasks succeeded.">
+
+    See also
+    --------
+    - https://examples.dask.org/applications/prefect-etl.html
+    - https://docs.prefect.io/core/getting_started/basic-core-flow.html
 
     """
-    import cmcrameri.cm as cmc
 
-    nvars = len(bitinfo)
-    varnames = bitinfo.keys()
+    from prefect import Flow, Parameter, task, unmapped
+    from prefect.engine.signals import SKIP
 
-    infbits_dict = get_keepbits(bitinfo, 0.99)
-    infbits100_dict = get_keepbits(bitinfo, 0.999999999)
+    from .bitround import jl_bitround, xr_bitround
 
-    ICnan = np.zeros((nvars, 64))
-    infbits = np.zeros(nvars)
-    infbits100 = np.zeros(nvars)
-    ICnan[:, :] = np.nan
-    for v, var in enumerate(varnames):
-        ic = bitinfo[var]
-        ICnan[v, : len(ic)] = ic
-        # infbits are all bits, infbits_dict were mantissa bits
-        infbits[v] = infbits_dict[var] + NMBITS[len(ic)]
-        infbits100[v] = infbits100_dict[var] + NMBITS[len(ic)]
-    ICnan = np.where(ICnan == 0, np.nan, ICnan)
-    ICcsum = np.nancumsum(ICnan, axis=1)
+    @task
+    def get_bitinformation_keepbits(
+        paths,
+        analyse_paths="first",
+        label=None,
+        inflevel=0.99,
+        enforce_dtype=None,
+        non_negative_keepbits=True,
+        **get_bitinformation_kwargs,
+    ):
+        # take subset only for analysis in bitinformation
+        if analyse_paths == "first_last":
+            p = [paths[0], paths[-1]]
+        elif analyse_paths == "all":
+            p = paths
+        elif analyse_paths == "first":
+            p = paths[0]
+        elif isinstance(analyse_paths, int):  # interpret as stride
+            p = paths[::analyse_paths]
+        else:
+            raise ValueError(
+                "Please provide analyse_paths as int interpreted as stride or from ['first_last','all','first','last']."
+            )
+        ds = xr.open_mfdataset(p)
+        if enforce_dtype:
+            ds = ds.astype(enforce_dtype)
+        info_per_bit = get_bitinformation(ds, label=label, **get_bitinformation_kwargs)
+        keepbits = get_keepbits(info_per_bit, inflevel=inflevel)
+        if non_negative_keepbits:
+            keepbits = {v: max(0, k) for v, k in keepbits.items()}  # ensure no negative
+        return keepbits
 
-    infbitsy = np.hstack([0, np.repeat(np.arange(1, nvars), 2), nvars])
-    infbitsx = np.repeat(infbits, 2)
-    infbitsx100 = np.repeat(infbits100, 2)
+    @task
+    def bitround_and_save(
+        path,
+        keepbits,
+        chunks=None,
+        complevel=4,
+        rename=[".nc", "_bitrounded_compressed.nc"],
+        overwrite=False,
+        enforce_dtype=None,
+        bitround_in_julia=False,
+    ):
+        new_path = path.replace(rename[0], rename[1])
+        if not overwrite:
+            if os.path.exists(new_path):
+                try:
+                    ds_new = xr.open_dataset(new_path, chunks=chunks)
+                    ds = xr.open_dataset(path, chunks=chunks)
+                    if (
+                        ds.nbytes == ds_new.nbytes
+                    ):  # bitrounded and original have same number of bytes in memory
+                        raise SKIP(f"{new_path} already exists.")
+                except Exception as e:
+                    print(
+                        f"{type(e)} when xr.open_dataset({new_path}), therefore delete and recalculate."
+                    )
+                    os.remove(new_path)
+        ds = xr.open_dataset(path, chunks=chunks)
+        if enforce_dtype:
+            ds = ds.astype(enforce_dtype)
+        bitround_func = jl_bitround if bitround_in_julia else xr_bitround
+        ds_bitround = bitround_func(ds, keepbits)
+        ds_bitround.to_compressed_netcdf(new_path, complevel=complevel)
+        return
 
-    fig_height = np.max([4, 4 + (nvars - 10) * 0.2])  # auto adjust to nvars
-    fig, ax1 = plt.subplots(1, 1, figsize=(12, fig_height), sharey=True)
-    ax1.invert_yaxis()
-    ax1.set_box_aspect(1 / 32 * nvars)
-    plt.tight_layout(rect=[0.06, 0.18, 0.8, 0.98])
-    pos = ax1.get_position()
-    cax = fig.add_axes([pos.x0, 0.12, pos.x1 - pos.x0, 0.02])
-
-    ax1right = ax1.twinx()
-    ax1right.invert_yaxis()
-    ax1right.set_box_aspect(1 / 32 * nvars)
-
-    cmap = cmc.turku_r
-    pcm = ax1.pcolormesh(ICnan, vmin=0, vmax=1, cmap=cmap)
-    cbar = plt.colorbar(pcm, cax=cax, orientation="horizontal")
-    cbar.set_label("information content [bit]")
-
-    # 99% of real information enclosed
-    ax1.plot(
-        np.hstack([infbits, infbits[-1]]),
-        np.arange(nvars + 1),
-        "C1",
-        ds="steps-pre",
-        zorder=10,
-        label="99% of\ninformation",
-    )
-
-    # grey shading
-    ax1.fill_betweenx(
-        infbitsy, infbitsx, np.ones(len(infbitsx)) * 32, alpha=0.4, color="grey"
-    )
-    ax1.fill_betweenx(
-        infbitsy, infbitsx100, np.ones(len(infbitsx)) * 32, alpha=0.1, color="c"
-    )
-    ax1.fill_betweenx(
-        infbitsy,
-        infbitsx100,
-        np.ones(len(infbitsx)) * 32,
-        alpha=0.3,
-        facecolor="none",
-        edgecolor="c",
-    )
-
-    # for legend only
-    ax1.fill_betweenx(
-        [-1, -1],
-        [-1, -1],
-        [-1, -1],
-        color="burlywood",
-        label="last 1% of\ninformation",
-        alpha=0.5,
-    )
-    ax1.fill_betweenx(
-        [-1, -1],
-        [-1, -1],
-        [-1, -1],
-        facecolor="teal",
-        edgecolor="c",
-        label="false information",
-        alpha=0.3,
-    )
-    ax1.fill_betweenx([-1, -1], [-1, -1], [-1, -1], color="w", label="unused bits")
-
-    ax1.axvline(1, color="k", lw=1, zorder=3)
-    ax1.axvline(9, color="k", lw=1, zorder=3)
-
-    fig.suptitle(
-        "Real bitwise information content",
-        x=0.05,
-        y=0.98,
-        fontweight="bold",
-        horizontalalignment="left",
-    )
-
-    ax1.set_xlim(0, 32)
-    ax1.set_ylim(nvars, 0)
-    ax1right.set_ylim(nvars, 0)
-
-    ax1.set_yticks(np.arange(nvars) + 0.5)
-    ax1right.set_yticks(np.arange(nvars) + 0.5)
-    ax1.set_yticklabels(varnames)
-    ax1right.set_yticklabels([f"{i:4.1f}" for i in ICcsum[:, -1]])
-    ax1right.set_ylabel("total information per value [bit]")
-
-    ax1.text(
-        infbits[0] + 0.1,
-        0.8,
-        f"{int(infbits[0]-9)} mantissa bits",
-        fontsize=8,
-        color="saddlebrown",
-    )
-    for i in range(1, nvars):
-        ax1.text(
-            infbits[i] + 0.1,
-            (i) + 0.8,
-            f"{int(infbits[i]-9)}",
-            fontsize=8,
-            color="saddlebrown",
-        )
-
-    ax1.set_xticks([1, 9])
-    ax1.set_xticks(np.hstack([np.arange(1, 8), np.arange(9, 32)]), minor=True)
-    ax1.set_xticklabels([])
-    ax1.text(0, nvars + 1.2, "sign", rotation=90)
-    ax1.text(2, nvars + 1.2, "exponent bits", color="darkslategrey")
-    ax1.text(10, nvars + 1.2, "mantissa bits")
-
-    for i in range(1, 9):
-        ax1.text(
-            i + 0.5, nvars + 0.5, i, ha="center", fontsize=7, color="darkslategrey"
-        )
-
-    for i in range(1, 24):
-        ax1.text(8 + i + 0.5, nvars + 0.5, i, ha="center", fontsize=7)
-
-    ax1.legend(bbox_to_anchor=(1.08, 0.5), loc="center left", framealpha=0.6)
-
-    fig.show()
-
-    return fig
+    with Flow("bitinformation_pipeline") as flow:
+        if paths == []:
+            raise ValueError("Please provide paths of files to bitround, found [].")
+        paths = Parameter("paths", default=paths)
+        analyse_paths = Parameter("analyse_paths", default="first")
+        dim = Parameter("dim", default=None)
+        axis = Parameter("axis", default=0)
+        inflevel = Parameter("inflevel", default=0.99)
+        label = Parameter("label", default=None)
+        rename = Parameter("rename", default=[".nc", "_bitrounded_compressed.nc"])
+        overwrite = Parameter("overwrite", default=False)
+        bitround_in_julia = Parameter("bitround_in_julia", default=False)
+        complevel = Parameter("complevel", default=7)
+        chunks = Parameter("chunks", default=None)
+        enforce_dtype = Parameter("enforce_dtype", default=None)
+        non_negative_keepbits = Parameter("non_negative_keepbits", default=True)
+        keepbits = get_bitinformation_keepbits(
+            paths,
+            analyse_paths=analyse_paths,
+            dim=dim,
+            axis=axis,
+            inflevel=inflevel,
+            label=label,
+            enforce_dtype=enforce_dtype,
+            non_negative_keepbits=non_negative_keepbits,
+        )  # once
+        bitround_and_save.map(
+            paths,
+            keepbits=unmapped(keepbits),
+            rename=unmapped(rename),
+            chunks=unmapped(chunks),
+            complevel=unmapped(complevel),
+            overwrite=unmapped(overwrite),
+            enforce_dtype=unmapped(enforce_dtype),
+            bitround_in_julia=unmapped(bitround_in_julia),
+        )  # parallel map
+    return flow
 
 
 class JsonCustomEncoder(json.JSONEncoder):
