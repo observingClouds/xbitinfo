@@ -26,7 +26,7 @@ def add_labels_fig3(
     Inputs
     ------
     ds : xr.DataArray
-      plotted before
+      Plotted dataset
     info_per_bit : dict
       Information content of each bit for each variable in ds. This is the output from get_bitinformation.
     inflevels : list of floats
