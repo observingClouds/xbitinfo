@@ -1,9 +1,8 @@
 import matplotlib.pyplot as plt
-import xarray as xr
 import numpy as np
+import xarray as xr
 
-from .bitinformation_pipeline import get_keepbits, NMBITS
-
+from .bitinformation_pipeline import NMBITS, get_keepbits
 
 
 def add_labels_fig3(
