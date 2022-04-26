@@ -259,13 +259,6 @@ def _jl_bitround(X, keepbits):
     return jl.eval("round!(X, keepbits)")
 
 
-
-
-    
-    
-    
-        
-       
 def get_prefect_flow(paths=[]):
     """
     Create prefect.Flow for bitinformation_pipeline bitrounding paths.
@@ -456,6 +449,7 @@ def get_prefect_flow(paths=[]):
             bitround_in_julia=unmapped(bitround_in_julia),
         )  # parallel map
     return flow
+
 
 class JsonCustomEncoder(json.JSONEncoder):
     def default(self, obj):
