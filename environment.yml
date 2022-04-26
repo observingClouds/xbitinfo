@@ -15,8 +15,8 @@ dependencies:
   - netcdf4
   - zarr
   - cfgrib
-  - cdo
-  - python-cdo
+  - prefect
+  - graphviz
   - pytest
   - nb_conda_kernels
   - cmcrameri
