@@ -65,7 +65,7 @@ def add_labels_fig3(
     <matplotlib.collections.QuadMesh object at ...>
     >>> add_labels_fig3(diff, info_per_bit, inflevels)  # doctest: +ELLIPSIS
 
-    Plotting an multi-dimensional coordinate dataset:
+    Plotting a multi-dimensional coordinate dataset
     >>> v = "Tair"
     >>> ds = xr.tutorial.load_dataset("rasm")
     >>> dim = "y"
