@@ -53,7 +53,7 @@ def add_labels_fig3(
 
     Example
     -------
-    Plotting an single-dimension coordinate dataset:
+    Plotting a single-dimension coordinate dataset:
     >>> ds = xr.tutorial.load_dataset("air_temperature")
     >>> info_per_bit = bp.get_bitinformation(ds, dim="lon")
     >>> inflevels = [1.0, 0.9999, 0.99, 0.975, 0.95]
