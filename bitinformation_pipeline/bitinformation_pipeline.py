@@ -35,6 +35,39 @@ def get_user_input():
     return args
 
 
+def get_bit_coords(dtype_size):
+    if dtype_size == 32:
+        coords = (
+            ["±"]
+            + [f"e{int(i)}" for i in range(1, 9)]
+            + [f"m{int(i-8)}" for i in range(9, 32)]
+        )
+    elif dtype_size == 64:
+        coords = (
+            ["±"]
+            + [f"e{int(i)}" for i in range(1, 12)]
+            + [f"m{int(i-11)}" for i in range(12, 64)]
+        )
+    else:
+        raise ValueError(f"dtype of size {dtype_size} neither known nor implemented.")
+    return coords
+
+
+def dict_to_dataset(info_per_bit):
+    """Convert keepbits dictionary to dataset."""
+    dsb = xr.Dataset()
+    for v in info_per_bit.keys():
+        dtype_size = len(info_per_bit[v])
+        dim_name = f"bit{dtype_size}"
+        dsb[v] = xr.DataArray(
+            info_per_bit[v],
+            dims=[dim_name],
+            coords={dim_name: get_bit_coords(dtype_size)},
+            name=v,
+        ).astype("float16")
+    return dsb
+
+
 def get_bitinformation(ds, dim=None, axis=None, label=None, overwrite=False, **kwargs):
     """Wrap BitInformation.bitinformation().
 
@@ -133,7 +166,7 @@ def get_bitinformation(ds, dim=None, axis=None, label=None, overwrite=False, **k
             with open(label + ".json", "w") as f:
                 logging.debug(f"Save bitinformation to {label+'.json'}")
                 json.dump(info_per_bit, f, cls=JsonCustomEncoder)
-    return info_per_bit
+    return dict_to_dataset(info_per_bit)
 
 
 def load_bitinformation(label):
@@ -143,7 +176,7 @@ def load_bitinformation(label):
         with open(label_file) as f:
             logging.debug(f"Load bitinformation from {label+'.json'}")
             info_per_bit = json.load(f)
-        return info_per_bit
+        return dict_to_dataset(info_per_bit)
     else:
         return None
 
