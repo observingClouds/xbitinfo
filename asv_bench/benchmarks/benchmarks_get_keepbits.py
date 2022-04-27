@@ -1,7 +1,7 @@
 import numpy as np
 import xarray as xr
 
-from bitinformation_pipeline import get_keepbits
+from xbitinfo import get_keepbits
 
 from . import _skip_slow, ensure_loaded, parameterized, randn, requires_dask
 

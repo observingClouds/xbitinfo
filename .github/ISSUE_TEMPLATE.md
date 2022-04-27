@@ -1,4 +1,4 @@
-* bitinformation_pipeline version:
+* xbitinfo version:
 * Python version:
 * Operating System:
 

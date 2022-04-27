@@ -1,7 +1,7 @@
 import numpy as np
 import xarray as xr
 
-from bitinformation_pipeline import jl_bitround, xr_bitround
+from xbitinfo import jl_bitround, xr_bitround
 
 from . import (
     _skip_julia,
@@ -107,7 +107,7 @@ class Random(Base):
                 attrs={
                     "units": "var units",
                     "description": "a description",
-                    "history": "created for bitinformation_pipeline benchmarking",
+                    "history": "created for xbitinfo benchmarking",
                 },
             )
             .squeeze()

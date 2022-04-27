@@ -4,8 +4,8 @@ For `mistral.dkrz.de` follow the same guide.
 
 On `levante` [clone](https://docs.github.com/en/repositories/creating-and-managing-repositories/cloning-a-repository) the [github](https://en.wikipedia.org/wiki/GitHub) [repository](https://docs.github.com/en/repositories):
 ```
-git clone https://github.com/observingClouds/bitinformation_pipeline.git
-cd bitinformation_pipeline
+git clone https://github.com/observingClouds/xbitinfo.git
+cd xbitinfo
 ```
 
 Create a new [conda environment](https://docs.conda.io/projects/conda/en/latest/user-guide/tasks/manage-environments.html#creating-an-environment-with-commands) and register the python [kernel](https://docs.dkrz.de/doc/software&services/jupyterhub/kernels.html#use-your-own-kernel):

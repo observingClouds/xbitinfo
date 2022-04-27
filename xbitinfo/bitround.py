@@ -2,7 +2,7 @@ import xarray as xr
 from dask import is_dask_collection
 from numcodecs.bitround import BitRound
 
-from .bitinformation_pipeline import _jl_bitround, get_keepbits
+from .xbitinfo import _jl_bitround, get_keepbits
 
 
 def _np_bitround(data, keepbits):
@@ -14,7 +14,7 @@ def _np_bitround(data, keepbits):
 
 
 def xr_bitround(da, keepbits):
-    """Apply bitrounding based on keepbits from bp.get_keepbits for xarray.Dataset or xr.DataArray wrapping numcodecs.bitround
+    """Apply bitrounding based on keepbits from xb.get_keepbits for xarray.Dataset or xr.DataArray wrapping numcodecs.bitround
 
     Inputs
     ------
@@ -30,9 +30,9 @@ def xr_bitround(da, keepbits):
     Example
     -------
         >>> ds = xr.tutorial.load_dataset("air_temperature")
-        >>> info_per_bit = bp.get_bitinformation(ds, dim="lon")
-        >>> keepbits = bp.get_keepbits(info_per_bit, 0.99)
-        >>> ds_bitrounded = bp.xr_bitround(ds, keepbits)
+        >>> info_per_bit = xb.get_bitinformation(ds, dim="lon")
+        >>> keepbits = xb.get_keepbits(info_per_bit, 0.99)
+        >>> ds_bitrounded = xb.xr_bitround(ds, keepbits)
     """
     if isinstance(da, xr.Dataset):
         da_bitrounded = da.copy()
@@ -55,7 +55,7 @@ def xr_bitround(da, keepbits):
 
 
 def jl_bitround(da, keepbits):
-    """Apply bitrounding based on keepbits from bp.get_keepbits for xarray.Dataset or xr.DataArray wrapping BitInformation.jl.round.
+    """Apply bitrounding based on keepbits from xb.get_keepbits for xarray.Dataset or xr.DataArray wrapping BitInformation.jl.round.
 
     Inputs
     ------
@@ -71,9 +71,9 @@ def jl_bitround(da, keepbits):
     Example
     -------
         >>> ds = xr.tutorial.load_dataset("air_temperature")
-        >>> info_per_bit = bp.get_bitinformation(ds, dim="lon")
-        >>> keepbits = bp.get_keepbits(info_per_bit, 0.99)
-        >>> ds_bitrounded = bp.jl_bitround(ds, keepbits)
+        >>> info_per_bit = xb.get_bitinformation(ds, dim="lon")
+        >>> keepbits = xb.get_keepbits(info_per_bit, 0.99)
+        >>> ds_bitrounded = xb.jl_bitround(ds, keepbits)
     """
     if isinstance(da, xr.Dataset):
         da_bitrounded = da.copy()
@@ -123,8 +123,8 @@ def bitround_along_dim(
     Example
     -------
     >>> ds = xr.tutorial.load_dataset("air_temperature")
-    >>> info_per_bit = bp.get_bitinformation(ds, dim="lon")
-    >>> ds_bitrounded_along_lon = bp.bitround.bitround_along_dim(
+    >>> info_per_bit = xb.get_bitinformation(ds, dim="lon")
+    >>> ds_bitrounded_along_lon = xb.bitround.bitround_along_dim(
     ...     ds, info_per_bit, dim="lon"
     ... )
     >>> (ds - ds_bitrounded_along_lon)["air"].isel(time=0).plot()  # doctest: +ELLIPSIS

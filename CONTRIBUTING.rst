@@ -3,11 +3,11 @@ Contribution Guide
 =====================
 
 Contributions are highly welcomed and appreciated. Every little help counts,
-so do not hesitate! You can make a high impact on ``bitinformation_pipeline`` just by using
-it and reporting `issues <https://github.com/observingClouds/bitinformation_pipeline/issues>`__.
+so do not hesitate! You can make a high impact on ``xbitinfo`` just by using
+it and reporting `issues <https://github.com/observingClouds/xbitinfo/issues>`__.
 
 The following sections cover some general guidelines
-regarding development in ``bitinformation_pipeline`` for maintainers and contributors.
+regarding development in ``xbitinfo`` for maintainers and contributors.
 
 
 Nothing here is set in stone and can't be changed.
@@ -21,7 +21,7 @@ Feature requests and feedback
 
 We are eager to hear about your requests for new features and any suggestions
 about the API, infrastructure, and so on. Feel free to submit these as
-`issues <https://github.com/observingClouds/bitinformation_pipeline/issues/new>`__ with the label
+`issues <https://github.com/observingClouds/xbitinfo/issues/new>`__ with the label
 ``"enhancement"``.
 
 Please make sure to explain in detail how the feature should work and keep the
@@ -34,15 +34,15 @@ PRs.
 Report bugs
 -----------
 
-Report bugs for ``bitinformation_pipeline`` in the
-`issue tracker <https://github.com/observingClouds/bitinformation_pipeline/issues>`_ with the
+Report bugs for ``xbitinfo`` in the
+`issue tracker <https://github.com/observingClouds/xbitinfo/issues>`_ with the
 label "bug".
 
 If you are reporting a bug, please include:
 
 * Any details about your local setup that might be helpful in troubleshooting,
   specifically the Python interpreter version, installed libraries, and
-  ``bitinformation_pipeline`` version.
+  ``xbitinfo`` version.
 * Detailed steps `how to reproduce the bug <https://matthewrocklin.com/blog/work/2018/02/28/minimal-bug-reports>__`
 
 If you can write a demonstration test that currently fails but should pass,
@@ -56,7 +56,7 @@ Bug Fix
 -------
 
 Look through the
-`GitHub issues for bugs <https://github.com/observingClouds/bitinformation_pipeline/labels/bug>`_.
+`GitHub issues for bugs <https://github.com/observingClouds/xbitinfo/labels/bug>`_.
 
 Talk to developers to find out how you can fix specific bugs.
 
@@ -65,16 +65,16 @@ Talk to developers to find out how you can fix specific bugs.
 Preparing Pull Requests
 -----------------------
 
-#. Fork the `bitinformation_pipeline GitHub repository <https://github.com/observingClouds/bitinformation_pipeline>`__.
-   It's fine to use ``bitinformation_pipeline`` as your fork repository name because it will
+#. Fork the `xbitinfo GitHub repository <https://github.com/observingClouds/xbitinfo>`__.
+   It's fine to use ``xbitinfo`` as your fork repository name because it will
    live under your user.
 
 #. Clone your fork locally using `git <https://git-scm.com/>`_, connect your
    repository to the upstream (main project), and create a branch::
 
-    $ git clone git@github.com:YOUR_GITHUB_USERNAME/bitinformation_pipeline.git
-    $ cd bitinformation_pipeline
-    $ git remote add upstream git@github.com:observingClouds/bitinformation_pipeline.git
+    $ git clone git@github.com:YOUR_GITHUB_USERNAME/xbitinfo.git
+    $ cd xbitinfo
+    $ git remote add upstream git@github.com:observingClouds/xbitinfo.git
 
     # now, to fix a bug or add feature create your own branch off "main":
 
@@ -90,12 +90,12 @@ Preparing Pull Requests
     $ conda env create -f environment.yml
     $ conda activate bitinfo
 
-#. Make an editable install of ``bitinformation_pipeline`` by running::
+#. Make an editable install of ``xbitinfo`` by running::
 
     $ pip install -e .
 
 #. Install `pre-commit <https://pre-commit.com>`_ and its hook on the
-   ``bitinformation_pipeline`` repo::
+   ``xbitinfo`` repo::
 
      $ pip install --user pre-commit
      $ pre-commit install
@@ -143,7 +143,7 @@ Preparing Pull Requests
    Check that `doctests <https://docs.pytest.org/en/stable/doctest.html>`_ are
    passing::
 
-    $ pytest --doctest-modules bitinformation_pipeline
+    $ pytest --doctest-modules xbitinfo
 
    Please stick to
    `xarray <http://xarray.pydata.org/en/stable/contributing.html>`_'s testing
@@ -151,11 +151,11 @@ Preparing Pull Requests
 
 #. Running the performance test suite
 
-   If you considerably changed to core of code of ``bitinformation_pipeline``, it is worth
+   If you considerably changed to core of code of ``xbitinfo``, it is worth
    considering whether your code has introduced performance regressions.
-   ``bitinformation_pipeline`` has a suite of benchmarking tests using
+   ``xbitinfo`` has a suite of benchmarking tests using
    `asv <https://asv.readthedocs.io/en/stable/>`_
-   to enable easy monitoring of the performance of critical ``bitinformation_pipeline``
+   to enable easy monitoring of the performance of critical ``xbitinfo``
    operations. These benchmarks are all found in the ``asv_bench`` directory.
 
    If you need to run a benchmark, change your directory to ``asv_bench/`` and
@@ -198,12 +198,12 @@ Preparing Pull Requests
 
 #. Finally, submit a `Pull Request <https://docs.github.com/en/github/collaborating-with-pull-requests/proposing-changes-to-your-work-with-pull-requests/about-pull-requests>`_ through the GitHub website using this data::
 
-    head-fork: YOUR_GITHUB_USERNAME/bitinformation_pipeline
+    head-fork: YOUR_GITHUB_USERNAME/xbitinfo
     compare: your-branch-name
 
-    base-fork: observingClouds/bitinformation_pipeline
+    base-fork: observingClouds/xbitinfo
     base: main
 
 Note that you can create the ``Pull Request`` while you're working on this.
-The PR will update as you add more commits. ``bitinformation_pipeline`` developers and
+The PR will update as you add more commits. ``xbitinfo`` developers and
 contributors can then review your code and offer suggestions.

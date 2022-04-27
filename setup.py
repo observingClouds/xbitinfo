@@ -61,15 +61,13 @@ setup(
     license="MIT license",
     long_description=readme + "\n\n" + history,
     include_package_data=True,
-    keywords="bitinformation_pipeline",
-    name="bitinformation_pipeline",
-    packages=find_packages(
-        include=["bitinformation_pipeline", "bitinformation_pipeline.*"]
-    ),
-    package_data={"bitinformation_pipeline": ["*.jl"]},
+    keywords="xbitinfo",
+    name="xbitinfo",
+    packages=find_packages(include=["xbitinfo", "xbitinfo.*"]),
+    package_data={"xbitinfo": ["*.jl"]},
     test_suite="tests",
     tests_require=test_requirements,
-    url="https://github.com/observingClouds/bitinformation_pipeline",
+    url="https://github.com/observingClouds/xbitinfo",
     version="0.0.1",
     zip_safe=False,
 )
