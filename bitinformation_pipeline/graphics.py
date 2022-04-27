@@ -5,7 +5,7 @@ import xarray as xr
 from .bitinformation_pipeline import NMBITS, get_keepbits
 
 
-def add_labels_fig3(
+def add_bitinfo_labels(
     ds,
     info_per_bit,
     inflevels,
@@ -20,6 +20,7 @@ def add_labels_fig3(
 ):
     """
     Helper function for visualization of Figure 3 in Klöwer et al. 2021.
+    Adds latitudinal lines and labels with keepbits and information content for each slice.
 
     Klöwer, M., Razinger, M., Dominguez, J. J., Düben, P. D., & Palmer, T. N. (2021).
     Compressing atmospheric data into its real information content. Nature Computational Science, 1(11), 713–724. doi: 10/gnm4jj
@@ -64,7 +65,7 @@ def add_labels_fig3(
     >>> diff = (ds - ds_bitrounded_along_lon)["air"].isel(time=0)
     >>> diff.plot()  # doctest: +ELLIPSIS
     <matplotlib.collections.QuadMesh object at ...>
-    >>> add_labels_fig3(diff, info_per_bit, inflevels)  # doctest: +ELLIPSIS
+    >>> add_bitinfo_labels(diff, info_per_bit, inflevels)  # doctest: +ELLIPSIS
 
     Plotting a multi-dimensional coordinate dataset
     >>> v = "Tair"
@@ -81,7 +82,7 @@ def add_labels_fig3(
     >>> (ds - ds_bitrounded_along_lon)[v].isel(time=-10).plot(
     ...     ax=axis, transform=ccrs.PlateCarree()
     ... )  # doctest: +SKIP
-    >>> add_lines_fig3(
+    >>> add_bitinfo_labels(
     ...     (ds - ds_bitrounded_along_lon)[v].isel(time=0),
     ...     lon_coord_name="xc",
     ...     lat_coord_name="yc",
