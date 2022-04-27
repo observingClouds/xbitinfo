@@ -13,7 +13,7 @@ jl = Julia(compiled_modules=False, debug=False)
 from julia import Main  # noqa: E402
 
 path_to_julia_functions = os.path.join(
-    os.path.dirname(__file__), "get_n_plot_bitinformation.jl"
+    os.path.dirname(__file__), "bitinformation_wrapper.jl"
 )
 Main.path = path_to_julia_functions
 jl.using("BitInformation")
