@@ -13,7 +13,7 @@ jl = Julia(compiled_modules=False, debug=False)
 from julia import Main  # noqa: E402
 
 path_to_julia_functions = os.path.join(
-    os.path.dirname(__file__), "get_n_plot_bitinformation.jl"
+    os.path.dirname(__file__), "bitinformation_wrapper.jl"
 )
 Main.path = path_to_julia_functions
 jl.using("BitInformation")
@@ -65,7 +65,7 @@ def get_bitinformation(ds, dim=None, axis=None, label=None, overwrite=False, **k
     Example
     -------
         >>> ds = xr.tutorial.load_dataset("air_temperature")
-        >>> bp.get_bitinformation(ds, dim="lon")
+        >>> xb.get_bitinformation(ds, dim="lon")
         {'air': array([0.00000000e+00, 0.00000000e+00, 0.00000000e+00, 0.00000000e+00,
                0.00000000e+00, 3.94447851e-01, 3.94447851e-01, 3.94447851e-01,
                3.94447851e-01, 3.94447851e-01, 3.94310542e-01, 7.36739987e-01,
@@ -99,7 +99,7 @@ def get_bitinformation(ds, dim=None, axis=None, label=None, overwrite=False, **k
                 raise ValueError(f"Please provide `dim` as `str`, found {type(dim)}.")
         if "mask" in kwargs:
             raise ValueError(
-                "`bitinformation_pipeline` does not wrap the mask argument. Mask your xr.Dataset with NaNs instead."
+                "`xbitinfo` does not wrap the mask argument. Mask your xr.Dataset with NaNs instead."
             )
 
         info_per_bit = {}
@@ -167,12 +167,12 @@ def get_keepbits(info_per_bit, inflevel=0.99):
     Example
     -------
     >>> ds = xr.tutorial.load_dataset("air_temperature")
-    >>> info_per_bit = bp.get_bitinformation(ds, dim="lon")
-    >>> bp.get_keepbits(info_per_bit)
+    >>> info_per_bit = xb.get_bitinformation(ds, dim="lon")
+    >>> xb.get_keepbits(info_per_bit)
     {'air': 7}
-    >>> bp.get_keepbits(info_per_bit, inflevel=0.99999999)
+    >>> xb.get_keepbits(info_per_bit, inflevel=0.99999999)
     {'air': 14}
-    >>> bp.get_keepbits(info_per_bit, inflevel=1.0)
+    >>> xb.get_keepbits(info_per_bit, inflevel=1.0)
     {'air': 23}
     """
     keepmantissabits = {}
@@ -221,12 +221,12 @@ def _get_keepbits(ds, info_per_bit, inflevel=0.99):
     Example
     -------
     >>> ds = xr.tutorial.load_dataset("air_temperature")
-    >>> info_per_bit = bp.get_bitinformation(ds, dim="lon")
-    >>> bp._get_keepbits(ds, info_per_bit)
+    >>> info_per_bit = xb.get_bitinformation(ds, dim="lon")
+    >>> xb._get_keepbits(ds, info_per_bit)
     {'air': 7}
-    >>> bp._get_keepbits(ds, info_per_bit, inflevel=0.99999999)
+    >>> xb._get_keepbits(ds, info_per_bit, inflevel=0.99999999)
     {'air': 14}
-    >>> bp._get_keepbits(ds, info_per_bit, inflevel=1.0)
+    >>> xb._get_keepbits(ds, info_per_bit, inflevel=1.0)
     {'air': -8}
     """
 
@@ -253,7 +253,7 @@ def _get_keepbits(ds, info_per_bit, inflevel=0.99):
 
 
 def _jl_bitround(X, keepbits):
-    """Wrap BitInformation.round. Used in bp.jl_bitround."""
+    """Wrap BitInformation.round. Used in xb.jl_bitround."""
     Main.X = X
     Main.keepbits = keepbits
     return jl.eval("round!(X, keepbits)")
@@ -261,7 +261,7 @@ def _jl_bitround(X, keepbits):
 
 def get_prefect_flow(paths=[]):
     """
-    Create prefect.Flow for bitinformation_pipeline bitrounding paths.
+    Create prefect.Flow for xbitinfo bitrounding paths.
 
     1. Analyse bitwise real information content
     2. Retrieve keepbits
@@ -272,7 +272,7 @@ def get_prefect_flow(paths=[]):
     - paths: list of Paths
         Paths to be bitrounded
     - analyse_paths: str or int
-        Which paths to be passed to `bp.get_bitinformation`. choose from ["first_last", "all", int], where int is interpreted as stride, i.e. paths[::stride]. Defaults to "first".
+        Which paths to be passed to `xb.get_bitinformation`. choose from ["first_last", "all", int], where int is interpreted as stride, i.e. paths[::stride]. Defaults to "first".
     - enforce_dtype : str or None
         Enforce dype for all variables. Currently `get_bitinformation` fails for different dtypes in variables. Do nothing if None. Defaults to None.
     - label : see get_bitinformation
@@ -308,7 +308,7 @@ def get_prefect_flow(paths=[]):
     >>> xr.save_mfdataset(datasets, paths)
 
     Create prefect.Flow and run sequentially
-    >>> flow = bp.get_prefect_flow(paths=paths)
+    >>> flow = xb.get_prefect_flow(paths=paths)
     >>> import prefect
     >>> logger = prefect.context.get("logger")
     >>> logger.setLevel("ERROR")
@@ -412,7 +412,7 @@ def get_prefect_flow(paths=[]):
         ds_bitround.to_compressed_netcdf(new_path, complevel=complevel)
         return
 
-    with Flow("bitinformation_pipeline") as flow:
+    with Flow("xbitinfo") as flow:
         if paths == []:
             raise ValueError("Please provide paths of files to bitround, found [].")
         paths = Parameter("paths", default=paths)

@@ -4,10 +4,10 @@
     "version": 1,
 
     // The name of the project being benchmarked
-    "project": "bitinformation_pipeline",
+    "project": "xbitinfo",
 
     // The project's homepage
-    "project_url": "https://github.com/observingClouds/bitinformation_pipeline",
+    "project_url": "https://github.com/observingClouds/xbitinfo",
 
     // The URL or local path of the source code repository for the
     // project being benchmarked
@@ -35,7 +35,7 @@
     //"install_timeout": 600,
 
     // the base URL to show a commit for the project.
-    // "show_commit_url": "https://github.com/observingClouds/bitinformation_pipeline/commit/",
+    // "show_commit_url": "https://github.com/observingClouds/xbitinfo/commit/",
 
     // The Pythons you'd like to test against.  If not provided, defaults
     // to the current version of Python used to run `asv`.

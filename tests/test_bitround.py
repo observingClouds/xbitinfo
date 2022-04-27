@@ -3,7 +3,7 @@ import xarray as xr
 from dask import is_dask_collection
 from xarray.testing import assert_allclose, assert_equal
 
-import bitinformation_pipeline as bp
+import xbitinfo as xb
 
 
 @pytest.mark.parametrize("dtype", ["float16", "float32", "float64"])
@@ -22,7 +22,7 @@ def test_xr_bitround(air_temperature, dtype, input_type, implementation, keepbit
         v = list(ds.data_vars)[0]
         ds = ds[v]
 
-    bitround = bp.xr_bitround if implementation == "xarray" else bp.jl_bitround
+    bitround = xb.xr_bitround if implementation == "xarray" else xb.jl_bitround
     ds_bitrounded = bitround(ds, keepbits)
 
     def check(da, da_bitrounded):
@@ -53,7 +53,7 @@ def test_bitround_dask(air_temperature, implementation, dask):
     if dask:
         ds = ds.chunk("auto")
 
-    bitround = bp.xr_bitround if implementation == "xarray" else bp.jl_bitround
+    bitround = xb.xr_bitround if implementation == "xarray" else xb.jl_bitround
     ds_bitrounded = bitround(ds, keepbits)
     assert is_dask_collection(ds_bitrounded) == dask
     if dask:
@@ -68,6 +68,6 @@ def test_bitround_xarray_julia_equal(air_temperature, dtype, keepbits):
     """Test jl_bitround and xr_bitround yield identical results."""
     ds = air_temperature.astype(dtype)
     for keep in keepbits:
-        ds_xr_bitrounded = bp.xr_bitround(ds, keep)
-        ds_jl_bitrounded = bp.jl_bitround(ds, keep)
+        ds_xr_bitrounded = xb.xr_bitround(ds, keep)
+        ds_jl_bitrounded = xb.jl_bitround(ds, keep)
         assert_equal(ds_jl_bitrounded, ds_xr_bitrounded)

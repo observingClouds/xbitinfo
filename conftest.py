@@ -3,7 +3,7 @@ import pytest
 import xarray as xr
 from xarray.tutorial import load_dataset
 
-import bitinformation_pipeline as bp
+import xbitinfo as xb
 
 xr.set_options(display_style="text")
 
@@ -16,7 +16,7 @@ def add_standard_imports(
     xr.set_options(display_style="text")
     doctest_namespace["np"] = np
     doctest_namespace["xr"] = xr
-    doctest_namespace["bp"] = bp
+    doctest_namespace["xb"] = xb
     # always seed numpy.random to make the examples deterministic
     np.random.seed(42)
 
