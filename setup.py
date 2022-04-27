@@ -8,6 +8,8 @@ from setuptools import find_packages, setup
 from setuptools.command.develop import develop
 from setuptools.command.install import install
 
+import versioneer
+
 julia_install_command = "julia install_julia_packages.jl"
 
 
@@ -52,10 +54,6 @@ setup(
         "Programming Language :: Python :: 3.9",
         "Programming Language :: Python :: 3.10",
     ],
-    cmdclass={
-        "develop": PostDevelopCommand,
-        "install": PostInstallCommand,
-    },
     description="Retrieve information content and compress accordingly.",
     install_requires=requirements,
     license="MIT license",
@@ -68,6 +66,7 @@ setup(
     test_suite="tests",
     tests_require=test_requirements,
     url="https://github.com/observingClouds/xbitinfo",
-    version="0.0.1",
+    version=versioneer.get_version(),
+    cmdclass=versioneer.get_cmdclass(),
     zip_safe=False,
 )
