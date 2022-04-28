@@ -241,58 +241,6 @@ def get_keepbits(info_per_bit, inflevel=0.99):
     return keepmantissabits
 
 
-def _get_keepbits(ds, info_per_bit, inflevel=0.99):
-    """Get the amount of mantissa bits to keep for a given information content.
-
-    Inputs
-    ------
-    ds : xr.Dataset
-      Dataset for which the information content has been retrieved
-    info_per_bit : dict
-      Information content of each bit for each variable in ds. This is the output from get_bitinformation.
-    inflevel : float or dict
-      Level of information that shall be preserved. Of type `float` if the
-      preserved information content should be equal across variables, otherwise of type `dict`.
-
-    Returns
-    -------
-    keepbits : dict
-      Number of mantissa bits to keep per variable
-
-    Example
-    -------
-    >>> ds = xr.tutorial.load_dataset("air_temperature")
-    >>> info_per_bit = xb.get_bitinformation(ds, dim="lon")
-    >>> xb._get_keepbits(ds, info_per_bit)
-    {'air': 7}
-    >>> xb._get_keepbits(ds, info_per_bit, inflevel=0.99999999)
-    {'air': 14}
-    >>> xb._get_keepbits(ds, info_per_bit, inflevel=1.0)
-    {'air': -8}
-    """
-
-    def get_inflevel(var, inflevel):
-        """Helper function to load inflevel depending on input type."""
-        if isinstance(inflevel, dict):
-            return inflevel[var]
-        else:
-            return inflevel
-
-    keepbits = {}
-    config = {}
-    for var in ds.data_vars:
-        config[var] = {
-            "inflevel": get_inflevel(var, inflevel),
-            "bitinfo": info_per_bit[var],
-            "maskinfo": int(ds[var].notnull().sum()),
-        }
-        Main.config = config[var]
-        keepbits[var] = jl.eval("get_keepbits(config)")
-        # keep mantissa bits
-        keepbits[var] = keepbits[var] - NMBITS[len(info_per_bit[var])]
-    return keepbits
-
-
 def _jl_bitround(X, keepbits):
     """Wrap BitInformation.round. Used in xb.jl_bitround."""
     Main.X = X
