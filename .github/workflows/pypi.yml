@@ -1,5 +1,8 @@
 name: Upload Python Package
 
+# taken from https://github.com/xarray-contrib/xskillscore/blob/main/.github/workflows/python-publish.yml
+# see guide https://github.com/xarray-contrib/xskillscore/blob/main/HOWTORELEASE.rst
+
 on:
   push:
     tags:
