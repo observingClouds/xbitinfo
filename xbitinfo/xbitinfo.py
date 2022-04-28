@@ -36,7 +36,13 @@ def get_user_input():
 
 
 def get_bit_coords(dtype_size):
-    if dtype_size == 32:
+    if dtype_size == 16:
+        coords = (
+            ["±"]
+            + [f"e{int(i)}" for i in range(1, 6)]
+            + [f"m{int(i-5)}" for i in range(6, 16)]
+        )
+    elif dtype_size == 32:
         coords = (
             ["±"]
             + [f"e{int(i)}" for i in range(1, 9)]
