@@ -52,9 +52,9 @@ def get_bitinformation(ds, dim=None, axis=None, label=None, overwrite=False, **k
       if false, try using serialized bitinfo based on label; if true or label does not exist, run bitinformation
     kwargs
       to be passed to bitinformation:
-      - masked_value: defaults to NaN (different to bitinformation.jl)
-      - mask: use masked_value instead
-      - set_zero_insignificant (bool): defaults to True
+      - masked_value: defaults to `NaN` (different to bitinformation.jl), set `None` disable masking
+      - mask: use `masked_value` instead
+      - set_zero_insignificant (bool): defaults to `True`
       - confidence (float): defaults to 0.99
 
     Returns
@@ -121,7 +121,7 @@ def get_bitinformation(ds, dim=None, axis=None, label=None, overwrite=False, **k
                     "masked_value"
                 ] = f"convert({str(ds[var].dtype).capitalize()},NaN)"
             elif kwargs["masked_value"] == None:
-                kwargs["masked_value"] == "nothing"
+                kwargs["masked_value"] = "nothing"
             if "set_zero_insignificant" not in kwargs:
                 kwargs["set_zero_insignificant"] = True
             kwargs_str = ", ".join([f"{k}={v}" for k, v in kwargs.items()])
