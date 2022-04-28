@@ -120,7 +120,7 @@ def get_bitinformation(ds, dim=None, axis=None, label=None, overwrite=False, **k
                 kwargs[
                     "masked_value"
                 ] = f"convert({str(ds[var].dtype).capitalize()},NaN)"
-            elif kwargs["masked_value"] == None:
+            elif kwargs["masked_value"] is None:
                 kwargs["masked_value"] = "nothing"
             if "set_zero_insignificant" not in kwargs:
                 kwargs["set_zero_insignificant"] = True
