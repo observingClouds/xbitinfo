@@ -61,6 +61,8 @@ def test_get_bitinformation_masked_value():
     ds = xr.tutorial.load_dataset("rasm")
     bitinfo = xb.get_bitinformation(ds, dim="x")
     bitinfo_no_mask = xb.get_bitinformation(ds, dim="x", masked_value="nothing")
+    bitinfo_no_mask_None = xb.get_bitinformation(ds, dim="x", masked_value=None)
+    assert_equal(bitinfo_no_mask, bitinfo_no_mask_None)
     bitinfo_assert_different(bitinfo, bitinfo_no_mask)
 
 
