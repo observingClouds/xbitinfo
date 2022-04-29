@@ -70,7 +70,7 @@ def dict_to_dataset(info_per_bit):
             dims=[dim_name],
             coords={dim_name: get_bit_coords(dtype_size)},
             name=v,
-        ).astype("float16")
+        ).astype("float64")
     return dsb
 
 
@@ -105,14 +105,12 @@ def get_bitinformation(ds, dim=None, axis=None, label=None, overwrite=False, **k
     -------
         >>> ds = xr.tutorial.load_dataset("air_temperature")
         >>> xb.get_bitinformation(ds, dim="lon")
-        {'air': array([0.00000000e+00, 0.00000000e+00, 0.00000000e+00, 0.00000000e+00,
-               0.00000000e+00, 3.94447851e-01, 3.94447851e-01, 3.94447851e-01,
-               3.94447851e-01, 3.94447851e-01, 3.94310542e-01, 7.36739987e-01,
-               5.62682836e-01, 3.60511555e-01, 1.52471111e-01, 4.18818055e-02,
-               3.65276146e-03, 1.19975820e-05, 4.39366160e-05, 4.18329296e-05,
-               2.54572089e-05, 1.44121797e-04, 1.34144798e-03, 1.55468479e-06,
-               5.38601212e-04, 8.09862581e-04, 1.74893445e-04, 4.97915410e-05,
-               3.88027711e-04, 0.00000000e+00, 3.95323228e-05, 6.88854435e-04])}
+        <xarray.Dataset>
+        Dimensions:  (bit32: 32)
+        Coordinates:
+          * bit32    (bit32) <U3 '±' 'e1' 'e2' 'e3' 'e4' ... 'm20' 'm21' 'm22' 'm23'
+        Data variables:
+            air      (bit32) float64 0.0 0.0 0.0 0.0 ... 0.0 3.953e-05 0.0006889
     """
     if overwrite:
         calc = True
@@ -210,13 +208,28 @@ def get_keepbits(info_per_bit, inflevel=0.99):
     >>> ds = xr.tutorial.load_dataset("air_temperature")
     >>> info_per_bit = xb.get_bitinformation(ds, dim="lon")
     >>> xb.get_keepbits(info_per_bit)
-    {'air': 7}
+    <xarray.Dataset>
+    Dimensions:   ()
+    Coordinates:
+        inflevel  float64 0.99
+    Data variables:
+        air       int64 7
     >>> xb.get_keepbits(info_per_bit, inflevel=0.99999999)
-    {'air': 14}
+    <xarray.Dataset>
+    Dimensions:   ()
+    Coordinates:
+        inflevel  float64 1.0
+    Data variables:
+        air       int64 14
     >>> xb.get_keepbits(info_per_bit, inflevel=1.0)
-    {'air': 23}
+    <xarray.Dataset>
+    Dimensions:   ()
+    Coordinates:
+        inflevel  float64 1.0
+    Data variables:
+        air       int64 23
     """
-    keepmantissabits = {}
+    keepmantissabits = xr.Dataset(coords={"inflevel": inflevel})
     if isinstance(inflevel, (int, float)):
         if inflevel < 0 or inflevel > 1.0:
             raise ValueError("Please provide `inflevel` from interval [0.,1.]")
@@ -228,10 +241,10 @@ def get_keepbits(info_per_bit, inflevel=0.99):
             # use something a bit bigger than maximum of the last 4 bits
             threshold = 1.5 * np.max(ic[-4:])
             ic_over_threshold = np.where(ic < threshold, 0, ic)
-            ic_over_threshold_cum = np.nancumsum(ic_over_threshold)  # CDF
+            ic_over_threshold_cum = ic_over_threshold.cumsum()  # CDF
             # normed CDF
             ic_over_threshold_cum_normed = (
-                ic_over_threshold_cum / ic_over_threshold_cum[-1]
+                ic_over_threshold_cum / ic_over_threshold_cum.max()
             )
             # return mantissabits to keep therefore subtract sign and exponent bits
             il = inflevel[v] if isinstance(inflevel, dict) else inflevel

@@ -7,8 +7,39 @@ import numpy as np
 import pytest
 import xarray as xr
 from numpy.testing import assert_allclose, assert_equal
+from xarray.core import formatting
+from xarray.core.dataarray import DataArray
+from xarray.core.dataset import Dataset
+from xarray.core.variable import Variable
+from xarray.testing import assert_identical
 
 import xbitinfo as xb
+
+
+def assert_different(a, b):
+    """Raises an AssertionError if two objects are equal. This will match
+    data values, dimensions and coordinates, but not names or attributes
+    (except for Dataset objects for which the variable names must match).
+    Arrays with NaN in the same location are considered equal.
+    Parameters
+    ----------
+    a : xarray.Dataset, xarray.DataArray or xarray.Variable
+        The first object to compare.
+    b : xarray.Dataset, xarray.DataArray or xarray.Variable
+        The second object to compare.
+    See Also
+    --------
+    assert_identical, assert_allclose, Dataset.equals, DataArray.equals
+    numpy.testing.assert_array_equal
+    """
+    __tracebackhide__ = True
+    assert type(a) == type(b)
+    if isinstance(a, (Variable, DataArray)):
+        assert not a.equals(b), formatting.diff_array_repr(a, b, "equals")
+    elif isinstance(a, Dataset):
+        assert not a.equals(b), formatting.diff_dataset_repr(a, b, "equals")
+    else:
+        raise TypeError(f"{type(a)} not supported by assertion comparison")
 
 
 def bitinfo_assert_equal(bitinfo1, bitinfo2):
@@ -34,10 +65,10 @@ def bitinfo_assert_different(bitinfo1, bitinfo2):
     assert not (bitinfo1_values == bitinfo2_values).all()
 
 
-def test_get_bitinformation_returns_dict():
+def test_get_bitinformation_returns_dataaset():
     """Test xb.get_bitinformation returns dict."""
     ds = xr.tutorial.load_dataset("rasm")
-    assert isinstance(xb.get_bitinformation(ds, axis=0), dict)
+    assert isinstance(xb.get_bitinformation(ds, axis=0), xr.Dataset)
 
 
 def test_get_bitinformation_dim():
@@ -45,7 +76,7 @@ def test_get_bitinformation_dim():
     ds = xr.tutorial.load_dataset("rasm")
     bitinfo0 = xb.get_bitinformation(ds, axis=0)
     bitinfo2 = xb.get_bitinformation(ds, axis=2)
-    bitinfo_assert_different(bitinfo0, bitinfo2)
+    assert_different(bitinfo0, bitinfo2)
 
 
 def test_get_bitinformation_dim_string_equals_axis_int():
@@ -53,7 +84,7 @@ def test_get_bitinformation_dim_string_equals_axis_int():
     ds = xr.tutorial.load_dataset("rasm")
     bitinfox = xb.get_bitinformation(ds, dim="x")
     bitinfo2 = xb.get_bitinformation(ds, axis=2)
-    bitinfo_assert_equal(bitinfox, bitinfo2)
+    assert_identical(bitinfox, bitinfo2)
 
 
 def test_get_bitinformation_masked_value():
@@ -62,8 +93,8 @@ def test_get_bitinformation_masked_value():
     bitinfo = xb.get_bitinformation(ds, dim="x")
     bitinfo_no_mask = xb.get_bitinformation(ds, dim="x", masked_value="nothing")
     bitinfo_no_mask_None = xb.get_bitinformation(ds, dim="x", masked_value=None)
-    assert_equal(bitinfo_no_mask, bitinfo_no_mask_None)
-    bitinfo_assert_different(bitinfo, bitinfo_no_mask)
+    assert_identical(bitinfo_no_mask, bitinfo_no_mask_None)
+    assert_different(bitinfo, bitinfo_no_mask)
 
 
 def test_get_bitinformation_set_zero_insignificant():
@@ -73,8 +104,8 @@ def test_get_bitinformation_set_zero_insignificant():
     bitinfo_szi_False = xb.get_bitinformation(ds, dim=dim, set_zero_insignificant=False)
     bitinfo_szi_True = xb.get_bitinformation(ds, dim=dim, set_zero_insignificant=True)
     bitinfo = xb.get_bitinformation(ds, dim=dim)
-    bitinfo_assert_different(bitinfo, bitinfo_szi_False)
-    bitinfo_assert_equal(bitinfo, bitinfo_szi_True)
+    assert_different(bitinfo, bitinfo_szi_False)
+    assert_identical(bitinfo, bitinfo_szi_True)
 
 
 def test_get_bitinformation_confidence():
@@ -84,8 +115,8 @@ def test_get_bitinformation_confidence():
     bitinfo_conf99 = xb.get_bitinformation(ds, dim=dim, confidence=0.99)
     bitinfo_conf50 = xb.get_bitinformation(ds, dim=dim, confidence=0.5)
     bitinfo = xb.get_bitinformation(ds, dim=dim)
-    bitinfo_assert_different(bitinfo_conf99, bitinfo_conf50)
-    bitinfo_assert_equal(bitinfo, bitinfo_conf99)
+    assert_different(bitinfo_conf99, bitinfo_conf50)
+    assert_identical(bitinfo, bitinfo_conf99)
 
 
 def test_get_bitinformation_label(rasm):
