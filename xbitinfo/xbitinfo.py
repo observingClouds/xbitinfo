@@ -2,6 +2,7 @@ import argparse
 import json
 import logging
 import os
+import warnings
 
 import matplotlib.pyplot as plt
 import numpy as np
@@ -106,14 +107,12 @@ def get_bitinformation(ds, dim=None, axis=None, label=None, overwrite=False, **k
     -------
         >>> ds = xr.tutorial.load_dataset("air_temperature")
         >>> xb.get_bitinformation(ds, dim="lon")
-        {'air': array([0.00000000e+00, 0.00000000e+00, 0.00000000e+00, 0.00000000e+00,
-               0.00000000e+00, 3.94447851e-01, 3.94447851e-01, 3.94447851e-01,
-               3.94447851e-01, 3.94447851e-01, 3.94310542e-01, 7.36739987e-01,
-               5.62682836e-01, 3.60511555e-01, 1.52471111e-01, 4.18818055e-02,
-               3.65276146e-03, 1.19975820e-05, 4.39366160e-05, 4.18329296e-05,
-               2.54572089e-05, 1.44121797e-04, 1.34144798e-03, 1.55468479e-06,
-               5.38601212e-04, 8.09862581e-04, 1.74893445e-04, 4.97915410e-05,
-               3.88027711e-04, 0.00000000e+00, 3.95323228e-05, 6.88854435e-04])}
+        <xarray.Dataset>
+        Dimensions:  (bit32: 32)
+        Coordinates:
+          * bit32    (bit32) <U3 '±' 'e1' 'e2' 'e3' 'e4' ... 'm20' 'm21' 'm22' 'm23'
+        Data variables:
+            air      (bit32) float16 0.0 0.0 0.0 0.0 ... 0.0 3.952e-05 0.000689
     """
     if overwrite:
         calc = True
@@ -243,7 +242,7 @@ def get_keepbits(info_per_bit, inflevel=0.99):
 
 
 def _get_keepbits(ds, info_per_bit, inflevel=0.99):
-    """Get the amount of mantissa bits to keep for a given information content.
+    """Get the amount of mantissa bits to keep for a given information content. Deprecated.
 
     Inputs
     ------
@@ -260,17 +259,8 @@ def _get_keepbits(ds, info_per_bit, inflevel=0.99):
     keepbits : dict
       Number of mantissa bits to keep per variable
 
-    Example
-    -------
-    >>> ds = xr.tutorial.load_dataset("air_temperature")
-    >>> info_per_bit = xb.get_bitinformation(ds, dim="lon")
-    >>> xb._get_keepbits(ds, info_per_bit)
-    {'air': 7}
-    >>> xb._get_keepbits(ds, info_per_bit, inflevel=0.99999999)
-    {'air': 14}
-    >>> xb._get_keepbits(ds, info_per_bit, inflevel=1.0)
-    {'air': -8}
     """
+    warnings.warn("xb._get_keepbits is deprecated, please use xb.get_keepbits.")
 
     def get_inflevel(var, inflevel):
         """Helper function to load inflevel depending on input type."""
