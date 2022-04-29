@@ -22,7 +22,11 @@ dependencies:
   - cmcrameri
   - tqdm
   - asv
+  - sphinx
+  - sphinxcontrib-napoleon
+  - sphinx-copybutton
   - pip
   - pip:
     - git+https://github.com/rabernat/numcodecs@bitround
+    - sphinx_book_theme
     - -e .
