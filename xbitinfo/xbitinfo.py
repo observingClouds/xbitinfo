@@ -228,13 +228,28 @@ def get_keepbits(info_per_bit, inflevel=0.99):
     >>> ds = xr.tutorial.load_dataset("air_temperature")
     >>> info_per_bit = xb.get_bitinformation(ds, dim="lon")
     >>> xb.get_keepbits(info_per_bit)
-    {'air': 7}
+    <xarray.Dataset>
+    Dimensions:   ()
+    Coordinates:
+        inflevel  float64 0.99
+    Data variables:
+        air       int64 7
     >>> xb.get_keepbits(info_per_bit, inflevel=0.99999999)
-    {'air': 14}
+    <xarray.Dataset>
+    Dimensions:   ()
+    Coordinates:
+        inflevel  float64 1.0
+    Data variables:
+        air       int64 14
     >>> xb.get_keepbits(info_per_bit, inflevel=1.0)
-    {'air': 23}
+    <xarray.Dataset>
+    Dimensions:   ()
+    Coordinates:
+        inflevel  float64 1.0
+    Data variables:
+        air       int64 23
     """
-    keepmantissabits = {}
+    keepmantissabits = xr.Dataset(coords={"inflevel": inflevel})
     if isinstance(inflevel, (int, float)):
         if inflevel < 0 or inflevel > 1.0:
             raise ValueError("Please provide `inflevel` from interval [0.,1.]")
@@ -247,10 +262,10 @@ def get_keepbits(info_per_bit, inflevel=0.99):
             # use something a bit bigger than maximum of the last 4 bits
             threshold = 1.5 * np.max(ic[-4:])
             ic_over_threshold = np.where(ic < threshold, 0, ic)
-            ic_over_threshold_cum = np.nancumsum(ic_over_threshold)  # CDF
+            ic_over_threshold_cum = ic_over_threshold.cumsum()  # CDF
             # normed CDF
             ic_over_threshold_cum_normed = (
-                ic_over_threshold_cum / ic_over_threshold_cum[-1]
+                ic_over_threshold_cum / ic_over_threshold_cum.max()
             )
             # return mantissabits to keep therefore subtract sign and exponent bits
             il = inflevel[v] if isinstance(inflevel, dict) else inflevel
