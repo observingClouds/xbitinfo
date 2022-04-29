@@ -6,10 +6,11 @@ For more details and examples, refer to the relevant chapters in the main part o
 documentation.
 
 
-.. currentmodule:: xbitinfo
-
 xbitinfo
 --------
+
+.. currentmodule:: xbitinfo.xbitinfo
+
 .. autosummary::
     :toctree: api/
 
@@ -19,6 +20,9 @@ xbitinfo
 
 Bitrounding
 -----------
+
+.. currentmodule:: xbitinfo.bitround
+
 .. autosummary::
     :toctree: api/
 
@@ -28,6 +32,7 @@ Bitrounding
 
 Save compressed
 ---------------
+.. currentmodule:: xbitinfo.save_compressed
 .. autosummary::
     :toctree: api/
 
@@ -39,6 +44,7 @@ Save compressed
 
 Graphics
 --------
+.. currentmodule:: xbitinfo.graphics
 .. autosummary::
     :toctree: api/
 

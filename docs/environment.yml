@@ -20,7 +20,7 @@ dependencies:
   - nb_conda_kernels
   - cmcrameri
   - tqdm
-  - sphinx
+  - sphinx!=4.4.0
   - sphinxcontrib-napoleon
   - sphinx-copybutton
   - sphinx-book-theme
