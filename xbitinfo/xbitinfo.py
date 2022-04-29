@@ -9,6 +9,8 @@ import xarray as xr
 from julia.api import Julia
 from tqdm.auto import tqdm
 
+from . import __version__
+
 jl = Julia(compiled_modules=False, debug=False)
 from julia import Main  # noqa: E402
 
@@ -79,6 +81,7 @@ def dict_to_dataset(info_per_bit):
         "python_repository": "https://github.com/observingClouds/xbitinfo",
         "julia_repository": "https://github.com/milankl/BitInformation.jl",
         "reference_paper": "http://www.nature.com/articles/s43588-021-00156-2",
+        "xbitinfo_version": __version__,
     }
     for c in dsb.coords:
         if "bit" in c:
@@ -130,7 +133,7 @@ def get_bitinformation(ds, dim=None, axis=None, label=None, overwrite=False, **k
             python_repository:     https://github.com/observingClouds/xbitinfo
             julia_repository:      https://github.com/milankl/BitInformation.jl
             reference_paper:       http://www.nature.com/articles/s43588-021-00156-2
-
+            xbitinfo_version: ...
     """
     if overwrite:
         calc = True
