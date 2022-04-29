@@ -68,6 +68,11 @@ setup(
     test_suite="tests",
     tests_require=test_requirements,
     url="https://github.com/observingClouds/xbitinfo",
-    version="0.0.1",
     zip_safe=False,
+    use_scm_version={"version_scheme": "post-release", "local_scheme": "dirty-tag"},
+    setup_requires=[
+        "setuptools_scm",
+        "setuptools>=30.3.0",
+        "setuptools_scm_git_archive",
+    ],
 )
