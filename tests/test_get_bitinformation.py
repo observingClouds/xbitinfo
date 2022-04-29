@@ -16,6 +16,7 @@ def bitinfo_assert_different(bitinfo1, bitinfo2):
     assert (bitinfo1 != bitinfo2).any()
 
 
+
 def test_get_bitinformation_returns_xr_Dataset():
     """Test xb.get_bitinformation returns xr.Dataset."""
     ds = xr.tutorial.load_dataset("rasm")
