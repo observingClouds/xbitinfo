@@ -221,7 +221,7 @@ def get_keepbits(info_per_bit, inflevel=0.99):
         if inflevel < 0 or inflevel > 1.0:
             raise ValueError("Please provide `inflevel` from interval [0.,1.]")
     for v in info_per_bit.data_vars:
-        ic = info_per_bit[v]
+        ic = info_per_bit[v].values
         if inflevel == 1.0:
             keepmantissabits[v] = len(ic) - NMBITS[len(ic)]
         else:
