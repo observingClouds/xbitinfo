@@ -16,7 +16,7 @@ xbitinfo: Retrieve information content and compress accordingly
 .. image:: https://mybinder.org/badge_logo.svg
    :target: https://mybinder.org/v2/gh/xbitinfo/xbitinfo/main
 
-This is an `xarray <xarray.pydata.org>`-wrapper around `BitInformation.jl <https://github.com/milankl/BitInformation.jl>`__ to retrieve and apply bitrounding from within python.
+This is an `xarray <xarray.pydata.org>`__-wrapper around `BitInformation.jl <https://github.com/milankl/BitInformation.jl>`__ to retrieve and apply bitrounding from within python.
 The package intends to present an easy pipeline to compress (climate) datasets based on the real information content.
 
 
@@ -31,12 +31,14 @@ Klöwer, M., Razinger, M., Dominguez, J. J., Düben, P. D., & Palmer, T. N. (202
 Video
 -----
 
-[![Video](https://img.youtube.com/vi/kcbOdwfskmY/0.jpg)](https://www.youtube.com/watch?v=kcbOdwfskmY)
+.. image:: https://img.youtube.com/vi/kcbOdwfskmY/0.jpg
+   :target: https://www.youtube.com/watch?v=kcbOdwfskmY)
 
 Julia Repository
 ----------------
 
 `BitInformation.jl <https://github.com/milankl/BitInformation.jl>`__
+
 
 How to install
 ==============
@@ -64,15 +66,9 @@ How to use
     import xbitinfo as xb
 
     ds = xr.tutorial.load_dataset(inpath)
-    bitinfo = xb.get_bitinformation(
-        ds, dim="lon"
-    )  # calling bitinformation.jl.bitinformation
-    keepbits = xb.get_keepbits(
-        bitinfo, inflevel=0.99
-    )  # get number of mantissa bits to keep for 99% real information
-    ds_bitrounded = xb.xr_bitround(
-        ds, keepbits
-    )  # bitrounding keeping only keepbits mantissa bits
+    bitinfo = xb.get_bitinformation(ds, dim="lon")  # calling bitinformation.jl.bitinformation
+    keepbits = xb.get_keepbits(bitinfo, inflevel=0.99)  # get number of mantissa bits to keep for 99% real information
+    ds_bitrounded = xb.xr_bitround(ds, keepbits)  # bitrounding keeping only keepbits mantissa bits
     ds_bitrounded.to_compressed_netcdf(outpath)  # save to netcdf with compression
 
 
