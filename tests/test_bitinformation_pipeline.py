@@ -3,18 +3,18 @@ import os
 import pytest
 import xarray as xr
 
-import bitinformation_pipeline as bp
+import xbitinfo as xb
 
 
 def test_full():
-    """Test bitinformation_pipeline end to end."""
+    """Test xbitinfo end to end."""
     label = "air_temperature"
     ds = xr.tutorial.load_dataset(label)
-    # bitinformation_pipeline
-    bitinfo = bp.get_bitinformation(ds, dim="lon")
-    keepbits = bp.get_keepbits(bitinfo)
-    # ds_bitrounded = bp.jl_bitround(ds, keepbits)
-    ds_bitrounded = bp.xr_bitround(ds, keepbits)  # identical
+    # xbitinfo
+    bitinfo = xb.get_bitinformation(ds, dim="lon")
+    keepbits = xb.get_keepbits(bitinfo)
+    # ds_bitrounded = xb.jl_bitround(ds, keepbits)
+    ds_bitrounded = xb.xr_bitround(ds, keepbits)  # identical
     # save
     ds.to_netcdf(f"{label}.nc")
     ds.to_compressed_netcdf(f"{label}_compressed.nc")
@@ -40,7 +40,7 @@ def flow_paths(rasm):
             os.remove(f.replace(".nc", "_bitrounded_compressed.nc"))
         paths.append(f)
         rasm.isel(time=slice(stride * i, stride * (i + 1) - 1)).to_netcdf(f)
-    flow = bp.get_prefect_flow(paths)
+    flow = xb.get_prefect_flow(paths)
     yield flow, paths
     # cleanup
     for p in paths:

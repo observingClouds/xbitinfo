@@ -1,1 +1,1 @@
-"""Unit test package for bitinformation_pipeline."""
+"""Unit test package for xbitinfo."""

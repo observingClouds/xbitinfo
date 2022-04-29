@@ -2,7 +2,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 import xarray as xr
 
-from .bitinformation_pipeline import NMBITS, get_keepbits
+from .xbitinfo import NMBITS, get_keepbits
 
 
 def add_bitinfo_labels(
@@ -57,9 +57,9 @@ def add_bitinfo_labels(
     -------
     Plotting a single-dimension coordinate dataset:
     >>> ds = xr.tutorial.load_dataset("air_temperature")
-    >>> info_per_bit = bp.get_bitinformation(ds, dim="lon")
+    >>> info_per_bit = xb.get_bitinformation(ds, dim="lon")
     >>> inflevels = [1.0, 0.9999, 0.99, 0.975, 0.95]
-    >>> ds_bitrounded_along_lon = bp.bitround.bitround_along_dim(
+    >>> ds_bitrounded_along_lon = xb.bitround.bitround_along_dim(
     ...     ds, info_per_bit, dim="lon", inflevels=inflevels
     ... )
     >>> diff = (ds - ds_bitrounded_along_lon)["air"].isel(time=0)
@@ -71,8 +71,8 @@ def add_bitinfo_labels(
     >>> v = "Tair"
     >>> ds = xr.tutorial.load_dataset("rasm")
     >>> dim = "y"
-    >>> info_per_bit = bp.get_bitinformation(ds, dim=dim)
-    >>> ds_bitrounded_along_lon = bp.bitround.bitround_along_dim(
+    >>> info_per_bit = xb.get_bitinformation(ds, dim=dim)
+    >>> ds_bitrounded_along_lon = xb.bitround.bitround_along_dim(
     ...     ds, info_per_bit, dim=dim, inflevels=inflevels
     ... )
     >>> import cartopy.crs as ccrs  # doctest: +SKIP
@@ -156,8 +156,8 @@ def plot_bitinformation(bitinfo):
     Example
     -------
     >>> ds = xr.tutorial.load_dataset("air_temperature")
-    >>> into_per_bit = bp.get_bitinformation(ds, dim="lon")
-    >>> bp.plot_bitinformation(into_per_bit)
+    >>> into_per_bit = xb.get_bitinformation(ds, dim="lon")
+    >>> xb.plot_bitinformation(into_per_bit)
     <Figure size 1200x400 with 3 Axes>
 
     """
@@ -337,7 +337,7 @@ def plot_distribution(ds, nbins=1000, cmap="viridis", offset=0.01, close_zero=1e
     Example
     -------
     >>> ds = xr.tutorial.load_dataset("eraint_uvz")
-    >>> bp.plot_distribution(ds)
+    >>> xb.plot_distribution(ds)
     <AxesSubplot:title={'center':'Statistical distributions'}, xlabel='value', ylabel='Probability density'>
 
     """

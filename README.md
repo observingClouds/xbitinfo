@@ -1,6 +1,6 @@
-# bitinformation_pipeline
+# xbitinfo
 
-[![Binder](https://mybinder.org/badge_logo.svg)](https://mybinder.org/v2/gh/observingClouds/bitinformation_pipeline/main) [![CI](https://github.com/observingClouds/bitinformation_pipeline/actions/workflows/ci.yaml/badge.svg?branch=main)](https://github.com/observingClouds/bitinformation_pipeline/actions/workflows/ci.yaml) [![pre-commit.ci status](https://results.pre-commit.ci/badge/github/observingClouds/bitinformation_pipeline/main.svg)](https://results.pre-commit.ci/latest/github/observingClouds/bitinformation_pipeline/main)
+[![Binder](https://mybinder.org/badge_logo.svg)](https://mybinder.org/v2/gh/observingClouds/xbitinfo/main) [![CI](https://github.com/observingClouds/xbitinfo/actions/workflows/ci.yaml/badge.svg?branch=main)](https://github.com/observingClouds/xbitinfo/actions/workflows/ci.yaml) [![pre-commit.ci status](https://results.pre-commit.ci/badge/github/observingClouds/xbitinfo/main.svg)](https://results.pre-commit.ci/latest/github/observingClouds/xbitinfo/main)
 
 Retrieve information content and compress accordingly.
 
@@ -24,21 +24,21 @@ Klöwer, M., Razinger, M., Dominguez, J. J., Düben, P. D., & Palmer, T. N. (202
 
 ## How to install
 
-`pip install git+https://github.com/observingClouds/bitinformation_pipeline.git`
+`pip install git+https://github.com/observingClouds/xbitinfo.git`
 
 ## How to use
 
 ```python
 import xarray as xr
-import bitinformation_pipeline as bp
+import xbitinfo as xb
 ds = xr.tutorial.load_dataset(inpath)
-bitinfo = bp.get_bitinformation(ds, dim="lon")  # calling bitinformation.jl.bitinformation
-keepbits = bp.get_keepbits(bitinfo, inflevel=0.99)  # get number of mantissa bits to keep for 99% real information
-ds_bitrounded = bp.xr_bitround(ds, keepbits)  # bitrounding keeping only keepbits mantissa bits
+bitinfo = xb.get_bitinformation(ds, dim="lon")  # calling bitinformation.jl.bitinformation
+keepbits = xb.get_keepbits(bitinfo, inflevel=0.99)  # get number of mantissa bits to keep for 99% real information
+ds_bitrounded = xb.xr_bitround(ds, keepbits)  # bitrounding keeping only keepbits mantissa bits
 ds_bitrounded.to_compressed_netcdf(outpath)  # save to netcdf with compression
 ```
 
-see [quick-start.ipynb](https://nbviewer.org/github/observingClouds/bitinformation_pipeline/blob/main/examples/quick-start.ipynb)
+see [quick-start.ipynb](https://nbviewer.org/github/observingClouds/xbitinfo/blob/main/examples/quick-start.ipynb)
 
 ## Credits
 
