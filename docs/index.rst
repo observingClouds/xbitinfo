@@ -85,14 +85,14 @@ Credits
     :hidden:
     :caption: Getting Started
 
-    examples/quick-start.ipynb
+    ../examples/quick-start.ipynb
 
 **Help & Reference**
 
 * :doc:`api`
 * :doc:`contributing`
 * :doc:`changelog`
-* :doc:`contributors`
+* :doc:`authors`
 
 .. toctree::
    :maxdepth: 1
@@ -102,7 +102,7 @@ Credits
    api
    contributing
    changelog
-   contributors
+   authors
 
 
 Indices and tables
