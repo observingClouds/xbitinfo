@@ -10,8 +10,8 @@ xbitinfo: Retrieve information content and compress accordingly
 .. image:: https://img.shields.io/pypi/v/xbitinfo.svg
    :target: https://pypi.python.org/pypi/xbitinfo/
 
-.. image:: https://img.shields.io/readthedocs/bitinfo/stable.svg?style=flat
-   :target: https://xbitinfo.readthedocs.io/en/stable/?badge=stable
+.. image:: https://img.shields.io/readthedocs/bitinfo/latest.svg?style=flat
+   :target: https://xbitinfo.readthedocs.io/en/latest
 
 .. image:: https://mybinder.org/badge_logo.svg
    :target: https://mybinder.org/v2/gh/xbitinfo/xbitinfo/main
