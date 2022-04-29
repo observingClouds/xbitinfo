@@ -36,6 +36,7 @@ def get_user_input():
 
 
 def get_bit_coords(dtype_size):
+    """Get coordinates for bits assuming float dtypes."""
     if dtype_size == 16:
         coords = (
             ["±"]
