@@ -72,7 +72,7 @@ def dict_to_dataset(info_per_bit):
             dims=[dim_name],
             coords={dim_name: get_bit_coords(dtype_size)},
             name=v,
-        ).astype("float32")
+        ).astype("float64")
     return dsb
 
 
