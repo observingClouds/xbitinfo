@@ -16,6 +16,7 @@ def test_full():
     # ds_bitrounded = xb.jl_bitround(ds, keepbits)
     ds_bitrounded = xb.xr_bitround(ds, keepbits)  # identical
     # save
+    ds.air.encoding["_FillValue"] = -999
     ds.to_netcdf(f"{label}.nc")
     ds.to_compressed_netcdf(f"{label}_compressed.nc")
     ds_bitrounded.to_compressed_netcdf(f"{label}_bitrounded_compressed.nc")
