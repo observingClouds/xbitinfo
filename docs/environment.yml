@@ -15,9 +15,6 @@ dependencies:
   - zarr
   - cfgrib
   - prefect
-  - graphviz
-  - pytest
-  - nb_conda_kernels
   - cmcrameri
   - tqdm
   - sphinx!=4.4.0
