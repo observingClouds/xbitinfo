@@ -36,6 +36,7 @@ def get_user_input():
 
 
 def get_bit_coords(dtype_size):
+    """Get coordinates for bits assuming float dtypes."""
     if dtype_size == 16:
         coords = (
             ["±"]
@@ -70,7 +71,20 @@ def dict_to_dataset(info_per_bit):
             dims=[dim_name],
             coords={dim_name: get_bit_coords(dtype_size)},
             name=v,
-        ).astype("float16")
+            attrs={"long_name": f"{v} bitwise information"},
+        ).astype("float64")
+    # add metadata
+    dsb.attrs = {
+        "xbitinfo_description": "bitinformation calculated by xbitinfo.get_bitinformation wrapping bitinformation.jl",
+        "python_repository": "https://github.com/observingClouds/xbitinfo",
+        "julia_repository": "https://github.com/milankl/BitInformation.jl",
+        "reference_paper": "http://www.nature.com/articles/s43588-021-00156-2",
+    }
+    for c in dsb.coords:
+        if "bit" in c:
+            dsb.coords[c].attrs = {
+                "description": "name of the bits: '±' refers to the sign bit, 'e' to the exponents bits and 'm' to the mantissa bits."
+            }
     return dsb
 
 
@@ -105,14 +119,18 @@ def get_bitinformation(ds, dim=None, axis=None, label=None, overwrite=False, **k
     -------
         >>> ds = xr.tutorial.load_dataset("air_temperature")
         >>> xb.get_bitinformation(ds, dim="lon")
-        {'air': array([0.00000000e+00, 0.00000000e+00, 0.00000000e+00, 0.00000000e+00,
-               0.00000000e+00, 3.94447851e-01, 3.94447851e-01, 3.94447851e-01,
-               3.94447851e-01, 3.94447851e-01, 3.94310542e-01, 7.36739987e-01,
-               5.62682836e-01, 3.60511555e-01, 1.52471111e-01, 4.18818055e-02,
-               3.65276146e-03, 1.19975820e-05, 4.39366160e-05, 4.18329296e-05,
-               2.54572089e-05, 1.44121797e-04, 1.34144798e-03, 1.55468479e-06,
-               5.38601212e-04, 8.09862581e-04, 1.74893445e-04, 4.97915410e-05,
-               3.88027711e-04, 0.00000000e+00, 3.95323228e-05, 6.88854435e-04])}
+        <xarray.Dataset>
+        Dimensions:  (bit32: 32)
+        Coordinates:
+          * bit32    (bit32) <U3 '±' 'e1' 'e2' 'e3' 'e4' ... 'm20' 'm21' 'm22' 'm23'
+        Data variables:
+            air      (bit32) float64 0.0 0.0 0.0 0.0 ... 0.0 3.953e-05 0.0006889
+        Attributes:
+            xbitinfo_description:  bitinformation calculated by xbitinfo.get_bitinfor...
+            python_repository:     https://github.com/observingClouds/xbitinfo
+            julia_repository:      https://github.com/milankl/BitInformation.jl
+            reference_paper:       http://www.nature.com/articles/s43588-021-00156-2
+
     """
     if overwrite:
         calc = True
@@ -194,8 +212,8 @@ def get_keepbits(info_per_bit, inflevel=0.99):
 
     Inputs
     ------
-    info_per_bit : dict
-      Information content of each bit for each variable in ds. This is the output from get_bitinformation.
+    info_per_bit : xr.Dataset
+      Information content of each bit. This is the output from `xb.get_bitinformation`.
     inflevel : float or dict
       Level of information that shall be preserved. Of type `float` if the
       preserved information content should be equal across variables, otherwise of type `dict`.
@@ -220,7 +238,8 @@ def get_keepbits(info_per_bit, inflevel=0.99):
     if isinstance(inflevel, (int, float)):
         if inflevel < 0 or inflevel > 1.0:
             raise ValueError("Please provide `inflevel` from interval [0.,1.]")
-    for v, ic in info_per_bit.items():
+    for v in info_per_bit.data_vars:
+        ic = info_per_bit[v].values
         if inflevel == 1.0:
             keepmantissabits[v] = len(ic) - NMBITS[len(ic)]
         else:
