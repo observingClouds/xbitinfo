@@ -62,10 +62,17 @@ How to use
 
     import xarray as xr
     import xbitinfo as xb
+
     ds = xr.tutorial.load_dataset(inpath)
-    bitinfo = xb.get_bitinformation(ds, dim="lon")  # calling bitinformation.jl.bitinformation
-    keepbits = xb.get_keepbits(bitinfo, inflevel=0.99)  # get number of mantissa bits to keep for 99% real information
-    ds_bitrounded = xb.xr_bitround(ds, keepbits)  # bitrounding keeping only keepbits mantissa bits
+    bitinfo = xb.get_bitinformation(
+        ds, dim="lon"
+    )  # calling bitinformation.jl.bitinformation
+    keepbits = xb.get_keepbits(
+        bitinfo, inflevel=0.99
+    )  # get number of mantissa bits to keep for 99% real information
+    ds_bitrounded = xb.xr_bitround(
+        ds, keepbits
+    )  # bitrounding keeping only keepbits mantissa bits
     ds_bitrounded.to_compressed_netcdf(outpath)  # save to netcdf with compression
 
 
