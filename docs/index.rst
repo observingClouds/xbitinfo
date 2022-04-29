@@ -9,9 +9,10 @@ Welcome to xbitinfo's documentation!
    installation
    usage
    modules
+   api
    contributing
    authors
-   history
+   changelog
 
 Indices and tables
 ==================
