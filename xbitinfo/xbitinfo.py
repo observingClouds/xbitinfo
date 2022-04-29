@@ -71,7 +71,7 @@ def dict_to_dataset(info_per_bit):
             dims=[dim_name],
             coords={dim_name: get_bit_coords(dtype_size)},
             name=v,
-            attrs={"long_name": f"{v} bitwise information"},
+            attrs={"long_name": f"{v} bitwise information", "units": "1"},
         ).astype("float64")
     # add metadata
     dsb.attrs = {
