@@ -72,7 +72,7 @@ def dict_to_dataset(info_per_bit):
             dims=[dim_name],
             coords={dim_name: get_bit_coords(dtype_size)},
             name=v,
-        ).astype("float16")
+        ).astype("float32")
     return dsb
 
 
@@ -112,7 +112,7 @@ def get_bitinformation(ds, dim=None, axis=None, label=None, overwrite=False, **k
         Coordinates:
           * bit32    (bit32) <U3 '±' 'e1' 'e2' 'e3' 'e4' ... 'm20' 'm21' 'm22' 'm23'
         Data variables:
-            air      (bit32) float16 0.0 0.0 0.0 0.0 ... 0.0 3.952e-05 0.000689
+            air      (bit32) float32 0.0 0.0 0.0 0.0 ... 0.0 3.952e-05 0.000689
     """
     if overwrite:
         calc = True
