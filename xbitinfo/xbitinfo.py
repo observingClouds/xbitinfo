@@ -9,6 +9,8 @@ import xarray as xr
 from julia.api import Julia
 from tqdm.auto import tqdm
 
+from . import __version__
+
 jl = Julia(compiled_modules=False, debug=False)
 from julia import Main  # noqa: E402
 
@@ -33,6 +35,60 @@ def get_user_input():
     )
     args = parser.parse_args()
     return args
+
+
+def get_bit_coords(dtype_size):
+    """Get coordinates for bits assuming float dtypes."""
+    if dtype_size == 16:
+        coords = (
+            ["±"]
+            + [f"e{int(i)}" for i in range(1, 6)]
+            + [f"m{int(i-5)}" for i in range(6, 16)]
+        )
+    elif dtype_size == 32:
+        coords = (
+            ["±"]
+            + [f"e{int(i)}" for i in range(1, 9)]
+            + [f"m{int(i-8)}" for i in range(9, 32)]
+        )
+    elif dtype_size == 64:
+        coords = (
+            ["±"]
+            + [f"e{int(i)}" for i in range(1, 12)]
+            + [f"m{int(i-11)}" for i in range(12, 64)]
+        )
+    else:
+        raise ValueError(f"dtype of size {dtype_size} neither known nor implemented.")
+    return coords
+
+
+def dict_to_dataset(info_per_bit):
+    """Convert keepbits dictionary to dataset."""
+    dsb = xr.Dataset()
+    for v in info_per_bit.keys():
+        dtype_size = len(info_per_bit[v])
+        dim_name = f"bit{dtype_size}"
+        dsb[v] = xr.DataArray(
+            info_per_bit[v],
+            dims=[dim_name],
+            coords={dim_name: get_bit_coords(dtype_size)},
+            name=v,
+            attrs={"long_name": f"{v} bitwise information", "units": "1"},
+        ).astype("float64")
+    # add metadata
+    dsb.attrs = {
+        "xbitinfo_description": "bitinformation calculated by xbitinfo.get_bitinformation wrapping bitinformation.jl",
+        "python_repository": "https://github.com/observingClouds/xbitinfo",
+        "julia_repository": "https://github.com/milankl/BitInformation.jl",
+        "reference_paper": "http://www.nature.com/articles/s43588-021-00156-2",
+        "xbitinfo_version": __version__,
+    }
+    for c in dsb.coords:
+        if "bit" in c:
+            dsb.coords[c].attrs = {
+                "description": "name of the bits: '±' refers to the sign bit, 'e' to the exponents bits and 'm' to the mantissa bits."
+            }
+    return dsb
 
 
 def get_bitinformation(ds, dim=None, axis=None, label=None, overwrite=False, **kwargs):
@@ -66,14 +122,18 @@ def get_bitinformation(ds, dim=None, axis=None, label=None, overwrite=False, **k
     -------
         >>> ds = xr.tutorial.load_dataset("air_temperature")
         >>> xb.get_bitinformation(ds, dim="lon")
-        {'air': array([0.00000000e+00, 0.00000000e+00, 0.00000000e+00, 0.00000000e+00,
-               0.00000000e+00, 3.94447851e-01, 3.94447851e-01, 3.94447851e-01,
-               3.94447851e-01, 3.94447851e-01, 3.94310542e-01, 7.36739987e-01,
-               5.62682836e-01, 3.60511555e-01, 1.52471111e-01, 4.18818055e-02,
-               3.65276146e-03, 1.19975820e-05, 4.39366160e-05, 4.18329296e-05,
-               2.54572089e-05, 1.44121797e-04, 1.34144798e-03, 1.55468479e-06,
-               5.38601212e-04, 8.09862581e-04, 1.74893445e-04, 4.97915410e-05,
-               3.88027711e-04, 0.00000000e+00, 3.95323228e-05, 6.88854435e-04])}
+        <xarray.Dataset>
+        Dimensions:  (bit32: 32)
+        Coordinates:
+          * bit32    (bit32) <U3 '±' 'e1' 'e2' 'e3' 'e4' ... 'm20' 'm21' 'm22' 'm23'
+        Data variables:
+            air      (bit32) float64 0.0 0.0 0.0 0.0 ... 0.0 3.953e-05 0.0006889
+        Attributes:
+            xbitinfo_description:  bitinformation calculated by xbitinfo.get_bitinfor...
+            python_repository:     https://github.com/observingClouds/xbitinfo
+            julia_repository:      https://github.com/milankl/BitInformation.jl
+            reference_paper:       http://www.nature.com/articles/s43588-021-00156-2
+            xbitinfo_version: ...
     """
     if overwrite:
         calc = True
@@ -135,7 +195,7 @@ def get_bitinformation(ds, dim=None, axis=None, label=None, overwrite=False, **k
             with open(label + ".json", "w") as f:
                 logging.debug(f"Save bitinformation to {label+'.json'}")
                 json.dump(info_per_bit, f, cls=JsonCustomEncoder)
-    return info_per_bit
+    return dict_to_dataset(info_per_bit)
 
 
 def load_bitinformation(label):
@@ -145,7 +205,7 @@ def load_bitinformation(label):
         with open(label_file) as f:
             logging.debug(f"Load bitinformation from {label+'.json'}")
             info_per_bit = json.load(f)
-        return info_per_bit
+        return dict_to_dataset(info_per_bit)
     else:
         return None
 
@@ -155,8 +215,8 @@ def get_keepbits(info_per_bit, inflevel=0.99):
 
     Inputs
     ------
-    info_per_bit : dict
-      Information content of each bit for each variable in ds. This is the output from get_bitinformation.
+    info_per_bit : xr.Dataset
+      Information content of each bit. This is the output from `xb.get_bitinformation`.
     inflevel : float or dict
       Level of information that shall be preserved. Of type `float` if the
       preserved information content should be equal across variables, otherwise of type `dict`.
@@ -171,17 +231,33 @@ def get_keepbits(info_per_bit, inflevel=0.99):
     >>> ds = xr.tutorial.load_dataset("air_temperature")
     >>> info_per_bit = xb.get_bitinformation(ds, dim="lon")
     >>> xb.get_keepbits(info_per_bit)
-    {'air': 7}
+    <xarray.Dataset>
+    Dimensions:   ()
+    Coordinates:
+        inflevel  float64 0.99
+    Data variables:
+        air       int64 7
     >>> xb.get_keepbits(info_per_bit, inflevel=0.99999999)
-    {'air': 14}
+    <xarray.Dataset>
+    Dimensions:   ()
+    Coordinates:
+        inflevel  float64 1.0
+    Data variables:
+        air       int64 14
     >>> xb.get_keepbits(info_per_bit, inflevel=1.0)
-    {'air': 23}
+    <xarray.Dataset>
+    Dimensions:   ()
+    Coordinates:
+        inflevel  float64 1.0
+    Data variables:
+        air       int64 23
     """
-    keepmantissabits = {}
+    keepmantissabits = xr.Dataset(coords={"inflevel": inflevel})
     if isinstance(inflevel, (int, float)):
         if inflevel < 0 or inflevel > 1.0:
             raise ValueError("Please provide `inflevel` from interval [0.,1.]")
-    for v, ic in info_per_bit.items():
+    for v in info_per_bit.data_vars:
+        ic = info_per_bit[v].values
         if inflevel == 1.0:
             keepmantissabits[v] = len(ic) - NMBITS[len(ic)]
         else:
@@ -189,10 +265,10 @@ def get_keepbits(info_per_bit, inflevel=0.99):
             # use something a bit bigger than maximum of the last 4 bits
             threshold = 1.5 * np.max(ic[-4:])
             ic_over_threshold = np.where(ic < threshold, 0, ic)
-            ic_over_threshold_cum = np.nancumsum(ic_over_threshold)  # CDF
+            ic_over_threshold_cum = ic_over_threshold.cumsum()  # CDF
             # normed CDF
             ic_over_threshold_cum_normed = (
-                ic_over_threshold_cum / ic_over_threshold_cum[-1]
+                ic_over_threshold_cum / ic_over_threshold_cum.max()
             )
             # return mantissabits to keep therefore subtract sign and exponent bits
             il = inflevel[v] if isinstance(inflevel, dict) else inflevel
@@ -200,58 +276,6 @@ def get_keepbits(info_per_bit, inflevel=0.99):
                 np.argmax(ic_over_threshold_cum_normed > il) + 1 - NMBITS[len(ic)]
             )
     return keepmantissabits
-
-
-def _get_keepbits(ds, info_per_bit, inflevel=0.99):
-    """Get the amount of mantissa bits to keep for a given information content.
-
-    Inputs
-    ------
-    ds : xr.Dataset
-      Dataset for which the information content has been retrieved
-    info_per_bit : dict
-      Information content of each bit for each variable in ds. This is the output from get_bitinformation.
-    inflevel : float or dict
-      Level of information that shall be preserved. Of type `float` if the
-      preserved information content should be equal across variables, otherwise of type `dict`.
-
-    Returns
-    -------
-    keepbits : dict
-      Number of mantissa bits to keep per variable
-
-    Example
-    -------
-    >>> ds = xr.tutorial.load_dataset("air_temperature")
-    >>> info_per_bit = xb.get_bitinformation(ds, dim="lon")
-    >>> xb._get_keepbits(ds, info_per_bit)
-    {'air': 7}
-    >>> xb._get_keepbits(ds, info_per_bit, inflevel=0.99999999)
-    {'air': 14}
-    >>> xb._get_keepbits(ds, info_per_bit, inflevel=1.0)
-    {'air': -8}
-    """
-
-    def get_inflevel(var, inflevel):
-        """Helper function to load inflevel depending on input type."""
-        if isinstance(inflevel, dict):
-            return inflevel[var]
-        else:
-            return inflevel
-
-    keepbits = {}
-    config = {}
-    for var in ds.data_vars:
-        config[var] = {
-            "inflevel": get_inflevel(var, inflevel),
-            "bitinfo": info_per_bit[var],
-            "maskinfo": int(ds[var].notnull().sum()),
-        }
-        Main.config = config[var]
-        keepbits[var] = jl.eval("get_keepbits(config)")
-        # keep mantissa bits
-        keepbits[var] = keepbits[var] - NMBITS[len(info_per_bit[var])]
-    return keepbits
 
 
 def _jl_bitround(X, keepbits):

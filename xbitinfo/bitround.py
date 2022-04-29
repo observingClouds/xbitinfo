@@ -13,6 +13,53 @@ def _np_bitround(data, keepbits):
     return codec.decode(encoded)
 
 
+def _keepbits_interface(da, keepbits):
+    """Common interface to allowed keepbits types
+
+    Inputs
+    ------
+    da : xr.DataArray
+      input data to bitround
+    keepbits : int, dict of {str: int}, xr.DataArray or xr.Dataset
+      how many bits to keep as int
+
+    Returns
+    -------
+    keep : int
+      number of keepbits for variable given in `da`
+    """
+    assert isinstance(da, xr.DataArray)
+    if isinstance(keepbits, int):
+        keep = keepbits
+    elif isinstance(keepbits, dict):
+        v = da.name
+        if v in keepbits.keys():
+            keep = keepbits[v]
+        else:
+            raise ValueError(f"name {v} not for in keepbits: {keepbits.keys()}")
+    elif isinstance(keepbits, xr.Dataset):
+        v = da.name
+        if v in keepbits.keys():
+            assert (
+                keepbits[v].squeeze().dims == ()
+            ), "length of threshold dimension of keepbits need to be one"
+            keep = int(keepbits[v])
+        else:
+            raise ValueError(f"name {v} not for in keepbits: {keepbits.keys()}")
+    elif isinstance(keepbits, xr.DataArray):
+        assert (
+            keepbits.squeeze().dims == ()
+        ), "only one threshold for keepbits is allowed"
+        v = da.name
+        if v == keepbits.name:
+            keep = int(keepbits)
+        else:
+            raise KeyError(f"no keepbits found for variable {v}")
+    else:
+        raise TypeError(f"type {type(keepbits)} is not a valid type for keepbits.")
+    return keep
+
+
 def xr_bitround(da, keepbits):
     """Apply bitrounding based on keepbits from xb.get_keepbits for xarray.Dataset or xr.DataArray wrapping numcodecs.bitround
 
@@ -20,7 +67,7 @@ def xr_bitround(da, keepbits):
     ------
     da : xr.DataArray or xr.Dataset
       input data to bitround
-    keepbits : int or dict of {str: int}
+    keepbits : int, dict of {str: int}, xr.DataArray or xr.Dataset
       how many bits to keep as int
 
     Returns
@@ -41,14 +88,8 @@ def xr_bitround(da, keepbits):
         return da_bitrounded
 
     assert isinstance(da, xr.DataArray)
-    if isinstance(keepbits, int):
-        keep = keepbits
-    elif isinstance(keepbits, dict):
-        v = da.name
-        if v in keepbits.keys():
-            keep = keepbits[v]
-        else:
-            raise ValueError(f"name {v} not for in keepbits: {keepbits.keys()}")
+    keep = _keepbits_interface(da, keepbits)
+
     da = xr.apply_ufunc(_np_bitround, da, keep, dask="parallelized", keep_attrs=True)
     da.attrs["_QuantizeBitRoundNumberOfSignificantDigits"] = keep
     return da
@@ -82,14 +123,7 @@ def jl_bitround(da, keepbits):
         return da_bitrounded
 
     assert isinstance(da, xr.DataArray)
-    if isinstance(keepbits, int):
-        keep = keepbits
-    elif isinstance(keepbits, dict):
-        v = da.name
-        if v in keepbits.keys():
-            keep = keepbits[v]
-        else:
-            raise ValueError(f"name {v} not for in keepbits: {keepbits.keys()}")
+    keep = _keepbits_interface(da, keepbits)
     da = xr.apply_ufunc(_jl_bitround, da, keep, dask="forbidden", keep_attrs=True)
     da.attrs["_QuantizeBitRoundNumberOfSignificantDigits"] = keep
     return da
