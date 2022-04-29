@@ -125,7 +125,13 @@ def get_bitinformation(ds, dim=None, axis=None, label=None, overwrite=False, **k
         Coordinates:
           * bit32    (bit32) <U3 '±' 'e1' 'e2' 'e3' 'e4' ... 'm20' 'm21' 'm22' 'm23'
         Data variables:
-            air      (bit32) float32 0.0 0.0 0.0 0.0 ... 0.0 3.953e-05 0.0006889
+            air      (bit32) float64 0.0 0.0 0.0 0.0 ... 0.0 3.953e-05 0.0006889
+        Attributes:
+            xbitinfo_description:  bitinformation calculated by xbitinfo.get_bitinfor...
+            python_repository:     https://github.com/observingClouds/xbitinfo
+            julia_repository:      https://github.com/milankl/BitInformation.jl
+            reference_paper:       http://www.nature.com/articles/s43588-021-00156-2
+
     """
     if overwrite:
         calc = True
