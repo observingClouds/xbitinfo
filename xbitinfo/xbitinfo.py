@@ -72,16 +72,20 @@ def dict_to_dataset(info_per_bit):
             dims=[dim_name],
             coords={dim_name: get_bit_coords(dtype_size)},
             name=v,
-            attrs={"long_name": f"{v} bitwise information"}
+            attrs={"long_name": f"{v} bitwise information"},
         ).astype("float64")
     # add metadata
-    dsb.attrs = {"xbitinfo_description": "bitinformation calculated by xbitinfo.get_bitinformation wrapping bitinformation.jl",
-                     "python_repository":"https://github.com/observingClouds/xbitinfo",
-                     "julia_repository":"https://github.com/milankl/BitInformation.jl",
-                     "reference_paper":"http://www.nature.com/articles/s43588-021-00156-2"}
+    dsb.attrs = {
+        "xbitinfo_description": "bitinformation calculated by xbitinfo.get_bitinformation wrapping bitinformation.jl",
+        "python_repository": "https://github.com/observingClouds/xbitinfo",
+        "julia_repository": "https://github.com/milankl/BitInformation.jl",
+        "reference_paper": "http://www.nature.com/articles/s43588-021-00156-2",
+    }
     for c in dsb.coords:
         if "bit" in c:
-            dsb.coords[c].attrs = {"description": "name of the bits: '±' refers to the sign bit, 'e' to the exponents bits and 'm' to the mantissa bits."}
+            dsb.coords[c].attrs = {
+                "description": "name of the bits: '±' refers to the sign bit, 'e' to the exponents bits and 'm' to the mantissa bits."
+            }
     return dsb
 
 
