@@ -8,5 +8,40 @@ documentation.
 
 .. currentmodule:: xbitinfo
 
+xbitinfo
+--------
 .. autosummary::
     :toctree: api/
+
+    get_bitinformation
+    get_keepbits
+    get_prefect_flow
+
+Bitrounding
+-----------
+.. autosummary::
+    :toctree: api/
+
+    xr_bitround
+    jl_bitround
+    bitround_along_dim
+
+Save compressed
+---------------
+.. autosummary::
+    :toctree: api/
+
+    get_chunksizes
+    ToCompressed_Netcdf
+    get_compress_encoding_nc
+    ToCompressed_Zarr
+    get_compress_encoding_zarr
+
+Graphics
+--------
+.. autosummary::
+    :toctree: api/
+
+    plot_bitinformation
+    plot_distribution
+    add_bitinfo_labels
