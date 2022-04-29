@@ -194,8 +194,8 @@ def get_keepbits(info_per_bit, inflevel=0.99):
 
     Inputs
     ------
-    info_per_bit : dict
-      Information content of each bit for each variable in ds. This is the output from get_bitinformation.
+    info_per_bit : xr.Dataset
+      Information content of each bit. This is the output from `xb.get_bitinformation`.
     inflevel : float or dict
       Level of information that shall be preserved. Of type `float` if the
       preserved information content should be equal across variables, otherwise of type `dict`.
@@ -220,7 +220,8 @@ def get_keepbits(info_per_bit, inflevel=0.99):
     if isinstance(inflevel, (int, float)):
         if inflevel < 0 or inflevel > 1.0:
             raise ValueError("Please provide `inflevel` from interval [0.,1.]")
-    for v, ic in info_per_bit.items():
+    for v in info_per_bit.data_vars:
+        ic = ds[v]
         if inflevel == 1.0:
             keepmantissabits[v] = len(ic) - NMBITS[len(ic)]
         else:
