@@ -11,12 +11,12 @@ from numpy.testing import assert_allclose, assert_equal
 import xbitinfo as xb
 
 
-
 def bitinfo_assert_different(bitinfo1, bitinfo2):
     """Fail bitinfo different values."""
     for v in bitinfo1_values.data_vars:
         if v in bitinfo2_values.data_vars:
             assert not (bitinfo1_values[v] == bitinfo2_values[v]).all()
+
 
 def test_get_bitinformation_returns_xr_Dataset():
     """Test xb.get_bitinformation returns xr.Dataset."""
