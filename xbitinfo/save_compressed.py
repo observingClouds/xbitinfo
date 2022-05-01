@@ -13,7 +13,7 @@ def get_chunksizes(da, for_cdo=False, time_dim="time", chunks=None):
     if for_cdo:  # take shape as chunksize and ensure time chunksize 1
         if time_dim in da.dims:
             time_axis_num = da.get_axis_num(time_dim)
-            chunksize = da.data.chunksize if da.chinks is not None else da.shape
+            chunksize = da.data.chunksize if da.chunks is not None else da.shape
             # https://code.mpimet.mpg.de/boards/2/topics/12598
             chunksize = list(chunksize)
             chunksize[time_axis_num] = 1
