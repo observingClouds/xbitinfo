@@ -25,18 +25,6 @@ jl.eval("include(Main.path)")
 NMBITS = {64: 12, 32: 9, 16: 6}  # number of non mantissa bits for given dtype
 
 
-def get_user_input():
-    parser = argparse.ArgumentParser()
-    parser.add_argument(
-        "filename",
-        help="filename of dataset (netCDF-file) whose information "
-        "content should be retrieved",
-        type=str,
-    )
-    args = parser.parse_args()
-    return args
-
-
 def get_bit_coords(dtype_size):
     """Get coordinates for bits assuming float dtypes."""
     if dtype_size == 16:
@@ -488,12 +476,3 @@ class JsonCustomEncoder(json.JSONEncoder):
         elif isinstance(obj, bytes):  # pragma: py3
             return obj.decode()
         return json.JSONEncoder.default(self, obj)
-
-
-if __name__ == "__main__":
-    args = get_user_input()
-    ds = xr.open_mfdataset(args.filename)
-    info_per_bit = get_bitinformation(ds, axis=0)
-    print(info_per_bit)
-    keepbits = get_keepbits(info_per_bit)
-    print(keepbits)
