@@ -36,7 +36,7 @@ with open("CHANGELOG.rst") as history_file:
 with open("requirements.txt") as f:
     requirements = f.read().strip().split("\n")
 
-test_requirements = ["pytest", "pooch", "netcdf4"]
+test_requirements = ["pytest", "pooch", "netcdf4", "dask"]
 
 setup(
     author="Hauke Schulz",
