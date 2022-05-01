@@ -1,4 +1,3 @@
-import matplotlib.pyplot as plt
 import numpy as np
 import xarray as xr
 
@@ -92,6 +91,7 @@ def add_bitinfo_labels(
     ... )  # doctest: +SKIP
 
     """
+    import matplotlib.pyplot as plt
     if lon_coord_name == "guess":
         lon_coord_name = x_dim_name
     if lat_coord_name == "guess":
@@ -141,13 +141,15 @@ def add_bitinfo_labels(
         t_keepbits.set_bbox(dict(facecolor="white", alpha=0.9, edgecolor="white"))
 
 
-def plot_bitinformation(bitinfo):
+def plot_bitinformation(bitinfo, cmap="turku"):
     """Plot bitwise information content.
 
     Inputs
     ------
     bitinfo : dict
       Dictionary containing the bitwise information content for each variable
+    cmap : str or plt.cm
+      colormap
 
     Returns
     -------
@@ -161,7 +163,7 @@ def plot_bitinformation(bitinfo):
     <Figure size 1200x400 with 3 Axes>
 
     """
-    import cmcrameri.cm as cmc
+    import matplotlib.pyplot as plt
 
     nvars = len(bitinfo)
     varnames = bitinfo.keys()
@@ -198,7 +200,9 @@ def plot_bitinformation(bitinfo):
     ax1right.invert_yaxis()
     ax1right.set_box_aspect(1 / 32 * nvars)
 
-    cmap = cmc.turku_r
+    if cmap == "turku":
+        import cmcrameri.cm as cmc
+        cmap = cmc.turku_r
     pcm = ax1.pcolormesh(ICnan, vmin=0, vmax=1, cmap=cmap)
     cbar = plt.colorbar(pcm, cax=cax, orientation="horizontal")
     cbar.set_label("information content [bit]")
@@ -341,6 +345,7 @@ def plot_distribution(ds, nbins=1000, cmap="viridis", offset=0.01, close_zero=1e
     <AxesSubplot:title={'center':'Statistical distributions'}, xlabel='value', ylabel='Probability density'>
 
     """
+    import matplotlib.pyplot as plt
     if not isinstance(ds, xr.Dataset):
         raise ValueError(
             f"plot_distribution(ds), requires xr.Dataset, found {type(ds)}"
