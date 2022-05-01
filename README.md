@@ -26,6 +26,8 @@ Klöwer, M., Razinger, M., Dominguez, J. J., Düben, P. D., & Palmer, T. N. (202
 
 `pip install git+https://github.com/observingClouds/xbitinfo.git`
 
+`pip install git+https://github.com/observingClouds/xbitinfo.git#egg=xbitinfo[complete]`
+
 ## How to use
 
 ```python
