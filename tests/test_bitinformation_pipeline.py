@@ -10,7 +10,7 @@ import xbitinfo as xb
     "ds,dim,axis",
     [
         (pytest.lazy_fixture("ugrid_demo"), None, -1),
-        (pytest.lazy_fixture("icon_grid_demo"), None, 0),
+        (pytest.lazy_fixture("icon_grid_demo"), None, -1),
         (pytest.lazy_fixture("air_temperature"), "lon", None),
         (pytest.lazy_fixture("rasm"), "x", None),
         (pytest.lazy_fixture("ROMS_example"), "eta_rho", None),
