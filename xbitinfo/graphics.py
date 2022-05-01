@@ -92,6 +92,7 @@ def add_bitinfo_labels(
 
     """
     import matplotlib.pyplot as plt
+
     if lon_coord_name == "guess":
         lon_coord_name = x_dim_name
     if lat_coord_name == "guess":
@@ -202,6 +203,7 @@ def plot_bitinformation(bitinfo, cmap="turku"):
 
     if cmap == "turku":
         import cmcrameri.cm as cmc
+
         cmap = cmc.turku_r
     pcm = ax1.pcolormesh(ICnan, vmin=0, vmax=1, cmap=cmap)
     cbar = plt.colorbar(pcm, cax=cax, orientation="horizontal")
@@ -346,6 +348,7 @@ def plot_distribution(ds, nbins=1000, cmap="viridis", offset=0.01, close_zero=1e
 
     """
     import matplotlib.pyplot as plt
+
     if not isinstance(ds, xr.Dataset):
         raise ValueError(
             f"plot_distribution(ds), requires xr.Dataset, found {type(ds)}"
