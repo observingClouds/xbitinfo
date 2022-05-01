@@ -55,7 +55,7 @@ You can also install the bleeding edge (pre-release versions) by running:
 .. code-block:: bash
 
     pip install git+https://github.com/observingClouds/xbitinfo
-    
+
     pip install git+https://github.com/observingClouds/xbitinfo.git#egg=xbitinfo[complete]
 
 
