@@ -38,6 +38,19 @@ with open("requirements.txt") as f:
 
 test_requirements = ["pytest", "pooch", "netcdf4", "dask"]
 
+extras_require = {
+    "viz": ["matplotlib", "cmcrameri"],
+    "prefect": ["prefect"],
+}
+extras_require["complete"] = sorted({v for req in extras_require.values() for v in req})
+extras_require["test"] = test_requirements
+extras_require["docs"] = extras_require["complete"] + [
+    "sphinx",
+    "sphinxcontrib-napoleon",
+    "sphinx-copybutton",
+    "sphinx_book_theme",
+]
+
 setup(
     author="Hauke Schulz",
     author_email="hauke.schulz@mpimet.mpg.de",
