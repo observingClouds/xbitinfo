@@ -68,7 +68,7 @@ def xr_bitround(da, keepbits):
     da : xr.DataArray or xr.Dataset
       input data to bitround
     keepbits : int, dict of {str: int}, xr.DataArray or xr.Dataset
-      how many bits to keep as int
+      how many bits to keep as int. Fails if dict or xr.Dataset and key or variable not present.
 
     Returns
     -------
@@ -102,8 +102,8 @@ def jl_bitround(da, keepbits):
     ------
     da : xr.DataArray or xr.Dataset
       input data to bitround
-    keepbits : int or dict of {str: int}
-      how many bits to keep as int
+    keepbits : int, dict of {str: int}, xr.DataArray or xr.Dataset
+      how many bits to keep as int. Fails if dict or xr.Dataset and key or variable not present.
 
     Returns
     -------
@@ -136,7 +136,9 @@ def bitround_along_dim(
     Apply bitrounding on slices along dim based on inflevels.
     Helper function to generate data for Fig. 3 in Klöwer et al. 2021.
 
-    Klöwer, M., Razinger, M., Dominguez, J. J., Düben, P. D., & Palmer, T. N. (2021). Compressing atmospheric data into its real information content. Nature Computational Science, 1(11), 713–724. doi: 10/gnm4jj
+    Klöwer, M., Razinger, M., Dominguez, J. J., Düben, P. D., & Palmer, T. N. (2021).
+    Compressing atmospheric data into its real information content.
+    Nature Computational Science, 1(11), 713–724. doi: 10/gnm4jj
 
     Inputs
     ------
