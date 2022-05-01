@@ -34,7 +34,7 @@ def test_full(ds, dim, axis):
     ori_size = os.path.getsize(f"{label}.nc")
     compressed_size = os.path.getsize(f"{label}_compressed.nc")
     bitrounded_compressed_size = os.path.getsize(f"{label}_bitrounded_compressed.nc")
-    assert compressed_size < ori_size
+    assert compressed_size * 1.1 <= ori_size
     assert bitrounded_compressed_size < compressed_size
 
 
