@@ -49,3 +49,17 @@ def era52mt():
 def eraint_uvz():
     """three atmospheric variable float32 global no mask"""
     return load_dataset("eraint_uvz")
+
+
+@pytest.fixture()
+def ugrid():
+    """sea surface height of a Tsunami simulation with ICON"""
+    url = "https://psyplot.github.io/examples/_downloads/3fe9a9cde72c892e7e26accd0a57cff8/ugrid_demo.nc"
+    return xr.open_dataset(pooch.retrieve(url=url))
+
+
+@pytest.fixture()
+def icon_grid():
+    """Temperature, zonal and meridional wind simulated with ICON"""
+    url = "https://psyplot.github.io/examples/_downloads/c8ccf6e61c8a76db0065720e09d2ed6e/icon_grid_demo.nc"
+    return xr.open_dataset(pooch.retrieve(url=url))
