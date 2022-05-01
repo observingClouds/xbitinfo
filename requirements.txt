@@ -1,5 +1,4 @@
 xarray
-dask
 julia
 matplotlib
 tqdm
