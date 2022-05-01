@@ -13,9 +13,9 @@ import xbitinfo as xb
         (pytest.lazy_fixture("icon_grid_demo"), None, 0),
         (pytest.lazy_fixture("air_temperature"), "lon", None),
         (pytest.lazy_fixture("rasm"), "x", None),
-        (pytest.lazy_fixture("ROMS_example"), "lon_rho", None),
-        (pytest.lazy_fixture("era5-2mt-2019-03-uk.grib"), "longitude", None),
-        (pytest.lazy_fixture("era_uvz"), "longitude", None),
+        (pytest.lazy_fixture("ROMS_example"), "xi_rho", None),
+        (pytest.lazy_fixture("era52mt"), "longitude", None),
+        (pytest.lazy_fixture("eraint_uvz"), "longitude", None),
     ],
 )
 def test_full(ds, dim, axis):
