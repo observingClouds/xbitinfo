@@ -60,7 +60,16 @@ def ugrid_demo():
             url="https://psyplot.github.io/examples/_downloads/3fe9a9cde72c892e7e26accd0a57cff8/ugrid_demo.nc",
             known_hash=None,
         )
-    )[["Mesh2_height", "Mesh2_bathy", "Mesh2_m_x", "Mesh2_m_y", "Mesh2_u_x", "Mesh2_u_y"]]
+    )[
+        [
+            "Mesh2_height",
+            "Mesh2_bathy",
+            "Mesh2_m_x",
+            "Mesh2_m_y",
+            "Mesh2_u_x",
+            "Mesh2_u_y",
+        ]
+    ]
 
 
 @pytest.fixture()
