@@ -58,7 +58,7 @@ def ugrid_demo():
     return xr.open_dataset(
         pooch.retrieve(
             url="https://psyplot.github.io/examples/_downloads/3fe9a9cde72c892e7e26accd0a57cff8/ugrid_demo.nc",
-            known_hash="80d75f8f3a68cc254aa7f725a8f8eab10a1f794a4576453f97395f95f928ad83",
+            known_hash=None,
         )
     )
 
@@ -69,6 +69,6 @@ def icon_grid_demo():
     return xr.open_dataset(
         pooch.retrieve(
             url="https://psyplot.github.io/examples/_downloads/c8ccf6e61c8a76db0065720e09d2ed6e/icon_grid_demo.nc",
-            known_hash="9725c6264122a5018d488b81959ddb4708698b1e2314a73b595f90561617d9e5",
+            known_hash=None,
         )
     )
