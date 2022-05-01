@@ -6,16 +6,25 @@ import xarray as xr
 import xbitinfo as xb
 
 
-def test_full():
+@pytest.mark.parametrize(
+    "ds,dim,axis", [(pytest.lazy_fixture("ugrid_demo"),"nMesh2_face",None),
+               (pytest.lazy_fixture("icon_grid_demo"),None,0),
+               (pytest.lazy_fixture("air_temperature"),"lon",None),
+               (pytest.lazy_fixture("rasm"),"x",None),
+               (pytest.lazy_fixture("ROMS_example"),"lon_rho",None),
+               (pytest.lazy_fixture("era5-2mt-2019-03-uk.grib"),"longitude",None),
+               (pytest.lazy_fixture("era_uvz"),"longitude",None),
+              ]
+)
+def test_full(ds, dim, axis):
     """Test xbitinfo end to end."""
-    label = "air_temperature"
-    ds = xr.tutorial.load_dataset(label)
     # xbitinfo
-    bitinfo = xb.get_bitinformation(ds, dim="lon")
+    bitinfo = xb.get_bitinformation(ds, dim=dim, axis=axis)
     keepbits = xb.get_keepbits(bitinfo)
     # ds_bitrounded = xb.jl_bitround(ds, keepbits)
     ds_bitrounded = xb.xr_bitround(ds, keepbits)  # identical
     # save
+    label = "file"
     ds.to_netcdf(f"{label}.nc")
     ds.to_compressed_netcdf(f"{label}_compressed.nc")
     ds_bitrounded.to_compressed_netcdf(f"{label}_bitrounded_compressed.nc")
