@@ -1,6 +1,6 @@
 import numpy as np
-import pytest
 import pooch
+import pytest
 import xarray as xr
 from xarray.tutorial import load_dataset
 
