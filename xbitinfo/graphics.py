@@ -163,8 +163,8 @@ def plot_bitinformation(bitinfo):
     """
     import cmcrameri.cm as cmc
 
-    assert (
-        len(bitinfo.coords["dim"]) <= 1
+    assert bitinfo.coords["dim"].shape <= (
+        1,
     ), "Only bitinfo along one dimension is supported at the moment. Please select dimension before plotting."
 
     nvars = len(bitinfo)
