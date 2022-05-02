@@ -192,17 +192,7 @@ def get_bitinformation(ds, dim=None, axis=None, label=None, overwrite=False, **k
                     continue
             assert isinstance(axis_jl, int)
             Main.dim = axis_jl
-            if "masked_value" not in kwargs:
-                kwargs[
-                    "masked_value"
-                ] = f"convert({str(ds[var].dtype).capitalize()},NaN)"
-            elif kwargs["masked_value"] is None:
-                kwargs["masked_value"] = "nothing"
-            if "set_zero_insignificant" not in kwargs:
-                kwargs["set_zero_insignificant"] = True
-            kwargs_str = ", ".join([f"{k}={v}" for k, v in kwargs.items()])
-            # convert python to julia bool
-            kwargs_str = kwargs_str.replace("True", "true").replace("False", "false")
+            kwargs_str = _get_bitinformation_kwargs_handler(ds[var], kwargs)
             logging.debug(f"get_bitinformation(X, dim={dim}, {kwargs_str})")
             info_per_bit[var] = {}
             info_per_bit[var]["bitinfo"] = jl.eval(
@@ -234,6 +224,20 @@ def _get_bitinformation_along_all_dims(ds, label=None, overwrite=False, **kwargs
         )
     info_per_bit = xr.merge(info_per_bit_per_dim.values())
     return info_per_bit
+
+
+def _get_bitinformation_kwargs_handler(da, kwargs):
+    """Helper function to preprocess kwargs args of get_bitinformation"""
+    if "masked_value" not in kwargs:
+        kwargs["masked_value"] = f"convert({str(da.dtype).capitalize()},NaN)"
+    elif kwargs["masked_value"] is None:
+        kwargs["masked_value"] = "nothing"
+    if "set_zero_insignificant" not in kwargs:
+        kwargs["set_zero_insignificant"] = True
+    kwargs_str = ", ".join([f"{k}={v}" for k, v in kwargs.items()])
+    # convert python to julia bool
+    kwargs_str = kwargs_str.replace("True", "true").replace("False", "false")
+    return kwargs_str
 
 
 def load_bitinformation(label):
