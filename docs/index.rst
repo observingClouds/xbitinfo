@@ -82,13 +82,14 @@ Credits
 **Getting Started**
 
 * :doc:`quick-start`
-
+* :doc:`examples`
 .. toctree::
     :maxdepth: 1
     :hidden:
     :caption: Getting Started
 
     quick-start.ipynb
+    examples
 
 **Help & Reference**
 
