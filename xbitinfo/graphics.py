@@ -156,8 +156,8 @@ def plot_bitinformation(bitinfo):
     Example
     -------
     >>> ds = xr.tutorial.load_dataset("air_temperature")
-    >>> into_per_bit = xb.get_bitinformation(ds, dim="lon")
-    >>> xb.plot_bitinformation(into_per_bit)
+    >>> info_per_bit = xb.get_bitinformation(ds, dim="lon")
+    >>> xb.plot_bitinformation(info_per_bit)
     <Figure size 1200x400 with 3 Axes>
 
     """
