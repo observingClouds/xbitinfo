@@ -120,11 +120,11 @@ def test_get_bitinformation_confidence():
 def test_get_bitinformation_label(rasm):
     """Test xb.get_bitinformation serializes when label given."""
     ds = rasm
-    xb.get_bitinformation(ds, dim="x", label="rasm")
-    assert os.path.exists("rasm.json")
+    xb.get_bitinformation(ds, dim="x", label="./tmp_testdir/rasm")
+    assert os.path.exists("./tmp_testdir/rasm.json")
     # second call should be faster
-    xb.get_bitinformation(ds, dim="x", label="rasm")
-    os.remove("rasm.json")
+    xb.get_bitinformation(ds, dim="x", label="./tmp_testdir/rasm")
+    os.remove("./tmp_testdir/rasm.json")
 
 
 @pytest.mark.parametrize("dtype", ["float64", "float32", "float16"])
