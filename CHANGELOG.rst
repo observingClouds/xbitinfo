@@ -1,8 +1,8 @@
-=======
-History
-=======
+=========
+Changelog
+=========
 
-0.0.1 (2022-03-31)
+0.0.1 (2022-0x-xx)
 ------------------
 
-* First release on PyPI.
+* First release on PyPI. 
