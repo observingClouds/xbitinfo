@@ -26,4 +26,4 @@ dependencies:
   - sphinx-book-theme
   - pip
   - pip:
-    - -e .
+    - -e ../.
