@@ -4,6 +4,10 @@ build:
   os: ubuntu-20.04
   tools:
     python: "mambaforge-4.10"
+  jobs:
+    post_install:
+    - pwd
+    - julia install_julia_packages.jl
 
 conda:
   environment: docs/environment.yml
