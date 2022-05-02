@@ -117,7 +117,7 @@ jobs:
       - name: Test notebooks
         run: |
           python -m ipykernel install --user --name bitinfo
-          jupyter nbconvert --to html --execute examples/quick-start.ipynb --ExecutePreprocessor.kernel_name=bitinfo
+          jupyter nbconvert --to html --execute docs/*.ipynb --ExecutePreprocessor.kernel_name=bitinfo
 
   install:  # Installs xbitinfo on various OS without conda
     name: install xbitinfo, ${{ matrix.os }}

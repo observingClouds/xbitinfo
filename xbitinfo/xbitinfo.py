@@ -212,7 +212,7 @@ def load_bitinformation(label):
 
 
 def get_keepbits(info_per_bit, inflevel=0.99):
-    """Get the number of mantissa bits to keep. To be used in :py:func:`.xbitinfo.xr_bitround` and :py:func:`.xbitinfo.jl_bitround`.
+    """Get the number of mantissa bits to keep. To be used in :py:func:`xbitinfo.xr_bitround` and :py:func:`xbitinfo.jl_bitround`.
 
     Inputs
     ------
