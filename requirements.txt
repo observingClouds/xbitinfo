@@ -4,4 +4,4 @@ julia
 matplotlib
 tqdm
 prefect
-numcodecs @ git+https://github.com/rabernat/numcodecs@bitround
+# numcodecs @ git+https://github.com/rabernat/numcodecs@bitround
