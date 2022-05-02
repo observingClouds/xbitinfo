@@ -65,12 +65,13 @@ def dict_to_dataset(info_per_bit):
     """Convert keepbits dictionary to dataset."""
     dsb = xr.Dataset()
     for v in info_per_bit.keys():
-        dtype_size = len(info_per_bit[v])
+        dtype_size = len(info_per_bit[v]["bitinfo"])
+        dim = info_per_bit[v]["dim"]
         dim_name = f"bit{dtype_size}"
         dsb[v] = xr.DataArray(
-            info_per_bit[v],
-            dims=[dim_name],
-            coords={dim_name: get_bit_coords(dtype_size)},
+            [info_per_bit[v]["bitinfo"]],
+            dims=["dim", dim_name],
+            coords={dim_name: get_bit_coords(dtype_size), "dim": [dim]},
             name=v,
             attrs={"long_name": f"{v} bitwise information", "units": "1"},
         ).astype("float64")
@@ -87,6 +88,9 @@ def dict_to_dataset(info_per_bit):
             dsb.coords[c].attrs = {
                 "description": "name of the bits: '±' refers to the sign bit, 'e' to the exponents bits and 'm' to the mantissa bits."
             }
+    dsb.coords["dim"].attrs = {
+        "description": "dimension of the source dataset along which the bitwise information has been analysed."
+    }
     return dsb
 
 
@@ -273,30 +277,47 @@ def get_keepbits(info_per_bit, inflevel=0.99):
     Data variables:
         air       int64 23
     """
-    keepmantissabits = xr.Dataset(coords={"inflevel": inflevel})
-    if isinstance(inflevel, (int, float)):
-        if inflevel < 0 or inflevel > 1.0:
-            raise ValueError("Please provide `inflevel` from interval [0.,1.]")
-    for v in info_per_bit.data_vars:
-        ic = info_per_bit[v].values
-        if inflevel == 1.0:
-            keepmantissabits[v] = len(ic) - NMBITS[len(ic)]
+    if "dim" in info_per_bit.dims:
+        keepmantissabits_dict = {}
+        for d, d_name in enumerate(info_per_bit.coords["dim"].values):
+            keepmantissabits_dict[d_name] = get_keepbits(
+                info_per_bit.isel({"dim": d}), inflevel
+            )
+        keepmantissabits_ds = xr.concat(keepmantissabits_dict.values(), dim="dim")
+        keepmantissabits_ds = keepmantissabits_ds.assign_coords(
+            {"dim": ("dim", list(keepmantissabits_dict.keys()))}
+        )
+        return keepmantissabits_ds
+    else:
+        if "attrs" in info_per_bit.keys():
+            global_attrs = info_per_bit.attrs
         else:
-            # set below threshold to zero
-            # use something a bit bigger than maximum of the last 4 bits
-            threshold = 1.5 * np.max(ic[-4:])
-            ic_over_threshold = np.where(ic < threshold, 0, ic)
-            ic_over_threshold_cum = ic_over_threshold.cumsum()  # CDF
-            # normed CDF
-            ic_over_threshold_cum_normed = (
-                ic_over_threshold_cum / ic_over_threshold_cum.max()
-            )
-            # return mantissabits to keep therefore subtract sign and exponent bits
-            il = inflevel[v] if isinstance(inflevel, dict) else inflevel
-            keepmantissabits[v] = (
-                np.argmax(ic_over_threshold_cum_normed > il) + 1 - NMBITS[len(ic)]
-            )
-    return keepmantissabits
+            global_attrs = {}
+        global_attrs["xbitinfo_version"]: __version__
+        keepmantissabits = xr.Dataset(attrs=global_attrs)
+        if isinstance(inflevel, (int, float)):
+            if inflevel < 0 or inflevel > 1.0:
+                raise ValueError("Please provide `inflevel` from interval [0.,1.]")
+        for v in info_per_bit.data_vars:
+            ic = info_per_bit[v].values
+            if inflevel == 1.0:
+                keepmantissabits[v] = len(ic) - NMBITS[len(ic)]
+            else:
+                # set below threshold to zero
+                # use something a bit bigger than maximum of the last 4 bits
+                threshold = 1.5 * np.max(ic[-4:])
+                ic_over_threshold = np.where(ic < threshold, 0, ic)
+                ic_over_threshold_cum = ic_over_threshold.cumsum()  # CDF
+                # normed CDF
+                ic_over_threshold_cum_normed = (
+                    ic_over_threshold_cum / ic_over_threshold_cum.max()
+                )
+                # return mantissabits to keep therefore subtract sign and exponent bits
+                il = inflevel[v] if isinstance(inflevel, dict) else inflevel
+                keepmantissabits[v] = (
+                    np.argmax(ic_over_threshold_cum_normed > il) + 1 - NMBITS[len(ic)]
+                )
+        return keepmantissabits
 
 
 def _jl_bitround(X, keepbits):
