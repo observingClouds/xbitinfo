@@ -211,6 +211,12 @@ def get_bitinformation(ds, dim=None, axis=None, label=None, overwrite=False, **k
 
 
 def _get_bitinformation_along_all_dims(ds, label=None, overwrite=False, **kwargs):
+    """Helper function for `get_bitinformation` to handle multi-dimensional analysis.
+
+    Simple wrapper around `get_bitinformation`, which calls `get_bitinformation`
+    for each dimension found in the provided dataset. The retrieved bitinformation
+    is gathered in a joint dataset and is returned.
+    """
     info_per_bit_per_dim = {}
     for d in ds.dims:
         logging.info(f"Get bitinformation along dimension {d}")
