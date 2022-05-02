@@ -37,7 +37,6 @@ ds_bitrounded = xb.xr_bitround(ds, keepbits)  # bitrounding keeping only keepbit
 ds_bitrounded.to_compressed_netcdf(outpath)  # save to netcdf with compression
 ```
 
-see [quick-start.ipynb](https://nbviewer.org/github/observingClouds/xbitinfo/blob/main/examples/quick-start.ipynb)
 
 ## Credits
 
