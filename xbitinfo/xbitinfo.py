@@ -182,8 +182,14 @@ def get_bitinformation(ds, dim=None, axis=None, label=None, overwrite=False, **k
                 axis_jl = axis + 1
                 dim = ds[var].dims[axis]
             if isinstance(dim, str):
-                # in julia convention axis + 1
-                axis_jl = ds[var].get_axis_num(dim) + 1
+                try:
+                    # in julia convention axis + 1
+                    axis_jl = ds[var].get_axis_num(dim) + 1
+                except ValueError:
+                    logging.info(
+                        f"Variable [var] does not have dimension {dim}. Skipping."
+                    )
+                    continue
             assert isinstance(axis_jl, int)
             Main.dim = axis_jl
             if "masked_value" not in kwargs:

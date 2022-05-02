@@ -150,3 +150,11 @@ def test_get_bitinformation_multidim(rasm):
     assert any(bi_time != bi_x)
     assert any(bi_time != bi_y)
     assert any(bi_y != bi_x)
+
+
+def test_get_bitinformation_different_variables_dims(rasm):
+    """Test xb.get_bitinformation runs with variables of different dimensionality"""
+    ds = rasm
+    # add variable with different dimensionality
+    ds["Tair_mean"] = ds.Tair.mean(dim="time")
+    xb.get_bitinformation(ds)
