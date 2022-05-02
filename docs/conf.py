@@ -159,8 +159,8 @@ nbsphinx_execute = "auto"  # "never" "always"
 jupyter_execute_notebooks = "auto"
 
 # Napoleon configurations
-napoleon_google_docstring = True
-napoleon_numpy_docstring = False
+napoleon_google_docstring = False
+napoleon_numpy_docstring = True
 napoleon_use_param = False
 napoleon_use_rtype = False
 napoleon_preprocess_types = True
