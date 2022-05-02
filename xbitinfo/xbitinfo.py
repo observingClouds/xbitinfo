@@ -134,67 +134,89 @@ def get_bitinformation(ds, dim=None, axis=None, label=None, overwrite=False, **k
             reference_paper:       http://www.nature.com/articles/s43588-021-00156-2
             xbitinfo_version: ...
     """
-    if overwrite:
-        calc = True
+    if dim is None and axis is None:
+        # gather bitinformation on all axis
+        return _get_bitinformation_along_all_dims(
+            ds, label=label, overwrite=overwrite, **kwargs
+        )
     else:
-        calc = False
-        if label is None:
-            calc = True
+        # gather bitinformation along one axis
+        if overwrite or label is None:
+            # check keywords
+            if axis is not None and dim is not None:
+                raise ValueError(
+                    "Please provide either `axis` or `dim` but not both or none."
+                )
+            if axis:
+                if not isinstance(axis, int):
+                    raise ValueError(
+                        f"Please provide `axis` as `int`, found {type(axis)}."
+                    )
+            if dim:
+                if not isinstance(dim, str):
+                    raise ValueError(
+                        f"Please provide `dim` as `str`, found {type(dim)}."
+                    )
+            if "mask" in kwargs:
+                raise ValueError(
+                    "`xbitinfo` does not wrap the mask argument. Mask your xr.Dataset with NaNs instead."
+                )
+
+            info_per_bit = {}
+            pbar = tqdm(ds.data_vars)
+            for var in pbar:
+                pbar.set_description("Processing %s" % var)
+                X = ds[var].values
+                Main.X = X
+                if axis is not None:
+                    # in julia convention axis + 1
+                    axis_jl = axis + 1
+                    dim = ds[var].dims[axis]
+                if isinstance(dim, str):
+                    # in julia convention axis + 1
+                    axis_jl = ds[var].get_axis_num(dim) + 1
+                assert isinstance(axis_jl, int)
+                Main.dim = axis_jl
+                if "masked_value" not in kwargs:
+                    kwargs[
+                        "masked_value"
+                    ] = f"convert({str(ds[var].dtype).capitalize()},NaN)"
+                elif kwargs["masked_value"] is None:
+                    kwargs["masked_value"] = "nothing"
+                if "set_zero_insignificant" not in kwargs:
+                    kwargs["set_zero_insignificant"] = True
+                kwargs_str = ", ".join([f"{k}={v}" for k, v in kwargs.items()])
+                # convert python to julia bool
+                kwargs_str = kwargs_str.replace("True", "true").replace(
+                    "False", "false"
+                )
+                logging.debug(f"get_bitinformation(X, dim={dim}, {kwargs_str})")
+                info_per_bit[var] = {}
+                info_per_bit[var]["bitinfo"] = jl.eval(
+                    f"get_bitinformation(X, dim={axis_jl}, {kwargs_str})"
+                )
+                info_per_bit[var]["dim"] = dim
+                info_per_bit[var]["axis"] = axis_jl - 1
+            if label is not None:
+                with open(label + ".json", "w") as f:
+                    logging.debug(f"Save bitinformation to {label + '.json'}")
+                    json.dump(info_per_bit, f, cls=JsonCustomEncoder)
         else:
             info_per_bit = load_bitinformation(label)
-            if info_per_bit is None:
-                calc = True
-    if calc:
-        # check keywords
-        if (axis is None and dim is None) or (axis is not None and dim is not None):
-            raise ValueError(
-                "Please provide either `axis` or `dim` but not both or none."
-            )
-        if axis:
-            if not isinstance(axis, int):
-                raise ValueError(f"Please provide `axis` as `int`, found {type(axis)}.")
-        if dim:
-            if not isinstance(dim, str):
-                raise ValueError(f"Please provide `dim` as `str`, found {type(dim)}.")
-        if "mask" in kwargs:
-            raise ValueError(
-                "`xbitinfo` does not wrap the mask argument. Mask your xr.Dataset with NaNs instead."
-            )
+        return dict_to_dataset(info_per_bit)
 
-        info_per_bit = {}
-        pbar = tqdm(ds.data_vars)
-        for var in pbar:
-            pbar.set_description("Processing %s" % var)
-            X = ds[var].values
-            Main.X = X
-            if axis is not None:
-                # in julia convention axis + 1
-                dim = axis + 1
-            if isinstance(dim, str):
-                # in julia convention axis + 1
-                dim = ds[var].get_axis_num(dim) + 1
-            assert isinstance(dim, int)
-            Main.dim = dim
-            if "masked_value" not in kwargs:
-                kwargs[
-                    "masked_value"
-                ] = f"convert({str(ds[var].dtype).capitalize()},NaN)"
-            elif kwargs["masked_value"] is None:
-                kwargs["masked_value"] = "nothing"
-            if "set_zero_insignificant" not in kwargs:
-                kwargs["set_zero_insignificant"] = True
-            kwargs_str = ", ".join([f"{k}={v}" for k, v in kwargs.items()])
-            # convert python to julia bool
-            kwargs_str = kwargs_str.replace("True", "true").replace("False", "false")
-            logging.debug(f"get_bitinformation(X, dim={dim}, {kwargs_str})")
-            info_per_bit[var] = jl.eval(
-                f"get_bitinformation(X, dim={dim}, {kwargs_str})"
-            )
+
+def _get_bitinformation_along_all_dims(ds, label=None, overwrite=False, **kwargs):
+    info_per_bit_per_dim = {}
+    for d in ds.dims:
+        logging.info(f"Get bitinformation along dimension {d}")
         if label is not None:
-            with open(label + ".json", "w") as f:
-                logging.debug(f"Save bitinformation to {label+'.json'}")
-                json.dump(info_per_bit, f, cls=JsonCustomEncoder)
-    return dict_to_dataset(info_per_bit)
+            label = "_".join([label, d])
+        info_per_bit_per_dim[d] = get_bitinformation(
+            ds, dim=d, axis=None, label=label, overwrite=overwrite, **kwargs
+        )
+    info_per_bit = xr.merge(info_per_bit_per_dim.values())
+    return info_per_bit
 
 
 def load_bitinformation(label):
@@ -206,7 +228,7 @@ def load_bitinformation(label):
             info_per_bit = json.load(f)
         return dict_to_dataset(info_per_bit)
     else:
-        return None
+        raise FileNotFoundError(f"No bitinformation could be found at {label+'.json'}")
 
 
 def get_keepbits(info_per_bit, inflevel=0.99):
