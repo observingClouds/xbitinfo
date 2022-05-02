@@ -24,4 +24,4 @@ dependencies:
   - pip
   - pip:
     - git+https://github.com/rabernat/numcodecs@bitround
-    - -e .
+    - -e ../.
