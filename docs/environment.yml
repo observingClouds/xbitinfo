@@ -26,4 +26,5 @@ dependencies:
   - sphinx-book-theme
   - pip
   - pip:
+    - git+https://github.com/rabernat/numcodecs@bitround
     - -e ../.
