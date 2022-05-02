@@ -334,7 +334,7 @@ def get_keepbits(info_per_bit, inflevel=0.99):
             keepmantissabits[v] = xr.DataArray(
                 list(keepmantissabits_inflevels.values()),
                 dims=["inflevel"],
-                coords={"inflevel": inflevel},
+                coords={"inflevel": inflevel, "dim": info_per_bit.coords["dim"]},
             )
         return keepmantissabits
 
