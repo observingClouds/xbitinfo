@@ -88,8 +88,7 @@ Credits
     :hidden:
     :caption: Getting Started
 
-    ../examples/quick-start.ipynb
-    ../examples/quick-start.ipynb
+    quick-start.ipynb
 
 **Help & Reference**
 
