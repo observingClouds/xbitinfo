@@ -2,7 +2,7 @@
 
 [![Binder](https://mybinder.org/badge_logo.svg)](https://mybinder.org/v2/gh/observingClouds/xbitinfo/main) [![CI](https://github.com/observingClouds/xbitinfo/actions/workflows/ci.yaml/badge.svg?branch=main)](https://github.com/observingClouds/xbitinfo/actions/workflows/ci.yaml) [![pre-commit.ci status](https://results.pre-commit.ci/badge/github/observingClouds/xbitinfo/main.svg)](https://results.pre-commit.ci/latest/github/observingClouds/xbitinfo/main) [![Documentation Status](https://readthedocs.org/projects/xbitinfo/badge/?version=latest)](https://xbitinfo.readthedocs.io/en/latest/?badge=latest)
 
-Retrieve information content and compress accordingly.
+Retrieve information content and compress accordingly. 
 
 This is an [`xarray`](xarray.pydata.org/)-wrapper around [BitInformation.jl](https://github.com/milankl/BitInformation.jl) to retrieve and apply bitrounding from within python.
 The package intends to present an easy pipeline to compress (climate) datasets based on the real information content.
