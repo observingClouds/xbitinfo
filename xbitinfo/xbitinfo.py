@@ -97,22 +97,22 @@ def get_bitinformation(ds, dim=None, axis=None, label=None, overwrite=False, **k
     Inputs
     ------
     ds : xr.Dataset
-        input netcdf to analyse
+      input netcdf to analyse
     dim : str
-        Dimension over which to apply mean. Only one of the `dim` and `axis` arguments can be supplied.
+      Dimension over which to apply mean. Only one of the ``dim`` and ``axis`` arguments can be supplied.
     axis : int
-        Axis over which to apply mean. Only one of the `dim` and `axis` arguments can be supplied.
+      Axis over which to apply mean. Only one of the ``dim`` and ``axis`` arguments can be supplied.
     label : str
-        label of the json to serialize bitinfo
+      label of the json to serialize bitinfo
     overwrite : bool
-        if false, try using serialized bitinfo based on label; if true or label does not exist, run bitinformation
+      if false, try using serialized bitinfo based on label; if true or label does not exist, run bitinformation
     ** kwargs
-        to be passed to bitinformation:
+      to be passed to bitinformation:
 
-        - masked_value: defaults to `NaN` (different to bitinformation.jl defaulting to "nothing"), set `None` disable masking
-        - mask: use `masked_value` instead
-        - set_zero_insignificant (bool): defaults to `True`
-        - confidence (float): defaults to 0.99
+        - masked_value: defaults to ``NaN`` (different to ``bitinformation.jl`` defaulting to ``"nothing"``), set ``None`` disable masking
+        - mask: use ``masked_value`` instead
+        - set_zero_insignificant (``bool``): defaults to ``True``
+        - confidence (``float``): defaults to 0.99
 
     Returns
     -------
@@ -212,15 +212,15 @@ def load_bitinformation(label):
 
 
 def get_keepbits(info_per_bit, inflevel=0.99):
-    """Get the number of mantissa bits to keep. To be used in xr_bitround and jl_bitround.
+    """Get the number of mantissa bits to keep. To be used in ``xr_bitround`` and ``jl_bitround``.
 
     Inputs
     ------
     info_per_bit : xr.Dataset
-      Information content of each bit. This is the output from `xb.get_bitinformation`.
+      Information content of each bit. This is the output from ``xb.get_bitinformation``.
     inflevel : float or dict
-      Level of information that shall be preserved. Of type `float` if the
-      preserved information content should be equal across variables, otherwise of type `dict`.
+      Level of information that shall be preserved. Of type ``float`` if the
+      preserved information content should be equal across variables, otherwise of type ``dict``.
 
     Returns
     -------
@@ -288,38 +288,38 @@ def _jl_bitround(X, keepbits):
 
 def get_prefect_flow(paths=[]):
     """
-    Create prefect.Flow for xbitinfo bitrounding paths.
+    Create ``prefect.Flow`` for paths to be bitrounded.
 
     1. Analyse bitwise real information content
     2. Retrieve keepbits
     3. Apply bitrounding with `xr_bitround`
     4. Save as compressed netcdf with `to_compressed_netcdf`
 
-    Many parameters can be changed when running the flow `flow.run(parameters=dict(chunk="auto"))`:
+    Many parameters can be changed when running the flow ``flow.run(parameters=dict(chunk="auto"))``:
     - paths: list of Paths
         Paths to be bitrounded
     - analyse_paths: str or int
-        Which paths to be passed to `xb.get_bitinformation`. choose from ["first_last", "all", int], where int is interpreted as stride, i.e. paths[::stride]. Defaults to "first".
+        Which paths to be passed to ``xb.get_bitinformation``. choose from ``["first_last", "all", int]``, where int is interpreted as stride, i.e. paths[::stride]. Defaults to "first".
     - enforce_dtype : str or None
-        Enforce dype for all variables. Currently `get_bitinformation` fails for different dtypes in variables. Do nothing if None. Defaults to None.
+        Enforce dype for all variables. Currently ``xb.get_bitinformation`` fails for different dtypes in variables. Do nothing if None. Defaults to None.
     - label : see get_bitinformation
     - dim/axis : see get_bitinformation
     - inflevel : see get_keepbits
     - non_negative_keepbits : bool
-        Set negative keepbits from `get_keepbits` to 0. Required when using `xr_bitround`. Defaults to True.
-    - chunks : see https://xarray.pydata.org/en/stable/generated/xarray.open_mfdataset.html. Note that with `chunks=None`, `dask` is not used for I/O and the flow is still parallelized when using `DaskExecutor`.
+        Set negative keepbits from ``xb.get_keepbits`` to ``0``. Required when using ``xr_bitround``. Defaults to ``True``.
+    - chunks : see https://xarray.pydata.org/en/stable/generated/xarray.open_mfdataset.html. Note that with ``chunks=None``, ``dask`` is not used for I/O and the flow is still parallelized when using ``DaskExecutor``.
     - bitround_in_julia : bool
-        Use `jl_bitround` instead of `xr_bitround`. Both should yield identical results. Defaults to False.
+        Use ``jl_bitround`` instead of ``xr_bitround``. Both should yield identical results. Defaults to ``False``.
     - overwrite : bool
-        Whether to overwrite bitrounded netcdf files. False (default) skips existing files.
-    - complevel : see to_compressed_netcdf, defaults to 7.
+        Whether to overwrite bitrounded netcdf files. ``False`` (default) skips existing files.
+    - complevel : see ``to_compressed_netcdf``, defaults to ``7``.
     - rename : list
-        Replace mapping for paths towards new_path of bitrounded file, i.e. replace=[".nc", "_bitrounded_compressed.nc"]
+        Replace mapping for paths towards new_path of bitrounded file, i.e. ``replace=[".nc", "_bitrounded_compressed.nc"]``
 
     Inputs
     ------
     paths : list
-      list of Paths of files to be processed by `get_bitinformation`, `get_keepbits`, `xr_bitround` and `to_compressed_netcdf`.
+      list of Paths of files to be processed by ``get_bitinformation``, ``get_keepbits``, `xr_bitround`` and ``to_compressed_netcdf``.
 
     Returns
     -------
