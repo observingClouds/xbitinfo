@@ -53,8 +53,8 @@ setup(
         "Programming Language :: Python :: 3.10",
     ],
     cmdclass={
-       "develop": PostDevelopCommand,
-       "install": PostInstallCommand,
+        "develop": PostDevelopCommand,
+        "install": PostInstallCommand,
     },
     description="Retrieve information content and compress accordingly.",
     install_requires=requirements,
