@@ -163,6 +163,10 @@ def plot_bitinformation(bitinfo):
     """
     import cmcrameri.cm as cmc
 
+    assert (
+        len(bitinfo.coords["dim"]) <= 1
+    ), "Only bitinfo along one dimension is supported at the moment. Please select dimension before plotting."
+
     nvars = len(bitinfo)
     varnames = bitinfo.keys()
 
@@ -174,7 +178,7 @@ def plot_bitinformation(bitinfo):
     infbits100 = np.zeros(nvars)
     ICnan[:, :] = np.nan
     for v, var in enumerate(varnames):
-        ic = bitinfo[var]
+        ic = bitinfo[var].squeeze(drop=True)
         ICnan[v, : len(ic)] = ic
         # infbits are all bits, infbits_dict were mantissa bits
         infbits[v] = infbits_dict[var] + NMBITS[len(ic)]
