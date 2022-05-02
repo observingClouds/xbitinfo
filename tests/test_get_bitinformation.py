@@ -132,4 +132,7 @@ def test_get_bitinformation_dtype(rasm, dtype):
     """Test xb.get_bitinformation returns correct number of bits depending on dtype."""
     ds = rasm.astype(dtype)
     v = list(ds.data_vars)[0]
-    assert len(xb.get_bitinformation(ds, dim="x")[v]) == int(dtype.replace("float", ""))
+    dtype_bits = dtype.replace("float", "")
+    assert len(xb.get_bitinformation(ds, dim="x")[v].coords["bit" + dtype_bits]) == int(
+        dtype_bits
+    )
