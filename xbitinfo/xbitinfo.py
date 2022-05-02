@@ -97,26 +97,27 @@ def get_bitinformation(ds, dim=None, axis=None, label=None, overwrite=False, **k
     Inputs
     ------
     ds : xr.Dataset
-      input netcdf to analyse
+        input netcdf to analyse
     dim : str
-      Dimension over which to apply mean. Only one of the `dim` and `axis` arguments can be supplied.
+        Dimension over which to apply mean. Only one of the `dim` and `axis` arguments can be supplied.
     axis : int
-      Axis over which to apply mean. Only one of the `dim` and `axis` arguments can be supplied.
+        Axis over which to apply mean. Only one of the `dim` and `axis` arguments can be supplied.
     label : str
-      label of the json to serialize bitinfo
+        label of the json to serialize bitinfo
     overwrite : bool
-      if false, try using serialized bitinfo based on label; if true or label does not exist, run bitinformation
-    kwargs
-      to be passed to bitinformation:
-      - masked_value: defaults to `NaN` (different to bitinformation.jl), set `None` disable masking
-      - mask: use `masked_value` instead
-      - set_zero_insignificant (bool): defaults to `True`
-      - confidence (float): defaults to 0.99
+        if false, try using serialized bitinfo based on label; if true or label does not exist, run bitinformation
+    ** kwargs
+        to be passed to bitinformation:
+        
+        - masked_value: defaults to `NaN` (different to bitinformation.jl defaulting to "nothing"), set `None` disable masking
+        - mask: use `masked_value` instead
+        - set_zero_insignificant (bool): defaults to `True`
+        - confidence (float): defaults to 0.99
 
     Returns
     -------
-    info_per_bit : dict
-      Information content per bit and variable
+    info_per_bit : xr.Dataset
+        Information content per bit and variable
 
     Example
     -------
