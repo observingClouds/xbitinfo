@@ -136,3 +136,17 @@ def test_get_bitinformation_dtype(rasm, dtype):
     assert len(xb.get_bitinformation(ds, dim="x")[v].coords["bit" + dtype_bits]) == int(
         dtype_bits
     )
+
+
+def test_get_bitinformation_multidim(rasm):
+    """Test xb.get_bitinformation runs on all dimensions by default"""
+    ds = rasm
+    bi = xb.get_bitinformation(ds)
+    # check length of dimension
+    assert bi.dims["dim"] == 3
+    bi_time = bi.sel(dim="time").Tair.values
+    bi_x = bi.sel(dim="x").Tair.values
+    bi_y = bi.sel(dim="y").Tair.values
+    assert any(bi_time != bi_x)
+    assert any(bi_time != bi_y)
+    assert any(bi_y != bi_x)
