@@ -103,8 +103,10 @@ def get_bitinformation(ds, dim=None, axis=None, label=None, overwrite=False, **k
       input dataset to analyse
     dim : str
       Dimension over which to apply mean. Only one of the `dim` and `axis` arguments can be supplied.
+      If no dim or axis is given (default), the bitinformation is retrieved along all dimensions.
     axis : int
       Axis over which to apply mean. Only one of the `dim` and `axis` arguments can be supplied.
+      If no dim or axis is given (default), the bitinformation is retrieved along all dimensions.
     label : str
       label of the json to serialize bitinfo
     overwrite : bool
@@ -157,9 +159,7 @@ def get_bitinformation(ds, dim=None, axis=None, label=None, overwrite=False, **k
 
         # check keywords
         if axis is not None and dim is not None:
-            raise ValueError(
-                "Please provide either `axis` or `dim` but not both or none."
-            )
+            raise ValueError("Please provide either `axis` or `dim` but not both.")
         if axis:
             if not isinstance(axis, int):
                 raise ValueError(f"Please provide `axis` as `int`, found {type(axis)}.")
