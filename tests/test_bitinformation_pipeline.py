@@ -39,9 +39,12 @@ def test_full(ds, dim, axis):
     bitrounded_compressed_size = os.path.getsize(
         f"./tmp_testdir/{label}_bitrounded_compressed.nc"
     )
-    assert (
-        compressed_size < ori_size * 1.1
-    )  # maybe previous compression is already really good
+    if dim == "eta_rho":
+        assert (
+            compressed_size < ori_size * 1.1
+        )  # previous compression is already really good for ROMS_example
+    else:
+        assert compressed_size < ori_size
     assert bitrounded_compressed_size < compressed_size
 
 
