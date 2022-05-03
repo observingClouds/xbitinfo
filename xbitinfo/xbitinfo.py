@@ -69,9 +69,9 @@ def dict_to_dataset(info_per_bit):
         dim = info_per_bit[v]["dim"]
         dim_name = f"bit{dtype_size}"
         dsb[v] = xr.DataArray(
-            [info_per_bit[v]["bitinfo"]],
-            dims=["dim", dim_name],
-            coords={dim_name: get_bit_coords(dtype_size), "dim": [dim]},
+            info_per_bit[v]["bitinfo"],
+            dims=[dim_name],
+            coords={dim_name: get_bit_coords(dtype_size), "dim": dim},
             name=v,
             attrs={"long_name": f"{v} bitwise information", "units": "1"},
         ).astype("float64")
@@ -128,12 +128,26 @@ def get_bitinformation(ds, dim=None, axis=None, label=None, overwrite=False, **k
         >>> ds = xr.tutorial.load_dataset("air_temperature")
         >>> xb.get_bitinformation(ds, dim="lon")
         <xarray.Dataset>
-        Dimensions:  (bit32: 32, dim: 1)
+        Dimensions:  (bit32: 32)
         Coordinates:
           * bit32    (bit32) <U3 '±' 'e1' 'e2' 'e3' 'e4' ... 'm20' 'm21' 'm22' 'm23'
-          * dim      (dim) <U3 'lon'
+            dim      <U3 'lon'
         Data variables:
-            air      (dim, bit32) float64 0.0 0.0 0.0 0.0 ... 0.0 3.953e-05 0.0006889
+            air      (bit32) float64 0.0 0.0 0.0 0.0 ... 0.0 3.953e-05 0.0006889
+        Attributes:
+            xbitinfo_description:  bitinformation calculated by xbitinfo.get_bitinfor...
+            python_repository:     https://github.com/observingClouds/xbitinfo
+            julia_repository:      https://github.com/milankl/BitInformation.jl
+            reference_paper:       http://www.nature.com/articles/s43588-021-00156-2
+            xbitinfo_version: ...
+        >>> xb.get_bitinformation(ds)
+        <xarray.Dataset>
+        Dimensions:  (dim: 3, bit32: 32)
+        Coordinates:
+          * dim      (dim) <U4 'lat' 'lon' 'time'
+          * bit32    (bit32) <U3 '±' 'e1' 'e2' 'e3' 'e4' ... 'm20' 'm21' 'm22' 'm23'
+        Data variables:
+            air      (dim, bit32) float64 0.0 0.0 0.0 0.0 ... 0.0 6.327e-06 0.0004285
         Attributes:
             xbitinfo_description:  bitinformation calculated by xbitinfo.get_bitinfor...
             python_repository:     https://github.com/observingClouds/xbitinfo
@@ -221,8 +235,8 @@ def _get_bitinformation_along_all_dims(ds, label=None, overwrite=False, **kwargs
             label = "_".join([label, d])
         info_per_bit_per_dim[d] = get_bitinformation(
             ds, dim=d, axis=None, label=label, overwrite=overwrite, **kwargs
-        )
-    info_per_bit = xr.merge(info_per_bit_per_dim.values())
+        ).expand_dims("dim", axis=0)
+    info_per_bit = xr.merge(info_per_bit_per_dim.values()).squeeze()
     return info_per_bit
 
 
@@ -273,28 +287,37 @@ def get_keepbits(info_per_bit, inflevel=0.99):
     >>> info_per_bit = xb.get_bitinformation(ds, dim="lon")
     >>> xb.get_keepbits(info_per_bit)
     <xarray.Dataset>
-    Dimensions:   (inflevel: 1, dim: 1)
+    Dimensions:   (inflevel: 1)
     Coordinates:
       * inflevel  (inflevel) float64 0.99
-      * dim       (dim) <U3 'lon'
+        dim       <U3 'lon'
     Data variables:
-        air       (dim, inflevel) int64 7
+        air       (inflevel) int64 7
     >>> xb.get_keepbits(info_per_bit, inflevel=0.99999999)
     <xarray.Dataset>
-    Dimensions:   (inflevel: 1, dim: 1)
+    Dimensions:   (inflevel: 1)
     Coordinates:
       * inflevel  (inflevel) float64 1.0
-      * dim       (dim) <U3 'lon'
+        dim       <U3 'lon'
     Data variables:
-        air       (dim, inflevel) int64 14
+        air       (inflevel) int64 14
     >>> xb.get_keepbits(info_per_bit, inflevel=1.0)
     <xarray.Dataset>
-    Dimensions:   (inflevel: 1, dim: 1)
+    Dimensions:   (inflevel: 1)
     Coordinates:
       * inflevel  (inflevel) float64 1.0
-      * dim       (dim) <U3 'lon'
+        dim       <U3 'lon'
     Data variables:
-        air       (dim, inflevel) int64 23
+        air       (inflevel) int64 23
+    >>> info_per_bit = xb.get_bitinformation(ds)
+    >>> xb.get_keepbits(info_per_bit)
+    <xarray.Dataset>
+    Dimensions:   (inflevel: 1, dim: 3)
+    Coordinates:
+      * inflevel  (inflevel) float64 0.99
+      * dim       (dim) <U4 'lat' 'lon' 'time'
+    Data variables:
+        air       (dim, inflevel) int64 5 7 6
     """
     if "dim" in info_per_bit.dims:
         keepmantissabits_dict = {}
