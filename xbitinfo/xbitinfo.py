@@ -86,8 +86,8 @@ def dict_to_dataset(info_per_bit):
 def get_bitinformation(ds, dim=None, axis=None, label=None, overwrite=False, **kwargs):
     """Wrap `BitInformation.jl.bitinformation() <https://github.com/milankl/BitInformation.jl/blob/main/src/mutual_information.jl>`__.
 
-    Inputs
-    ------
+    Parameters
+    ----------
     ds : :py:class:`xarray.Dataset`
       Input dataset to analyse
     dim : str
@@ -262,8 +262,8 @@ def load_bitinformation(label):
 def get_keepbits(info_per_bit, inflevel=0.99):
     """Get the number of mantissa bits to keep. To be used in :py:func:`xbitinfo.bitround.xr_bitround` and :py:func:`xbitinfo.bitround.jl_bitround`.
 
-    Inputs
-    ------
+    Parameters
+    ----------
     info_per_bit : :py:class:`xarray.Dataset`
       Information content of each bit. This is the output from :py:func:`xbitinfo.xbitinfo.get_bitinformation`.
     inflevel : float or list
@@ -402,7 +402,7 @@ def get_prefect_flow(paths=[]):
     - rename : list
         Replace mapping for paths towards new_path of bitrounded file, i.e. ``replace=[".nc", "_bitrounded_compressed.nc"]``
 
-    Inputs
+    Parameters
     ------
     paths : list
       List of paths of files to be processed by :py:func:`xbitinfo.xbitinfo.get_bitinformation`, :py:func:`xbitinfo.xbitinfo.get_keepbits`, :py:func:`xbitinfo.bitround.xr_bitround` and ``to_compressed_netcdf``.

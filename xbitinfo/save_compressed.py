@@ -66,8 +66,8 @@ def get_compress_encoding_nc(
 class ToCompressed_Netcdf:
     """Save to compressed netcdf wrapping ds.to_netcdf(encoding=get_compress_encoding(ds)).
 
-    Inputs
-    ------
+    Parameters
+    ----------
     path : str, path-like or file-like
       Path to which to save this dataset
     compression : str
@@ -172,8 +172,8 @@ def get_compress_encoding_zarr(
 class ToCompressed_Zarr:
     """Save to compressed zarr wrapping ``ds.to_zarr(encoding=get_compress_encoding_zarr(ds))``.
 
-    Inputs
-    ------
+    Parameters
+    ----------
     path : str, path-like or file-like
       Output location of compressed dataset
     compressor : numcodecs

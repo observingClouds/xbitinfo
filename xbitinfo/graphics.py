@@ -24,8 +24,8 @@ def add_bitinfo_labels(
     Klöwer, M., Razinger, M., Dominguez, J. J., Düben, P. D., & Palmer, T. N. (2021).
     Compressing atmospheric data into its real information content. Nature Computational Science, 1(11), 713–724. doi: 10/gnm4jj
 
-    Inputs
-    ------
+    Parameters
+    ----------
     da : :py:func:`xarray.DataArray`
       Plotted data
     info_per_bit : dict
@@ -149,8 +149,8 @@ def plot_bitinformation(bitinfo, cmap="turku"):
     Compressing atmospheric data into its real information content.
     Nature Computational Science, 1(11), 713–724. doi: 10/gnm4jj
 
-    Inputs
-    ------
+    Parameters
+    ----------
     bitinfo : :py:func:`xarray.Dataset`
       Containing the bitwise information content for each variable
     cmap : str or plt.cm
@@ -330,8 +330,8 @@ def plot_distribution(ds, nbins=1000, cmap="viridis", offset=0.01, close_zero=1e
     Compressing atmospheric data into its real information content.
     Nature Computational Science, 1(11), 713–724. doi: 10/gnm4jj
 
-    Inputs
-    ------
+    Parameters
+    ----------
     bitinfo : :py:class:`xarray.Dataset`
       Raw input values for distributions
     nbints : int

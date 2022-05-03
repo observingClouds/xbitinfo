@@ -15,8 +15,8 @@ def _np_bitround(data, keepbits):
 def _keepbits_interface(da, keepbits):
     """Common interface to allowed keepbits types
 
-    Inputs
-    ------
+    Parameters
+    ----------
     da : :py:class:`xarray.DataArray`
       Input data to bitround
     keepbits : int, dict of {str: int}, :py:class:`xarray.DataArray` or :py:class:`xarray.Dataset`
@@ -67,10 +67,10 @@ def _keepbits_interface(da, keepbits):
 
 
 def xr_bitround(da, keepbits):
-    """Apply bitrounding based on keepbits from xb.get_keepbits for xarray.Dataset or :py:class:`xarray.DataArray` wrapping ``numcodecs.bitround``
+    """Apply bitrounding based on keepbits from :py:func:`xbitinfo.xbitinfo.get_keepbits` for :py:class:`xarray.Dataset` or :py:class:`xarray.DataArray` wrapping ``numcodecs.bitround``
 
-    Inputs
-    ------
+    Parameters
+    ----------
     da : :py:class:`xarray.DataArray` or :py:class:`xarray.Dataset`
       Input data to bitround
     keepbits : int, dict of {str: int}, :py:class:`xarray.DataArray` or :py:class:`xarray.Dataset`
@@ -102,10 +102,10 @@ def xr_bitround(da, keepbits):
 
 
 def jl_bitround(da, keepbits):
-    """Apply bitrounding based on keepbits from xb.get_keepbits for xarray.Dataset or :py:class:`xarray.DataArray` wrapping BitInformation.jl.round.
+    """Apply bitrounding based on keepbits from :py:func:`xbitinfo.xbitinfo.get_keepbits` for :py:class:`xarray.Dataset` or :py:class:`xarray.DataArray` wrapping `BitInformation.jl.round <https://github.com/milankl/BitInformation.jl/blob/main/src/round_nearest.jl>`__.
 
-    Inputs
-    ------
+    Parameters
+    ----------
     da : :py:class:`xarray.DataArray` or :py:class:`xarray.Dataset`
       Input data to bitround
     keepbits : int, dict of {str: int}, :py:class:`xarray.DataArray` or :py:class:`xarray.Dataset`
@@ -146,8 +146,8 @@ def bitround_along_dim(
     Compressing atmospheric data into its real information content.
     Nature Computational Science, 1(11), 713–724. doi: 10/gnm4jj
 
-    Inputs
-    ------
+    Parameters
+    ----------
     ds : :py:class:`xarray.Dataset`, :py:class:`xarray.DataArray`
       Input
     info_per_bit : dict
