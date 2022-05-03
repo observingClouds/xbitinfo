@@ -14,7 +14,7 @@ dependencies:
   - netcdf4
   - zarr
   - cfgrib
-  - prefect
+  - prefect>=1.0.0
   - graphviz
   - pytest
   - nb_conda_kernels
