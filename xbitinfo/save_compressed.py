@@ -5,7 +5,7 @@ import xarray as xr
 
 
 def get_chunksizes(da, for_cdo=False, time_dim="time", chunks=None):
-    """Get chunksizes for :py:func:`xarray.DataArray` for ``to_netcdf(encoding)`` from original file.
+    """Get chunksizes for :py:class:`xarray.DataArray` for ``to_netcdf(encoding)`` from original file.
     If ``for_cdo=True``, ensure ``time_dim`` ``chunksize`` of 1 when compressed."""
     assert isinstance(da, xr.DataArray)
     if chunks:  # use new chunksizes
