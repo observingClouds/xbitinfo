@@ -82,7 +82,7 @@ def get_bitinformation(ds, dim=None, axis=None, label=None, overwrite=False, **k
 
     Inputs
     ------
-    ds : xr.Dataset
+    ds : :py:class:`xarray.Dataset`
       Input dataset to analyse
     dim : str
       Dimension over which to apply mean. Fails if dim not in all variables. Only one of the `dim` and `axis` arguments can be supplied. Defaults to ``None``.
@@ -91,7 +91,7 @@ def get_bitinformation(ds, dim=None, axis=None, label=None, overwrite=False, **k
     label : str
       Label of the json to serialize bitinfo. When string, serialize results to disk into file ``{{label}}.json`` to be reused later. Defaults to ``None``.
     overwrite : bool
-      If false, try using serialized bitinfo based on label; if true or label does not exist, run bitinformation. Defaults to ``False``.
+      If ``False``, try using serialized bitinfo based on label; if true or label does not exist, run bitinformation. Defaults to ``False``.
     ** kwargs
       to be passed to bitinformation:
 
@@ -102,25 +102,25 @@ def get_bitinformation(ds, dim=None, axis=None, label=None, overwrite=False, **k
 
     Returns
     -------
-    info_per_bit : xr.Dataset
-        Information content per bit and variable
+    info_per_bit : :py:class:`xarray.Dataset`
+      Information content per bit and variable
 
     Example
     -------
-        >>> ds = xr.tutorial.load_dataset("air_temperature")
-        >>> xb.get_bitinformation(ds, dim="lon")
-        <xarray.Dataset>
-        Dimensions:  (bit32: 32)
-        Coordinates:
-          * bit32    (bit32) <U3 '±' 'e1' 'e2' 'e3' 'e4' ... 'm20' 'm21' 'm22' 'm23'
-        Data variables:
-            air      (bit32) float64 0.0 0.0 0.0 0.0 ... 0.0 3.953e-05 0.0006889
-        Attributes:
-            xbitinfo_description:  bitinformation calculated by xbitinfo.get_bitinfor...
-            python_repository:     https://github.com/observingClouds/xbitinfo
-            julia_repository:      https://github.com/milankl/BitInformation.jl
-            reference_paper:       http://www.nature.com/articles/s43588-021-00156-2
-            xbitinfo_version: ...
+    >>> ds = xr.tutorial.load_dataset("air_temperature")
+    >>> xb.get_bitinformation(ds, dim="lon")
+    <xarray.Dataset>
+    Dimensions:  (bit32: 32)
+    Coordinates:
+      * bit32    (bit32) <U3 '±' 'e1' 'e2' 'e3' 'e4' ... 'm20' 'm21' 'm22' 'm23'
+    Data variables:
+        air      (bit32) float64 0.0 0.0 0.0 0.0 ... 0.0 3.953e-05 0.0006889
+    Attributes:
+        xbitinfo_description:  bitinformation calculated by xbitinfo.get_bitinfor...
+        python_repository:     https://github.com/observingClouds/xbitinfo
+        julia_repository:      https://github.com/milankl/BitInformation.jl
+        reference_paper:       http://www.nature.com/articles/s43588-021-00156-2
+        xbitinfo_version: ...
     """
     if overwrite:
         calc = True
@@ -202,7 +202,7 @@ def get_keepbits(info_per_bit, inflevel=0.99):
 
     Inputs
     ------
-    info_per_bit : xr.Dataset
+    info_per_bit : :py:class:`xarray.Dataset`
       Information content of each bit. This is the output from :py:func:`xbitinfo.xbitinfo.get_bitinformation`.
     inflevel : float or dict
       Level of information that shall be preserved. Of type ``float`` if the
@@ -210,7 +210,7 @@ def get_keepbits(info_per_bit, inflevel=0.99):
 
     Returns
     -------
-    keepbits : xr.Dataset
+    keepbits : :py:class:`xarray.Dataset`
       Number of mantissa bits to keep per variable
 
     Example
@@ -266,7 +266,7 @@ def get_keepbits(info_per_bit, inflevel=0.99):
 
 
 def _jl_bitround(X, keepbits):
-    """Wrap `BitInformation.jl.round() <https://github.com/milankl/BitInformation.jl/blob/main/src/mutual_information.jl>`__ used in :py:func:`xbinfo.bitround.jl_bitround`"""
+    """Wrap `BitInformation.jl.round() <https://github.com/milankl/BitInformation.jl/blob/main/src/mutual_information.jl>`__ used in :py:func:`xbitinfo.bitround.jl_bitround`"""
     Main.X = X
     Main.keepbits = keepbits
     return jl.eval("round!(X, keepbits)")
@@ -282,20 +282,21 @@ def get_prefect_flow(paths=[]):
     4. Save as compressed netcdf with `to_compressed_netcdf`
 
     Many parameters can be changed when running the flow ``flow.run(parameters=dict(chunk="auto"))``:
+
     - paths: list of Paths
         Paths to be bitrounded
     - analyse_paths: str or int
-        Which paths to be passed to ``xb.get_bitinformation``. choose from ``["first_last", "all", int]``, where int is interpreted as stride, i.e. paths[::stride]. Defaults to "first".
+        Which paths to be passed to :py:func:`xbitinfo.xbitinfo.get_bitinformation`. choose from ``["first_last", "all", int]``, where ``int`` is interpreted as stride, i.e. ``paths[::stride]``. Defaults to ``"first"``.
     - enforce_dtype : str or None
-        Enforce dype for all variables. Currently ``xb.get_bitinformation`` fails for different dtypes in variables. Do nothing if None. Defaults to None.
-    - label : see :py:func:`xbinfo.xbitinfo.get_bitinformation`
-    - dim/axis : see :py:func:`xbinfo.xbitinfo.get_bitinformation`
-    - inflevel : see :py:func:`xbinfo.xbitinfo.get_keepbits`
+        Enforce dype for all variables. Currently `:py:func:`xbitinfo.xbitinfo.get_bitinformation` fails for different dtypes in variables. Do nothing if None. Defaults to None.
+    - label : see :py:func:`xbitinfo.xbitinfo.get_bitinformation`
+    - dim/axis : see :py:func:`xbitinfo.xbitinfo.get_bitinformation`
+    - inflevel : see :py:func:`xbitinfo.xbitinfo.get_keepbits`
     - non_negative_keepbits : bool
-        Set negative keepbits from :py:func:`xbinfo.xbitinfo.get_keepbits` to ``0``. Required when using :py:func:`xbinfo.bitround.xr_bitround``. Defaults to ``True``.
-    - chunks : see https://xarray.pydata.org/en/stable/generated/xarray.open_mfdataset.html. Note that with ``chunks=None``, ``dask`` is not used for I/O and the flow is still parallelized when using ``DaskExecutor``.
+        Set negative keepbits from :py:func:`xbitinfo.xbitinfo.get_keepbits` to ``0``. Required when using :py:func:`xbitinfo.bitround.xr_bitround``. Defaults to ``True``.
+    - chunks : see :py:meth:`xarray.open_mfdataset`. Note that with ``chunks=None``, ``dask`` is not used for I/O and the flow is still parallelized when using ``DaskExecutor``.
     - bitround_in_julia : bool
-        Use :py:func:`xbinfo.bitround.jl_bitround` instead of :py:func:`xbinfo.bitround.xr_bitround`. Both should yield identical results. Defaults to ``False``.
+        Use :py:func:`xbitinfo.bitround.jl_bitround` instead of :py:func:`xbitinfo.bitround.xr_bitround`. Both should yield identical results. Defaults to ``False``.
     - overwrite : bool
         Whether to overwrite bitrounded netcdf files. ``False`` (default) skips existing files.
     - complevel : see :py:func:`xbitinfo.save_compressed.to_compressed_netcdf``, defaults to ``7``.
@@ -315,22 +316,28 @@ def get_prefect_flow(paths=[]):
     Example
     -------
     Imagine n files of identical structure, i.e. 1-year per file climate model output:
+
     >>> ds = xr.tutorial.load_dataset("rasm")
     >>> year, datasets = zip(*ds.groupby("time.year"))
     >>> paths = [f"{y}.nc" for y in year]
     >>> xr.save_mfdataset(datasets, paths)
 
-    Create prefect.Flow and run sequentially
+
+    Create prefect.Flow and run sequentially:
+
     >>> flow = xb.get_prefect_flow(paths=paths)
     >>> import prefect
     >>> logger = prefect.context.get("logger")
     >>> logger.setLevel("ERROR")
     >>> st = flow.run()
 
-    Inspect flow state
+    Inspect flow state:
+
     >>> # flow.visualize(st)  # requires graphviz
 
+
     Run in parallel with dask:
+
     >>> import os  # https://docs.xarray.dev/en/stable/user-guide/dask.html
     >>> os.environ["HDF5_USE_FILE_LOCKING"] = "FALSE"
     >>> from prefect.executors import DaskExecutor, LocalDaskExecutor
@@ -343,7 +350,9 @@ def get_prefect_flow(paths=[]):
     >>> executor = LocalDaskExecutor()  # use dask local from prefect
     >>> # flow.run(executor=executor, parameters=dict(overwrite=True))
 
+
     Modify parameters of a flow:
+
     >>> flow.run(parameters=dict(inflevel=0.9999, overwrite=True))
     <Success: "All reference tasks succeeded.">
 
@@ -351,6 +360,7 @@ def get_prefect_flow(paths=[]):
     --------
     - https://examples.dask.org/applications/prefect-etl.html
     - https://docs.prefect.io/core/getting_started/basic-core-flow.html
+    - https://docs.prefect.io/orchestration/flow_config/executors.html#daskexecutor
 
     """
 
