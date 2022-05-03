@@ -34,7 +34,8 @@ def test_full_max_keepbits():
     bi = xb.get_bitinformation(ds)
     kb = xb.get_keepbits(bi)
     kb_max = kb.max(dim="dim")
-    _ = xb.plot_bitinformation(bi.isel(dim=slice(0, 1)))
+    _ = xb.plot_bitinformation(bi.isel(dim=[0]))
+    _ = xb.plot_bitinformation(bi.isel(dim=0))
     ds_bitrounded_max = xb.xr_bitround(ds, kb_max)
     ds_bitrounded_max.to_compressed_zarr(f"{label}.zarr", mode="w")
 
