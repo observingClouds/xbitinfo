@@ -17,6 +17,7 @@ path_to_julia_functions = os.path.join(
 )
 Main.path = path_to_julia_functions
 jl.using("BitInformation")
+jl.using("Pkg")
 jl.eval("include(Main.path)")
 
 
@@ -69,6 +70,7 @@ def dict_to_dataset(info_per_bit):
         "julia_repository": "https://github.com/milankl/BitInformation.jl",
         "reference_paper": "http://www.nature.com/articles/s43588-021-00156-2",
         "xbitinfo_version": __version__,
+        "BitInformation.jl_version": get_julia_package_version("BitInformation"),
     }
     for c in dsb.coords:
         if "bit" in c:
@@ -122,11 +124,12 @@ def get_bitinformation(ds, dim=None, axis=None, label=None, overwrite=False, **k
         Data variables:
             air      (bit32) float64 0.0 0.0 0.0 0.0 ... 0.0 3.953e-05 0.0006889
         Attributes:
-            xbitinfo_description:  bitinformation calculated by xbitinfo.get_bitinfor...
-            python_repository:     https://github.com/observingClouds/xbitinfo
-            julia_repository:      https://github.com/milankl/BitInformation.jl
-            reference_paper:       http://www.nature.com/articles/s43588-021-00156-2
-            xbitinfo_version: ...
+            xbitinfo_description:       bitinformation calculated by xbitinfo.get_bit...
+            python_repository:          https://github.com/observingClouds/xbitinfo
+            julia_repository:           https://github.com/milankl/BitInformation.jl
+            reference_paper:            http://www.nature.com/articles/s43588-021-001...
+            xbitinfo_version:           ...
+            BitInformation.jl_version:  ...
         >>> xb.get_bitinformation(ds)
         <xarray.Dataset>
         Dimensions:  (dim: 3, bit32: 32)
@@ -136,11 +139,12 @@ def get_bitinformation(ds, dim=None, axis=None, label=None, overwrite=False, **k
         Data variables:
             air      (dim, bit32) float64 0.0 0.0 0.0 0.0 ... 0.0 6.327e-06 0.0004285
         Attributes:
-            xbitinfo_description:  bitinformation calculated by xbitinfo.get_bitinfor...
-            python_repository:     https://github.com/observingClouds/xbitinfo
-            julia_repository:      https://github.com/milankl/BitInformation.jl
-            reference_paper:       http://www.nature.com/articles/s43588-021-00156-2
-            xbitinfo_version: ...
+            xbitinfo_description:       bitinformation calculated by xbitinfo.get_bit...
+            python_repository:          https://github.com/observingClouds/xbitinfo
+            julia_repository:           https://github.com/milankl/BitInformation.jl
+            reference_paper:            http://www.nature.com/articles/s43588-021-001...
+            xbitinfo_version:           ...
+            BitInformation.jl_version:  ...
     """
     if dim is None and axis is None:
         # gather bitinformation on all axis
@@ -569,3 +573,11 @@ class JsonCustomEncoder(json.JSONEncoder):
         elif isinstance(obj, bytes):  # pragma: py3
             return obj.decode()
         return json.JSONEncoder.default(self, obj)
+
+
+def get_julia_package_version(package):
+    """Get version information of julia package"""
+    version = jl.eval(
+        f'Pkg.TOML.parsefile(joinpath(pkgdir({package}), "Project.toml"))["version"]'
+    )
+    return version
