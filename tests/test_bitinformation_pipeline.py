@@ -37,7 +37,9 @@ def test_full(ds, dim, axis):
     bitrounded_compressed_size = os.path.getsize(
         f"./tmp_testdir/{label}_bitrounded_compressed.nc"
     )
-    assert compressed_size < ori_size * 1.1  # maybe previous compression is already really good
+    assert (
+        compressed_size < ori_size * 1.1
+    )  # maybe previous compression is already really good
     assert bitrounded_compressed_size < compressed_size
 
 
