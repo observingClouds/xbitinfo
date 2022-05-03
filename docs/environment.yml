@@ -21,7 +21,7 @@ dependencies:
   - sphinxcontrib-napoleon
   - sphinx-copybutton
   - sphinx-book-theme
-  - nbsphinx
+  - myst_nb
   - pip
   - pip:
     - git+https://github.com/rabernat/numcodecs@bitround
