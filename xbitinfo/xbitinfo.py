@@ -1,9 +1,7 @@
-import argparse
 import json
 import logging
 import os
 
-import matplotlib.pyplot as plt
 import numpy as np
 import xarray as xr
 from julia.api import Julia
@@ -23,18 +21,6 @@ jl.eval("include(Main.path)")
 
 
 NMBITS = {64: 12, 32: 9, 16: 6}  # number of non mantissa bits for given dtype
-
-
-def get_user_input():
-    parser = argparse.ArgumentParser()
-    parser.add_argument(
-        "filename",
-        help="filename of dataset (netCDF-file) whose information "
-        "content should be retrieved",
-        type=str,
-    )
-    args = parser.parse_args()
-    return args
 
 
 def get_bit_coords(dtype_size):
@@ -97,15 +83,15 @@ def get_bitinformation(ds, dim=None, axis=None, label=None, overwrite=False, **k
     Inputs
     ------
     ds : xr.Dataset
-      input netcdf to analyse
+      Input dataset to analyse
     dim : str
-      Dimension over which to apply mean. Only one of the `dim` and `axis` arguments can be supplied.
+      Dimension over which to apply mean. Fails if dim not in all variables. Only one of the `dim` and `axis` arguments can be supplied.
     axis : int
       Axis over which to apply mean. Only one of the `dim` and `axis` arguments can be supplied.
     label : str
-      label of the json to serialize bitinfo
+      Label of the json to serialize bitinfo
     overwrite : bool
-      if false, try using serialized bitinfo based on label; if true or label does not exist, run bitinformation
+      If false, try using serialized bitinfo based on label; if true or label does not exist, run bitinformation
     kwargs
       to be passed to bitinformation:
       - masked_value: defaults to `NaN` (different to bitinformation.jl), set `None` disable masking
@@ -270,7 +256,7 @@ def get_keepbits(info_per_bit, inflevel=0.99):
             ic_over_threshold_cum_normed = (
                 ic_over_threshold_cum / ic_over_threshold_cum.max()
             )
-            # return mantissabits to keep therefore subtract sign and exponent bits
+            # return mantissabits to keep, therefore subtract sign and exponent bits
             il = inflevel[v] if isinstance(inflevel, dict) else inflevel
             keepmantissabits[v] = (
                 np.argmax(ic_over_threshold_cum_normed > il) + 1 - NMBITS[len(ic)]
@@ -295,12 +281,12 @@ def get_prefect_flow(paths=[]):
     4. Save as compressed netcdf with `to_compressed_netcdf`
 
     Many parameters can be changed when running the flow `flow.run(parameters=dict(chunk="auto"))`:
-    - paths: list of Paths
+    - paths: list of paths
         Paths to be bitrounded
     - analyse_paths: str or int
-        Which paths to be passed to `xb.get_bitinformation`. choose from ["first_last", "all", int], where int is interpreted as stride, i.e. paths[::stride]. Defaults to "first".
+        Which paths to be passed to `xb.get_bitinformation`. Choose from ["first_last", "all", int], where int is interpreted as stride, i.e. paths[::stride]. Defaults to "first".
     - enforce_dtype : str or None
-        Enforce dype for all variables. Currently `get_bitinformation` fails for different dtypes in variables. Do nothing if None. Defaults to None.
+        Enforce dtype for all variables. Currently, `get_bitinformation` fails for different dtypes in variables. Do nothing if None. Defaults to None.
     - label : see get_bitinformation
     - dim/axis : see get_bitinformation
     - inflevel : see get_keepbits
@@ -318,12 +304,12 @@ def get_prefect_flow(paths=[]):
     Inputs
     ------
     paths : list
-      list of Paths of files to be processed by `get_bitinformation`, `get_keepbits`, `xr_bitround` and `to_compressed_netcdf`.
+      List of paths of files to be processed by `get_bitinformation`, `get_keepbits`, `xr_bitround` and `to_compressed_netcdf`.
 
     Returns
     -------
     prefect.Flow
-      see https://docs.prefect.io/core/concepts/flows.html#overview
+      See https://docs.prefect.io/core/concepts/flows.html#overview
 
     Example
     -------
@@ -488,12 +474,3 @@ class JsonCustomEncoder(json.JSONEncoder):
         elif isinstance(obj, bytes):  # pragma: py3
             return obj.decode()
         return json.JSONEncoder.default(self, obj)
-
-
-if __name__ == "__main__":
-    args = get_user_input()
-    ds = xr.open_mfdataset(args.filename)
-    info_per_bit = get_bitinformation(ds, axis=0)
-    print(info_per_bit)
-    keepbits = get_keepbits(info_per_bit)
-    print(keepbits)
