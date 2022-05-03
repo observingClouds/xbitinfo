@@ -143,7 +143,7 @@ def add_bitinfo_labels(
 
 
 def plot_bitinformation(bitinfo, cmap="turku"):
-    """Plot bitwise information content as in Klöwer et al. 2021 Fig. 2.
+    """Plot bitwise information content as in Klöwer et al. 2021 Figure 2.
 
     Klöwer, M., Razinger, M., Dominguez, J. J., Düben, P. D., & Palmer, T. N. (2021).
     Compressing atmospheric data into its real information content.

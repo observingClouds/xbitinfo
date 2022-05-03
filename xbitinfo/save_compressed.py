@@ -34,7 +34,7 @@ def get_compress_encoding_nc(
     time_dim="time",
     chunks=None,
 ):
-    """Generate encoding for ``ds_bitrounded.to_netcdf(encoding)``.
+    """Generate encoding for :py:meth:`xarray.Dataset.to_netcdf`.
 
     Example
     -------
@@ -64,7 +64,7 @@ def get_compress_encoding_nc(
 
 @xr.register_dataset_accessor("to_compressed_netcdf")
 class ToCompressed_Netcdf:
-    """Save to compressed netcdf wrapping ``ds.to_netcdf(encoding=get_compress_encoding(ds))``.
+    """Save to compressed ``netcdf`` wrapping :py:meth:`xarray.Dataset.to_netcdf` with :py:func:`xbitinfo.save_compressed.get_compress_encoding_nc`.
 
     Parameters
     ----------
@@ -135,7 +135,7 @@ def get_compress_encoding_zarr(
     ds_bitrounded,
     compressor=numcodecs.Blosc("zstd", shuffle=numcodecs.Blosc.BITSHUFFLE),
 ):
-    """Generate encoding for ``ds_bitrounded.to_zarr(encoding)``.
+    """Generate encoding for :py:meth:`xarray.Dataset.to_zarr`.
 
     Example
     -------
@@ -170,7 +170,7 @@ def get_compress_encoding_zarr(
 
 @xr.register_dataset_accessor("to_compressed_zarr")
 class ToCompressed_Zarr:
-    """Save to compressed zarr wrapping ``ds.to_zarr(encoding=get_compress_encoding_zarr(ds))``.
+    """Save to compressed ``zarr`` wrapping :py:meth:`xarray.Dataset.to_zarr` with :py:func:`xbitinfo.save_compressed.get_compress_encoding_zarr`.
 
     Parameters
     ----------
@@ -193,7 +193,7 @@ class ToCompressed_Zarr:
 
     See also
     --------
-    - :py:meth:`xarray.Dataset.to_zarr`
+    :py:meth:`xarray.Dataset.to_zarr`
 
     """
 

@@ -374,12 +374,12 @@ def _jl_bitround(X, keepbits):
 
 def get_prefect_flow(paths=[]):
     """
-    Create prefect.Flow for xbitinfo bitrounding paths.
+    Create `prefect.Flow <https://docs.prefect.io/core/concepts/flows.html#overview>`__ for paths to be:
 
-    1. Analyse bitwise real information content
-    2. Retrieve keepbits
+    1. Analyse bitwise real information content with :py:func:`xbitinfo.xbitinfo.get_bitinformation`
+    2. Retrieve keepbits with :py:func:`xbitinfo.xbitinfo.get_keepbits`
     3. Apply bitrounding with :py:func:`xbitinfo.bitround.xr_bitround`
-    4. Save as compressed netcdf with ``to_compressed_netcdf``
+    4. Save as compressed netcdf with :py:class:`xbitinfo.save_compressed.ToCompressed_Netcdf`
 
     Many parameters can be changed when running the flow ``flow.run(parameters=dict(chunk="auto"))``:
     - paths: list of paths
@@ -525,7 +525,7 @@ def get_prefect_flow(paths=[]):
         ds_bitround.to_compressed_netcdf(new_path, complevel=complevel)
         return
 
-    with Flow("xbitinfo") as flow:
+    with Flow("xbitinfo_pipeline") as flow:
         if paths == []:
             raise ValueError("Please provide paths of files to bitround, found [].")
         paths = Parameter("paths", default=paths)
