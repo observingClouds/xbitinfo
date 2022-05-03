@@ -31,6 +31,19 @@ def test_full():
     assert bitrounded_compressed_size < compressed_size
 
 
+def test_full_max_keepbits():
+    """Test pipeline to get maximum keepbits"""
+    label = "air_temperature"
+    ds = xr.tutorial.load_dataset(label)
+    bi = xb.get_bitinformation(ds)
+    kb = xb.get_keepbits(bi)
+    kb_max = kb.max(dim="dim")
+    _ = xb.plot_bitinformation(bi.isel(dim=[0]))
+    _ = xb.plot_bitinformation(bi.isel(dim=0))
+    ds_bitrounded_max = xb.xr_bitround(ds, kb_max)
+    ds_bitrounded_max.to_compressed_zarr(f"{label}.zarr", mode="w")
+
+
 imax = 3
 
 
