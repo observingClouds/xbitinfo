@@ -17,6 +17,7 @@ path_to_julia_functions = os.path.join(
 )
 Main.path = path_to_julia_functions
 jl.using("BitInformation")
+jl.using("Pkg")
 jl.eval("include(Main.path)")
 
 
@@ -69,6 +70,7 @@ def dict_to_dataset(info_per_bit):
         "julia_repository": "https://github.com/milankl/BitInformation.jl",
         "reference_paper": "http://www.nature.com/articles/s43588-021-00156-2",
         "xbitinfo_version": __version__,
+        "BitInformation.jl_version": get_julia_package_version("BitInformation"),
     }
     for c in dsb.coords:
         if "bit" in c:
@@ -571,3 +573,11 @@ class JsonCustomEncoder(json.JSONEncoder):
         elif isinstance(obj, bytes):  # pragma: py3
             return obj.decode()
         return json.JSONEncoder.default(self, obj)
+
+
+def get_julia_package_version(package):
+    """Get version information of julia package"""
+    version = jl.eval(
+        f'Pkg.TOML.parsefile(joinpath(pkgdir({package}), "Project.toml"))["version"]'
+    )
+    return version
