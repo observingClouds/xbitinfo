@@ -46,7 +46,7 @@ def get_compress_encoding_nc(
 
     See also
     --------
-    - :py:meth:`xarray.Dataset.to_netcdf`
+    :py:meth:`xarray.Dataset.to_netcdf`
 
     """
     return {
@@ -64,27 +64,27 @@ def get_compress_encoding_nc(
 
 @xr.register_dataset_accessor("to_compressed_netcdf")
 class ToCompressed_Netcdf:
-    """Save to compressed netcdf wrapping ds.to_netcdf(encoding=get_compress_encoding(ds)).
+    """Save to compressed netcdf wrapping ``ds.to_netcdf(encoding=get_compress_encoding(ds))``.
 
     Parameters
     ----------
     path : str, path-like or file-like
       Path to which to save this dataset
     compression : str
-      Compression library used for encoding. Defaults to "zlib".
+      Compression library used for encoding. Defaults to ``"zlib"``.
     shuffle : bool
-      Netcdf shuffle used for encoding. Defaults to True.
+      Netcdf shuffle used for encoding. Defaults to ``True``.
     complevel : int
       Compression level used for encoding.
-      Ranges from 2 (little compression, fast) to 9 (strong compression, slow). Defaults to 7.
+      Ranges from 2 (little compression, fast) to 9 (strong compression, slow). Defaults to ``7``.
     for_cdo : bool
-      Continue working with cdo. If True, sets time chunksize to 1,
-      context https://code.mpimet.mpg.de/boards/2/topics/12598. Defaults to False.
+      If you want to continue working with ``cdo``. If ``True``, sets time chunksize to 1,
+      context https://code.mpimet.mpg.de/boards/2/topics/12598. Defaults to ``False``.
     time_dim : str
-      Name of the time dimension. Defaults to "time".
+      Name of the time dimension. Defaults to ``"time"``.
     chunks : str, dict
-      How should the data be chunked on disk. None keeps defaults. "auto" uses dask.chunk("auto"),
-      dict individual chunking. Defaults to None.
+      How should the data be chunked on disk. None keeps defaults. ``"auto"`` uses ``dask.chunk("auto")``,
+      dict individual chunking. Defaults to ``None``.
     kwargs : dict
       Kwargs to be passed to :py:meth:`xarray.Dataset.to_netcdf`
 
@@ -98,7 +98,7 @@ class ToCompressed_Netcdf:
 
     See also
     --------
-    - :py:meth:`xarray.Dataset.to_netcdf`
+    :py:meth:`xarray.Dataset.to_netcdf`
 
     """
 
@@ -145,7 +145,7 @@ def get_compress_encoding_zarr(
 
     See also
     --------
-    - :py:meth:`xarray.Dataset.to_zarr`
+    :py:meth:`xarray.Dataset.to_zarr`
     """
     encoding = {}
     if isinstance(compressor, dict):
