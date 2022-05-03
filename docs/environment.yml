@@ -14,7 +14,7 @@ dependencies:
   - netcdf4
   - zarr
   - cfgrib
-  - prefect
+  - prefect>=1.0.0
   - cmcrameri
   - tqdm
   - sphinx!=4.4.0

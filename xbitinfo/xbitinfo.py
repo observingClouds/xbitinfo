@@ -1,9 +1,7 @@
-import argparse
 import json
 import logging
 import os
 
-import matplotlib.pyplot as plt
 import numpy as np
 import xarray as xr
 from julia.api import Julia
@@ -23,18 +21,6 @@ jl.eval("include(Main.path)")
 
 
 NMBITS = {64: 12, 32: 9, 16: 6}  # number of non mantissa bits for given dtype
-
-
-def get_user_input():
-    parser = argparse.ArgumentParser()
-    parser.add_argument(
-        "filename",
-        help="filename of dataset (netCDF-file) whose information "
-        "content should be retrieved",
-        type=str,
-    )
-    args = parser.parse_args()
-    return args
 
 
 def get_bit_coords(dtype_size):
@@ -97,15 +83,15 @@ def get_bitinformation(ds, dim=None, axis=None, label=None, overwrite=False, **k
     Inputs
     ------
     ds : xr.Dataset
-      input netcdf to analyse
+      Input dataset to analyse
     dim : str
-      Dimension over which to calculate bitwise information. Only one of the ``dim`` and ``axis`` arguments can be supplied. Defaults to ``None``.
+      Dimension over which to apply mean. Fails if dim not in all variables. Only one of the `dim` and `axis` arguments can be supplied. Defaults to ``None``.
     axis : int
       Axis over which to calculate bitwise information. Only one of the ``dim`` and ``axis`` arguments can be supplied. Defaults to ``None``.
     label : str
-      label of the json to serialize bitinfo. When string, serialize results to disk into file ``{{label}}.json`` to be reused later. Defaults to ``None``.
+      Label of the json to serialize bitinfo. When string, serialize results to disk into file ``{{label}}.json`` to be reused later. Defaults to ``None``.
     overwrite : bool
-      if false, try using serialized bitinfo based on label; if true or label does not exist, run bitinformation. Defaults to ``False``.
+      If false, try using serialized bitinfo based on label; if true or label does not exist, run bitinformation. Defaults to ``False``.
     ** kwargs
       to be passed to bitinformation:
 
@@ -271,7 +257,7 @@ def get_keepbits(info_per_bit, inflevel=0.99):
             ic_over_threshold_cum_normed = (
                 ic_over_threshold_cum / ic_over_threshold_cum.max()
             )
-            # return mantissabits to keep therefore subtract sign and exponent bits
+            # return mantissabits to keep, therefore subtract sign and exponent bits
             il = inflevel[v] if isinstance(inflevel, dict) else inflevel
             keepmantissabits[v] = (
                 np.argmax(ic_over_threshold_cum_normed > il) + 1 - NMBITS[len(ic)]
@@ -303,8 +289,8 @@ def get_prefect_flow(paths=[]):
     - enforce_dtype : str or None
         Enforce dype for all variables. Currently ``xb.get_bitinformation`` fails for different dtypes in variables. Do nothing if None. Defaults to None.
     - label : see :py:func:`xbinfo.xbitinfo.get_bitinformation`
-    - dim/axis : see get_bitinformation
-    - inflevel : see get_keepbits
+    - dim/axis : see :py:func:`xbinfo.xbitinfo.get_bitinformation`
+    - inflevel : see :py:func:`xbinfo.xbitinfo.get_keepbits`
     - non_negative_keepbits : bool
         Set negative keepbits from :py:func:`xbinfo.xbitinfo.get_keepbits` to ``0``. Required when using :py:func:`xbinfo.bitround.xr_bitround``. Defaults to ``True``.
     - chunks : see https://xarray.pydata.org/en/stable/generated/xarray.open_mfdataset.html. Note that with ``chunks=None``, ``dask`` is not used for I/O and the flow is still parallelized when using ``DaskExecutor``.
@@ -319,12 +305,12 @@ def get_prefect_flow(paths=[]):
     Inputs
     ------
     paths : list
-      list of Paths of files to be processed by :py:func:`xbitinfo.xbitinfo.get_bitinformation`, :py:func:`xbitinfo.xbitinfo.get_keepbits`, :py:func:`xbitinfo.bitround.xr_bitround`` and :py:func:`xbitinfo.save_compressed.to_compressed_netcdf`.
+      List of paths of files to be processed by :py:func:`xbitinfo.xbitinfo.get_bitinformation`, :py:func:`xbitinfo.xbitinfo.get_keepbits`, :py:func:`xbitinfo.bitround.xr_bitround`` and :py:func:`xbitinfo.save_compressed.to_compressed_netcdf`.
 
     Returns
     -------
     prefect.Flow
-      see https://docs.prefect.io/core/concepts/flows.html#overview
+      See https://docs.prefect.io/core/concepts/flows.html#overview
 
     Example
     -------
@@ -489,12 +475,3 @@ class JsonCustomEncoder(json.JSONEncoder):
         elif isinstance(obj, bytes):  # pragma: py3
             return obj.decode()
         return json.JSONEncoder.default(self, obj)
-
-
-if __name__ == "__main__":
-    args = get_user_input()
-    ds = xr.open_mfdataset(args.filename)
-    info_per_bit = get_bitinformation(ds, axis=0)
-    print(info_per_bit)
-    keepbits = get_keepbits(info_per_bit)
-    print(keepbits)
