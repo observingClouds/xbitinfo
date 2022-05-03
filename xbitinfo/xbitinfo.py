@@ -117,7 +117,7 @@ def get_bitinformation(ds, dim=None, axis=None, label=None, overwrite=False, **k
     Example
     -------
     >>> ds = xr.tutorial.load_dataset("air_temperature")
-    >>> xb.get_bitinformation(ds, dim="lon")
+    >>> xb.get_bitinformation(ds, dim="lon")  # doctest: +ELLIPSIS
     <xarray.Dataset>
     Dimensions:  (bit32: 32)
     Coordinates:
@@ -126,10 +126,10 @@ def get_bitinformation(ds, dim=None, axis=None, label=None, overwrite=False, **k
     Data variables:
         air      (bit32) float64 0.0 0.0 0.0 0.0 ... 0.0 3.953e-05 0.0006889
     Attributes:
-        xbitinfo_description:       bitinformation calculated by xbitinfo.get_bitinfor...
+        xbitinfo_description:       bitinformation calculated by xbitinfo.get_bit...
         python_repository:          https://github.com/observingClouds/xbitinfo
         julia_repository:           https://github.com/milankl/BitInformation.jl
-        reference_paper:            http://www.nature.com/articles/s43588-021-00156-2
+        reference_paper:            http://www.nature.com/articles/s43588-021-001...
         xbitinfo_version:           ...
         BitInformation.jl_version:  ...
     >>> xb.get_bitinformation(ds)
@@ -141,10 +141,10 @@ def get_bitinformation(ds, dim=None, axis=None, label=None, overwrite=False, **k
     Data variables:
         air      (dim, bit32) float64 0.0 0.0 0.0 0.0 ... 0.0 6.327e-06 0.0004285
     Attributes:
-        xbitinfo_description:       bitinformation calculated by xbitinfo.get_bitinfor...
+        xbitinfo_description:       bitinformation calculated by xbitinfo.get_bit...
         python_repository:          https://github.com/observingClouds/xbitinfo
         julia_repository:           https://github.com/milankl/BitInformation.jl
-        reference_paper:            http://www.nature.com/articles/s43588-021-00156-2
+        reference_paper:            http://www.nature.com/articles/s43588-021-001...
         xbitinfo_version:           ...
         BitInformation.jl_version:  ...
     """
