@@ -18,14 +18,14 @@ def _keepbits_interface(da, keepbits):
     Inputs
     ------
     da : xr.DataArray
-      input data to bitround
+      Input data to bitround
     keepbits : int, dict of {str: int}, xr.DataArray or xr.Dataset
-      how many bits to keep as int
+      How many bits to keep as int
 
     Returns
     -------
     keep : int
-      number of keepbits for variable given in `da`
+      Number of keepbits for variable given in `da`
     """
     assert isinstance(da, xr.DataArray)
     if isinstance(keepbits, int):
@@ -72,9 +72,9 @@ def xr_bitround(da, keepbits):
     Inputs
     ------
     da : xr.DataArray or xr.Dataset
-      input data to bitround
+      Input data to bitround
     keepbits : int, dict of {str: int}, xr.DataArray or xr.Dataset
-      how many bits to keep as int
+      How many bits to keep as int. Fails if dict or xr.Dataset and key or variable not present.
 
     Returns
     -------
@@ -107,9 +107,9 @@ def jl_bitround(da, keepbits):
     Inputs
     ------
     da : xr.DataArray or xr.Dataset
-      input data to bitround
-    keepbits : int or dict of {str: int}
-      how many bits to keep as int
+      Input data to bitround
+    keepbits : int, dict of {str: int}, xr.DataArray or xr.Dataset
+      How many bits to keep as int. Fails if dict or xr.Dataset and key or variable not present.
 
     Returns
     -------
@@ -142,23 +142,25 @@ def bitround_along_dim(
     Apply bitrounding on slices along dim based on inflevels.
     Helper function to generate data for Fig. 3 in Klöwer et al. 2021.
 
-    Klöwer, M., Razinger, M., Dominguez, J. J., Düben, P. D., & Palmer, T. N. (2021). Compressing atmospheric data into its real information content. Nature Computational Science, 1(11), 713–724. doi: 10/gnm4jj
+    Klöwer, M., Razinger, M., Dominguez, J. J., Düben, P. D., & Palmer, T. N. (2021).
+    Compressing atmospheric data into its real information content.
+    Nature Computational Science, 1(11), 713–724. doi: 10/gnm4jj
 
     Inputs
     ------
     ds : xr.Dataset, xr.DataArray
-      input
+      Input
     info_per_bit : dict
       Information content of each bit for each variable in ds. This is the output from get_bitinformation.
     dim : str
-      name of dimension for slicing
+      Name of dimension for slicing
     inflevels : list of floats
       Level of information that shall be preserved. Defaults to [1.0, 0.9999, 0.99, 0.975, 0.95].
 
     Returns
     -------
     ds : xr.Dataset, xr.DataArray
-      bitrounded on slices along dim based on inflevels
+      Bitrounded on slices along dim based on inflevels
 
     Example
     -------

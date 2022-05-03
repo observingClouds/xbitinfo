@@ -29,11 +29,11 @@ def test_to_compressed_netcdf(rasm, dask):
         ds = ds.chunk("auto")
     label = "file"
     # save
-    ds.to_netcdf(f"{label}.nc")
-    ds.to_compressed_netcdf(f"{label}_compressed.nc")
+    ds.to_netcdf(f"./tmp_testdir/{label}.nc")
+    ds.to_compressed_netcdf(f"./tmp_testdir/{label}_compressed.nc")
     # check size reduction
-    ori_size = os.path.getsize(f"{label}.nc")
-    compressed_size = os.path.getsize(f"{label}_compressed.nc")
+    ori_size = os.path.getsize(f"./tmp_testdir/{label}.nc")
+    compressed_size = os.path.getsize(f"./tmp_testdir/{label}_compressed.nc")
     assert compressed_size < ori_size
 
 
@@ -41,8 +41,8 @@ def test_to_compressed_netcdf_for_cdo_no_time_dim_var(air_temperature):
     """Test to_compressed_netcdf if `for_cdo=True` and one var without `time_dim`."""
     ds = air_temperature
     ds["air_mean"] = ds["air"].isel(time=0)
-    ds.to_compressed_netcdf("test.nc", for_cdo=True)
-    os.remove("test.nc")
+    ds.to_compressed_netcdf("./tmp_testdir/test.nc", for_cdo=True)
+    os.remove("./tmp_testdir/test.nc")
 
 
 def get_zarr_size(fn):
@@ -64,14 +64,14 @@ def test_to_compressed_zarr(rasm):
     encoding = {
         var: {"compressor": None} for var in ds.data_vars
     }  # deactivate default compression
-    ds.to_zarr(f"{label}.zarr", mode="w", encoding=encoding)
-    ds.to_compressed_zarr(f"{label}_compressed.zarr", mode="w")
+    ds.to_zarr(f"./tmp_testdir/{label}.zarr", mode="w", encoding=encoding)
+    ds.to_compressed_zarr(f"./tmp_testdir/{label}_compressed.zarr", mode="w")
     # check size reduction
-    ori_size = get_zarr_size(f"{label}.zarr")
-    compressed_size = get_zarr_size(f"{label}_compressed.zarr")
+    ori_size = get_zarr_size(f"./tmp_testdir/{label}.zarr")
+    compressed_size = get_zarr_size(f"./tmp_testdir/{label}_compressed.zarr")
     assert compressed_size < ori_size
-    shutil.rmtree(f"{label}.zarr")
-    shutil.rmtree(f"{label}_compressed.zarr")
+    shutil.rmtree(f"./tmp_testdir/{label}.zarr")
+    shutil.rmtree(f"./tmp_testdir/{label}_compressed.zarr")
 
 
 def test_to_compressed_zarr_individual_compressors(eraint_uvz):
@@ -82,15 +82,17 @@ def test_to_compressed_zarr_individual_compressors(eraint_uvz):
     encoding = {
         var: {"compressor": None} for var in ds.data_vars
     }  # deactivate default compression
-    ds.to_zarr(f"{label}.zarr", mode="w", encoding=encoding)
+    ds.to_zarr(f"./tmp_testdir/{label}.zarr", mode="w", encoding=encoding)
     compressors = {
         "u": numcodecs.Blosc("zstd", clevel=7),
         "v": numcodecs.Blosc("zlib", clevel=7, shuffle=numcodecs.Blosc.BITSHUFFLE),
     }
-    ds.to_compressed_zarr(f"{label}_compressed.zarr", compressors, mode="w")
+    ds.to_compressed_zarr(
+        f"./tmp_testdir/{label}_compressed.zarr", compressors, mode="w"
+    )
     # check size reduction
-    ori_size = get_zarr_size(f"{label}.zarr")
-    compressed_size = get_zarr_size(f"{label}_compressed.zarr")
+    ori_size = get_zarr_size(f"./tmp_testdir/{label}.zarr")
+    compressed_size = get_zarr_size(f"./tmp_testdir/{label}_compressed.zarr")
     assert compressed_size < ori_size
-    shutil.rmtree(f"{label}.zarr")
-    shutil.rmtree(f"{label}_compressed.zarr")
+    shutil.rmtree(f"./tmp_testdir/{label}.zarr")
+    shutil.rmtree(f"./tmp_testdir/{label}_compressed.zarr")

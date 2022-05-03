@@ -33,21 +33,21 @@ def add_bitinfo_labels(
     inflevels : list of floats
       Level of information that shall be preserved.
     ax : plt.Axes or None
-      axes. If None, get current axis.
+      Axes. If None, get current axis.
     x_dim_name : str
-      name of the x dimension. Defaults to "lon".
+      Name of the x dimension. Defaults to "lon".
     y_dim_name : str
-      name of the y dimension. Defaults to "lat".
+      Name of the y dimension. Defaults to "lat".
     lon_coord_name : str
-      name of the longitude coordinate. Only matters when plotting with multi-dimensional coordinates (i.e. curvilinear grids) with `cartopy` (when `transform=ccrs.Geodetic()` must be also set via `kwargs`). Defaults to x_dim_name.
+      Name of the longitude coordinate. Only matters when plotting with multi-dimensional coordinates (i.e. curvilinear grids) with `cartopy` (when `transform=ccrs.Geodetic()` must be also set via `kwargs`). Defaults to x_dim_name.
     lat_coord_name : str
-      name of the latitude coordinate. Only matters when plotting with multi-dimensional coordinates (i.e. curvilinear grids) with `cartopy` (when `transform=ccrs.Geodetic()` must be also set via `kwargs`). Defaults to y_dim_name.
+      Name of the latitude coordinate. Only matters when plotting with multi-dimensional coordinates (i.e. curvilinear grids) with `cartopy` (when `transform=ccrs.Geodetic()` must be also set via `kwargs`). Defaults to y_dim_name.
     label_latitude :  float or str
       Latitude for the label. Defaults to "center", which uses the mean lat_coord_name.
     label_latitude_offset : float
-      distance between `keepbits = int` and `x%` label. Defaults to 8.
+      Distance between `keepbits = int` and `x%` label. Defaults to 8.
     kwargs : dict
-      kwargs to be passed to `ax.text` and `ax.plot`. Use `transform=ccrs.Geodetic()` when using `cartopy`
+      Kwargs to be passed to `ax.text` and `ax.plot`. Use `transform=ccrs.Geodetic()` when using `cartopy`
 
     Returns
     -------
@@ -159,8 +159,8 @@ def plot_bitinformation(bitinfo, cmap="turku"):
     Example
     -------
     >>> ds = xr.tutorial.load_dataset("air_temperature")
-    >>> into_per_bit = xb.get_bitinformation(ds, dim="lon")
-    >>> xb.plot_bitinformation(into_per_bit)
+    >>> info_per_bit = xb.get_bitinformation(ds, dim="lon")
+    >>> xb.plot_bitinformation(info_per_bit)
     <Figure size 1200x400 with 3 Axes>
 
     """
@@ -329,15 +329,15 @@ def plot_distribution(ds, nbins=1000, cmap="viridis", offset=0.01, close_zero=1e
     Inputs
     ------
     bitinfo : xr.Dataset
-      raw input values for distributions
+      Raw input values for distributions
     nbints : int
-      number of bins for histograms across all variable range. Defaults to 1000.
+      Number of bins for histograms across all variable range. Defaults to 1000.
     cmap : str
-      which matplotlib colormap to use. Defaults to "viridis".
+      Which matplotlib colormap to use. Defaults to "viridis".
     offset : float
-      offset on the yaxis between variables 0 lines. Defaults to 0.01.
+      Offset on the yaxis between variables 0 lines. Defaults to 0.01.
     close_zero : float
-      threshold where to stop close to 0, when distributions ranges from negative to positive.
+      Threshold where to stop close to 0, when distributions ranges from negative to positive.
       Increase this value when seeing an unexpected dip around 0 in the distribution. Defaults to 0.01.
 
     Returns
