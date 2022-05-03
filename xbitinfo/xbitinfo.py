@@ -70,7 +70,7 @@ def dict_to_dataset(info_per_bit):
         "julia_repository": "https://github.com/milankl/BitInformation.jl",
         "reference_paper": "http://www.nature.com/articles/s43588-021-00156-2",
         "xbitinfo_version": __version__,
-        "BitInformation_version": get_julia_package_version("BitInformation"),
+        "BitInformation.jl_version": get_julia_package_version("BitInformation"),
     }
     for c in dsb.coords:
         if "bit" in c:
@@ -124,12 +124,12 @@ def get_bitinformation(ds, dim=None, axis=None, label=None, overwrite=False, **k
         Data variables:
             air      (bit32) float64 0.0 0.0 0.0 0.0 ... 0.0 3.953e-05 0.0006889
         Attributes:
-            xbitinfo_description:    bitinformation calculated by xbitinfo.get_bitinf...
-            python_repository:       https://github.com/observingClouds/xbitinfo
-            julia_repository:        https://github.com/milankl/BitInformation.jl
-            reference_paper:         http://www.nature.com/articles/s43588-021-00156-2
-            xbitinfo_version:        ...
-            BitInformation_version:  ...
+            xbitinfo_description:       bitinformation calculated by xbitinfo.get_bitinf...
+            python_repository:          https://github.com/observingClouds/xbitinfo
+            julia_repository:           https://github.com/milankl/BitInformation.jl
+            reference_paper:            http://www.nature.com/articles/s43588-021-00156-2
+            xbitinfo_version:           ...
+            BitInformation.jl_version:  ...
         >>> xb.get_bitinformation(ds)
         <xarray.Dataset>
         Dimensions:  (dim: 3, bit32: 32)
@@ -139,12 +139,12 @@ def get_bitinformation(ds, dim=None, axis=None, label=None, overwrite=False, **k
         Data variables:
             air      (dim, bit32) float64 0.0 0.0 0.0 0.0 ... 0.0 6.327e-06 0.0004285
         Attributes:
-            xbitinfo_description:    bitinformation calculated by xbitinfo.get_bitinf...
-            python_repository:       https://github.com/observingClouds/xbitinfo
-            julia_repository:        https://github.com/milankl/BitInformation.jl
-            reference_paper:         http://www.nature.com/articles/s43588-021-00156-2
-            xbitinfo_version:        ...
-            BitInformation_version:  ...
+            xbitinfo_description:       bitinformation calculated by xbitinfo.get_bitinf...
+            python_repository:          https://github.com/observingClouds/xbitinfo
+            julia_repository:           https://github.com/milankl/BitInformation.jl
+            reference_paper:            http://www.nature.com/articles/s43588-021-00156-2
+            xbitinfo_version:           ...
+            BitInformation.jl_version:  ...
     """
     if dim is None and axis is None:
         # gather bitinformation on all axis
