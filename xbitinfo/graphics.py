@@ -166,6 +166,10 @@ def plot_bitinformation(bitinfo, cmap="turku"):
     """
     import matplotlib.pyplot as plt
 
+    assert bitinfo.coords["dim"].shape <= (
+        1,
+    ), "Only bitinfo along one dimension is supported at the moment. Please select dimension before plotting."
+
     nvars = len(bitinfo)
     varnames = bitinfo.keys()
 
@@ -177,7 +181,7 @@ def plot_bitinformation(bitinfo, cmap="turku"):
     infbits100 = np.zeros(nvars)
     ICnan[:, :] = np.nan
     for v, var in enumerate(varnames):
-        ic = bitinfo[var]
+        ic = bitinfo[var].squeeze(drop=True)
         ICnan[v, : len(ic)] = ic
         # infbits are all bits, infbits_dict were mantissa bits
         infbits[v] = infbits_dict[var] + NMBITS[len(ic)]

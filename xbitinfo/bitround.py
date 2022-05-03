@@ -38,18 +38,25 @@ def _keepbits_interface(da, keepbits):
         else:
             raise ValueError(f"name {v} not for in keepbits: {keepbits.keys()}")
     elif isinstance(keepbits, xr.Dataset):
+        assert keepbits.coords["inflevel"].shape <= (
+            1,
+        ), "Information content is only allowed for one 'inflevel' here. Please make a selection."
+        if "dim" in keepbits.coords:
+            assert keepbits.coords["dim"].shape <= (
+                1,
+            ), "Information content is only allowed along one dimension here. Please select one `dim`. To find the maximum keepbits, simply use `keepbits.max(dim='dim')`"
         v = da.name
         if v in keepbits.keys():
-            assert (
-                keepbits[v].squeeze().dims == ()
-            ), "length of threshold dimension of keepbits need to be one"
             keep = int(keepbits[v])
         else:
             raise ValueError(f"name {v} not for in keepbits: {keepbits.keys()}")
     elif isinstance(keepbits, xr.DataArray):
-        assert (
-            keepbits.squeeze().dims == ()
-        ), "only one threshold for keepbits is allowed"
+        assert keepbits.coords["inflevel"].shape <= (
+            1,
+        ), "Information content is only allowed for one 'inflevel' here. Please make a selection."
+        assert keepbits.coords["dim"].shape <= (
+            1,
+        ), "Information content is only allowed along one dimension here. Please select one `dim`. To find the maximum keepbits, simply use `keepbits.max(dim='dim')`"
         v = da.name
         if v == keepbits.name:
             keep = int(keepbits)
