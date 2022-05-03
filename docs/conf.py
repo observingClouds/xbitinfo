@@ -41,6 +41,7 @@ xarray.Dataset.__module__ = "xarray"
 # Add any Sphinx extension module names here, as strings. They can be
 # extensions coming with Sphinx (named 'sphinx.ext.*') or your custom ones.
 extensions = [
+    "myst_nb",
     "sphinx.ext.autodoc",
     "sphinx.ext.autosummary",
     "sphinx.ext.extlinks",
@@ -152,15 +153,15 @@ intersphinx_mapping = {
 
 # Should only be uncommented when testing page development while notebooks
 # are breaking.
-# nbsphinx_kernel_name = "climpred-docs"  # doesnt work
+# nbsphinx_kernel_name = "bitinfo"  # doesnt work
 nbsphinx_allow_errors = True
 nbsphinx_timeout = 600
 nbsphinx_execute = "auto"  # "never" "always"
 jupyter_execute_notebooks = "auto"
 
 # Napoleon configurations
-napoleon_google_docstring = True
-napoleon_numpy_docstring = False
+napoleon_google_docstring = False
+napoleon_numpy_docstring = True
 napoleon_use_param = False
 napoleon_use_rtype = False
 napoleon_preprocess_types = True

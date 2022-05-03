@@ -91,7 +91,7 @@ Credits
     :hidden:
     :caption: Getting Started
 
-    ../examples/quick-start.ipynb
+    quick-start.ipynb
 
 **Help & Reference**
 
@@ -109,10 +109,3 @@ Credits
    contributing
    changelog
    authors
-
-
-Indices and tables
-==================
-* :ref:`genindex`
-* :ref:`modindex`
-* :ref:`search`
