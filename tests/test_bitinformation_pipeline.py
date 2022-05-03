@@ -26,16 +26,32 @@ def test_full(ds, dim, axis):
     # ds_bitrounded = xb.jl_bitround(ds, keepbits)
     ds_bitrounded = xb.xr_bitround(ds, keepbits)  # identical
     # save
-    label = "file"
-    ds.to_netcdf(f"{label}.nc")
-    ds.to_compressed_netcdf(f"{label}_compressed.nc")
-    ds_bitrounded.to_compressed_netcdf(f"{label}_bitrounded_compressed.nc")
+    ds.to_netcdf(f"./tmp_testdir/{label}.nc")
+    ds.to_compressed_netcdf(f"./tmp_testdir/{label}_compressed.nc")
+    ds_bitrounded.to_compressed_netcdf(
+        f"./tmp_testdir/{label}_bitrounded_compressed.nc"
+    )
     # check size reduction
-    ori_size = os.path.getsize(f"{label}.nc")
-    compressed_size = os.path.getsize(f"{label}_compressed.nc")
-    bitrounded_compressed_size = os.path.getsize(f"{label}_bitrounded_compressed.nc")
-    assert compressed_size <= ori_size * 1.1
+    ori_size = os.path.getsize(f"./tmp_testdir/{label}.nc")
+    compressed_size = os.path.getsize(f"./tmp_testdir/{label}_compressed.nc")
+    bitrounded_compressed_size = os.path.getsize(
+        f"./tmp_testdir/{label}_bitrounded_compressed.nc"
+    )
+    assert compressed_size < ori_size * 1.1  # maybe previous compression is already really good
     assert bitrounded_compressed_size < compressed_size
+
+
+def test_full_max_keepbits():
+    """Test pipeline to get maximum keepbits"""
+    label = "air_temperature"
+    ds = xr.tutorial.load_dataset(label)
+    bi = xb.get_bitinformation(ds)
+    kb = xb.get_keepbits(bi)
+    kb_max = kb.max(dim="dim")
+    _ = xb.plot_bitinformation(bi.isel(dim=[0]))
+    _ = xb.plot_bitinformation(bi.isel(dim=0))
+    ds_bitrounded_max = xb.xr_bitround(ds, kb_max)
+    ds_bitrounded_max.to_compressed_zarr(f"{label}.zarr", mode="w")
 
 
 imax = 3
@@ -46,7 +62,7 @@ def flow_paths(rasm):
     paths = []
     stride = rasm.time.size // imax
     for i in range(imax):
-        f = f"file_{i}.nc"
+        f = f"./tmp_testdir/file_{i}.nc"
         if os.path.exists(f.replace(".nc", "_bitrounded_compressed.nc")):
             os.remove(f.replace(".nc", "_bitrounded_compressed.nc"))
         paths.append(f)

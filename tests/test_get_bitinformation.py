@@ -120,11 +120,11 @@ def test_get_bitinformation_confidence():
 def test_get_bitinformation_label(rasm):
     """Test xb.get_bitinformation serializes when label given."""
     ds = rasm
-    xb.get_bitinformation(ds, dim="x", label="rasm")
-    assert os.path.exists("rasm.json")
+    xb.get_bitinformation(ds, dim="x", label="./tmp_testdir/rasm")
+    assert os.path.exists("./tmp_testdir/rasm.json")
     # second call should be faster
-    xb.get_bitinformation(ds, dim="x", label="rasm")
-    os.remove("rasm.json")
+    xb.get_bitinformation(ds, dim="x", label="./tmp_testdir/rasm")
+    os.remove("./tmp_testdir/rasm.json")
 
 
 @pytest.mark.parametrize("dtype", ["float64", "float32", "float16"])
@@ -132,4 +132,33 @@ def test_get_bitinformation_dtype(rasm, dtype):
     """Test xb.get_bitinformation returns correct number of bits depending on dtype."""
     ds = rasm.astype(dtype)
     v = list(ds.data_vars)[0]
-    assert len(xb.get_bitinformation(ds, dim="x")[v]) == int(dtype.replace("float", ""))
+    dtype_bits = dtype.replace("float", "")
+    assert len(xb.get_bitinformation(ds, dim="x")[v].coords["bit" + dtype_bits]) == int(
+        dtype_bits
+    )
+
+
+def test_get_bitinformation_multidim(rasm):
+    """Test xb.get_bitinformation runs on all dimensions by default"""
+    ds = rasm
+    bi = xb.get_bitinformation(ds)
+    # check length of dimension
+    assert bi.dims["dim"] == len(ds.dims)
+    bi_time = bi.sel(dim="time").Tair.values
+    bi_x = bi.sel(dim="x").Tair.values
+    bi_y = bi.sel(dim="y").Tair.values
+    assert any(bi_time != bi_x)
+    assert any(bi_time != bi_y)
+    assert any(bi_y != bi_x)
+
+
+def test_get_bitinformation_different_variables_dims(rasm):
+    """Test xb.get_bitinformation runs with variables of different dimensionality"""
+    ds = rasm
+    # add variable with different dimensionality
+    ds["Tair_mean"] = ds.Tair.mean(dim="time")
+    bi = xb.get_bitinformation(ds)
+    assert all(np.isnan(bi.Tair_mean.sel(dim="time")))
+    bi_Tair_mean_x = bi.Tair_mean.sel(dim="x")
+    bi_Tair_x = bi.Tair.sel(dim="x")
+    assert_different(bi_Tair_mean_x, bi_Tair_x)

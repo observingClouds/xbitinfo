@@ -40,7 +40,7 @@ test_requirements = ["pytest", "pytest-lazy-fixture", "pooch", "netcdf4", "dask"
 
 extras_require = {
     "viz": ["matplotlib", "cmcrameri"],
-    "prefect": ["prefect"],
+    "prefect": ["prefect>=1.0.0"],
 }
 extras_require["complete"] = sorted({v for req in extras_require.values() for v in req})
 extras_require["test"] = test_requirements

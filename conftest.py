@@ -1,3 +1,6 @@
+import os
+import shutil
+
 import numpy as np
 import pooch
 import pytest
@@ -20,6 +23,16 @@ def add_standard_imports(
     doctest_namespace["xb"] = xb
     # always seed numpy.random to make the examples deterministic
     np.random.seed(42)
+
+
+def pytest_sessionstart(session):
+    """Run before start of tests"""
+    os.makedirs("./tmp_testdir")
+
+
+def pytest_sessionfinish(session):
+    """Run after finishing tests"""
+    shutil.rmtree("./tmp_testdir")
 
 
 @pytest.fixture()
