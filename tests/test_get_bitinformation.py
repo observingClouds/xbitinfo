@@ -157,4 +157,8 @@ def test_get_bitinformation_different_variables_dims(rasm):
     ds = rasm
     # add variable with different dimensionality
     ds["Tair_mean"] = ds.Tair.mean(dim="time")
-    xb.get_bitinformation(ds)
+    bi = xb.get_bitinformation(ds)
+    assert all(np.isnan(bi.Tair_mean.sel(dim="time")))
+    bi_Tair_mean_x = bi.Tair_mean.sel(dim="x")
+    bi_Tair_x = bi.Tair.sel(dim="x")
+    assert_different(bi_Tair_mean_x, bi_Tair_x)
