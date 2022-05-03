@@ -17,9 +17,9 @@ def _keepbits_interface(da, keepbits):
 
     Inputs
     ------
-    da : xr.DataArray
+    da : :py:class:`xarray.DataArray`
       Input data to bitround
-    keepbits : int, dict of {str: int}, xr.DataArray or xr.Dataset
+    keepbits : int, dict of {str: int}, :py:class:`xarray.DataArray` or :py:class:`xarray.Dataset`
       How many bits to keep as int
 
     Returns
@@ -67,18 +67,18 @@ def _keepbits_interface(da, keepbits):
 
 
 def xr_bitround(da, keepbits):
-    """Apply bitrounding based on keepbits from xb.get_keepbits for xarray.Dataset or xr.DataArray wrapping numcodecs.bitround
+    """Apply bitrounding based on keepbits from xb.get_keepbits for xarray.Dataset or :py:class:`xarray.DataArray` wrapping numcodecs.bitround
 
     Inputs
     ------
-    da : xr.DataArray or xr.Dataset
+    da : :py:class:`xarray.DataArray` or :py:class:`xarray.Dataset`
       Input data to bitround
-    keepbits : int, dict of {str: int}, xr.DataArray or xr.Dataset
-      How many bits to keep as int. Fails if dict or xr.Dataset and key or variable not present.
+    keepbits : int, dict of {str: int}, :py:class:`xarray.DataArray` or :py:class:`xarray.Dataset`
+      How many bits to keep as int. Fails if dict or :py:class:`xarray.Dataset` and key or variable not present.
 
     Returns
     -------
-    da_bitrounded : xr.DataArray or xr.Dataset
+    da_bitrounded : :py:class:`xarray.DataArray` or :py:class:`xarray.Dataset`
 
     Example
     -------
@@ -102,18 +102,18 @@ def xr_bitround(da, keepbits):
 
 
 def jl_bitround(da, keepbits):
-    """Apply bitrounding based on keepbits from xb.get_keepbits for xarray.Dataset or xr.DataArray wrapping BitInformation.jl.round.
+    """Apply bitrounding based on keepbits from xb.get_keepbits for xarray.Dataset or :py:class:`xarray.DataArray` wrapping BitInformation.jl.round.
 
     Inputs
     ------
-    da : xr.DataArray or xr.Dataset
+    da : :py:class:`xarray.DataArray` or :py:class:`xarray.Dataset`
       Input data to bitround
-    keepbits : int, dict of {str: int}, xr.DataArray or xr.Dataset
-      How many bits to keep as int. Fails if dict or xr.Dataset and key or variable not present.
+    keepbits : int, dict of {str: int}, :py:class:`xarray.DataArray` or :py:class:`xarray.Dataset`
+      How many bits to keep as int. Fails if dict or :py:class:`xarray.Dataset` and key or variable not present.
 
     Returns
     -------
-    da_bitrounded : xr.DataArray or xr.Dataset
+    da_bitrounded : :py:class:`xarray.DataArray` or :py:class:`xarray.Dataset`
 
     Example
     -------
@@ -148,7 +148,7 @@ def bitround_along_dim(
 
     Inputs
     ------
-    ds : xr.Dataset, xr.DataArray
+    ds : :py:class:`xarray.Dataset`, :py:class:`xarray.DataArray`
       Input
     info_per_bit : dict
       Information content of each bit for each variable in ds. This is the output from get_bitinformation.
@@ -159,7 +159,7 @@ def bitround_along_dim(
 
     Returns
     -------
-    ds : xr.Dataset, xr.DataArray
+    ds : :py:class:`xarray.Dataset`, :py:class:`xarray.DataArray`
       Bitrounded on slices along dim based on inflevels
 
     Example

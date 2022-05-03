@@ -86,7 +86,7 @@ def get_bitinformation(ds, dim=None, axis=None, label=None, overwrite=False, **k
 
     Inputs
     ------
-    ds : xr.Dataset
+    ds : :py:class:`xarray.Dataset`
       Input dataset to analyse
     dim : str
       Dimension over which to apply mean. Only one of the `dim` and `axis` arguments can be supplied.
@@ -258,7 +258,7 @@ def get_keepbits(info_per_bit, inflevel=0.99):
 
     Inputs
     ------
-    info_per_bit : xr.Dataset
+    info_per_bit : :py:class:`xarray.Dataset`
       Information content of each bit. This is the output from `xb.get_bitinformation`.
     inflevel : float or list
       Level of information that shall be preserved.

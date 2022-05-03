@@ -26,10 +26,10 @@ def add_bitinfo_labels(
 
     Inputs
     ------
-    ds : xr.DataArray
+    da : xr.DataArray
       Plotted dataset
     info_per_bit : dict
-      Information content of each bit for each variable in ds. This is the output from get_bitinformation.
+      Information content of each bit for each variable in da. This is the output from get_bitinformation.
     inflevels : list of floats
       Level of information that shall be preserved.
     ax : plt.Axes or None
@@ -98,23 +98,23 @@ def add_bitinfo_labels(
     if lat_coord_name == "guess":
         lat_coord_name = y_dim_name
     if label_latitude == "center":
-        label_latitude = ds[lat_coord_name].mean()
-    stride = ds[x_dim_name].size // len(inflevels)
+        label_latitude = da[lat_coord_name].mean()
+    stride = da[x_dim_name].size // len(inflevels)
     if ax is None:
         ax = plt.gca()
 
     for i, inf in enumerate(inflevels):
         # draw latitude line
-        lons = ds.isel({x_dim_name: stride * i})[lon_coord_name]
-        lats = ds.isel({x_dim_name: stride * i})[lat_coord_name]
+        lons = da.isel({x_dim_name: stride * i})[lon_coord_name]
+        lats = da.isel({x_dim_name: stride * i})[lat_coord_name]
         lons, lats = xr.broadcast(lons, lats)
         ax.plot(lons, lats, color="k", linewidth=1, **kwargs)
         # write inflevel
         t = ax.text(
-            ds.isel(
+            da.isel(
                 {
                     x_dim_name: int(stride * (i + 0.5)),
-                    y_dim_name: ds[y_dim_name].size // 2,
+                    y_dim_name: da[y_dim_name].size // 2,
                 }
             )[lon_coord_name].values,
             label_latitude - label_latitude_offset,
@@ -127,14 +127,14 @@ def add_bitinfo_labels(
 
         # write keepbits
         t_keepbits = ax.text(
-            ds.isel(
+            da.isel(
                 {
                     x_dim_name: int(stride * (i + 0.5)),
-                    y_dim_name: ds[y_dim_name].size // 2,
+                    y_dim_name: da[y_dim_name].size // 2,
                 }
             )[lon_coord_name].values,
             label_latitude + label_latitude_offset,
-            f"keepbits = {get_keepbits(info_per_bit, inf)[ds.name]}",
+            f"keepbits = {get_keepbits(info_per_bit, inf)[da.name]}",
             horizontalalignment="center",
             color="k",
             **kwargs,
@@ -328,7 +328,7 @@ def plot_distribution(ds, nbins=1000, cmap="viridis", offset=0.01, close_zero=1e
 
     Inputs
     ------
-    bitinfo : xr.Dataset
+    bitinfo : :py:class:`xarray.Dataset`
       Raw input values for distributions
     nbints : int
       Number of bins for histograms across all variable range. Defaults to 1000.

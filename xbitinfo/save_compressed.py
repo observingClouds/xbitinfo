@@ -81,7 +81,7 @@ class ToCompressed_Netcdf:
       How should the data be chunked on disk. None keeps defaults. "auto" uses dask.chunk("auto"),
       dict individual chunking. Defaults to None.
     kwargs : dict
-      Kwargs to be passed to xr.Dataset.to_netcdf(**kwargs)
+      Kwargs to be passed to :py:class:`xarray.Dataset`.to_netcdf(**kwargs)
 
     Example:
         >>> ds = xr.tutorial.load_dataset("rasm")
@@ -164,7 +164,7 @@ class ToCompressed_Zarr:
     compressor : numcodecs
       Compressor used for encoding. Defaults to zstd with bit-shuffling.
     kwargs : dict
-      Arguments to be passed to xr.Dataset.to_zarr(**kwargs)
+      Arguments to be passed to :py:meth:`xarray.Dataset.to_zarr`
 
     Example:
         >>> ds = xr.tutorial.load_dataset("rasm")
