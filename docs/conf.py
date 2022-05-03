@@ -48,6 +48,7 @@ extensions = [
     "sphinxcontrib.napoleon",
     "sphinx.ext.viewcode",
     "sphinx_copybutton",
+    "nbsphinx",
     "IPython.sphinxext.ipython_directive",
     "IPython.sphinxext.ipython_console_highlighting",
 ]
@@ -152,7 +153,7 @@ intersphinx_mapping = {
 
 # Should only be uncommented when testing page development while notebooks
 # are breaking.
-# nbsphinx_kernel_name = "climpred-docs"  # doesnt work
+# nbsphinx_kernel_name = "bitinfo"  # doesnt work
 nbsphinx_allow_errors = True
 nbsphinx_timeout = 600
 nbsphinx_execute = "auto"  # "never" "always"
