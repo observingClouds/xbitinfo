@@ -15,15 +15,13 @@ dependencies:
   - zarr
   - cfgrib
   - prefect>=1.0.0
-  - graphviz
-  - pytest
-  - nb_conda_kernels
   - cmcrameri
   - tqdm
   - sphinx!=4.4.0
   - sphinxcontrib-napoleon
   - sphinx-copybutton
   - sphinx-book-theme
+  - myst-nb
   - pip
   - pip:
     - git+https://github.com/rabernat/numcodecs@bitround

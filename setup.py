@@ -49,6 +49,7 @@ extras_require["docs"] = extras_require["complete"] + [
     "sphinxcontrib-napoleon",
     "sphinx-copybutton",
     "sphinx_book_theme",
+    "myst-nb",
 ]
 
 setup(

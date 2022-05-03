@@ -50,7 +50,7 @@ def get_bit_coords(dtype_size):
 
 
 def dict_to_dataset(info_per_bit):
-    """Convert keepbits dictionary to dataset."""
+    """Convert keepbits dictionary to :py:class:`xarray.Dataset`."""
     dsb = xr.Dataset()
     for v in info_per_bit.keys():
         dtype_size = len(info_per_bit[v]["bitinfo"])
@@ -84,67 +84,69 @@ def dict_to_dataset(info_per_bit):
 
 
 def get_bitinformation(ds, dim=None, axis=None, label=None, overwrite=False, **kwargs):
-    """Wrap BitInformation.bitinformation().
+    """Wrap `BitInformation.jl.bitinformation() <https://github.com/milankl/BitInformation.jl/blob/main/src/mutual_information.jl>`__.
 
-    Inputs
-    ------
-    ds : xr.Dataset
+    Parameters
+    ----------
+    ds : :py:class:`xarray.Dataset`
       Input dataset to analyse
     dim : str
-      Dimension over which to apply mean. Only one of the `dim` and `axis` arguments can be supplied.
-      If no dim or axis is given (default), the bitinformation is retrieved along all dimensions.
+      Dimension over which to apply mean. Only one of the ``dim`` and ``axis`` arguments can be supplied.
+      If no ``dim`` or ``axis`` is given (default), the bitinformation is retrieved along all dimensions.
     axis : int
-      Axis over which to apply mean. Only one of the `dim` and `axis` arguments can be supplied.
-      If no dim or axis is given (default), the bitinformation is retrieved along all dimensions.
+      Axis over which to apply mean. Only one of the ``dim`` and ``axis`` arguments can be supplied.
+      If no ``dim`` or ``axis`` is given (default), the bitinformation is retrieved along all dimensions.
     label : str
-      Label of the json to serialize bitinfo
+      Label of the json to serialize bitinfo. When string, serialize results to disk into file ``{{label}}.json`` to be reused later. Defaults to ``None``.
     overwrite : bool
-      If false, try using serialized bitinfo based on label; if true or label does not exist, run bitinformation
+      If ``False``, try using serialized bitinfo based on label; if true or label does not exist, run bitinformation
     kwargs
       to be passed to bitinformation:
-      - masked_value: defaults to `NaN` (different to bitinformation.jl), set `None` disable masking
-      - mask: use `masked_value` instead
-      - set_zero_insignificant (bool): defaults to `True`
-      - confidence (float): defaults to 0.99
+
+        - masked_value: defaults to ``NaN`` (different to ``bitinformation.jl`` defaulting to ``"nothing"``), set ``None`` disable masking
+        - mask: use ``masked_value`` instead
+        - set_zero_insignificant (``bool``): defaults to ``True``
+        - confidence (``float``): defaults to ``0.99``
+
 
     Returns
     -------
-    info_per_bit : dict
-      Information content per bit and variable
+    info_per_bit : :py:class:`xarray.Dataset`
+      Information content per ``bit`` and ``variable`` (and ``dim``)
 
     Example
     -------
-        >>> ds = xr.tutorial.load_dataset("air_temperature")
-        >>> xb.get_bitinformation(ds, dim="lon")
-        <xarray.Dataset>
-        Dimensions:  (bit32: 32)
-        Coordinates:
-          * bit32    (bit32) <U3 '±' 'e1' 'e2' 'e3' 'e4' ... 'm20' 'm21' 'm22' 'm23'
-            dim      <U3 'lon'
-        Data variables:
-            air      (bit32) float64 0.0 0.0 0.0 0.0 ... 0.0 3.953e-05 0.0006889
-        Attributes:
-            xbitinfo_description:       bitinformation calculated by xbitinfo.get_bit...
-            python_repository:          https://github.com/observingClouds/xbitinfo
-            julia_repository:           https://github.com/milankl/BitInformation.jl
-            reference_paper:            http://www.nature.com/articles/s43588-021-001...
-            xbitinfo_version:           ...
-            BitInformation.jl_version:  ...
-        >>> xb.get_bitinformation(ds)
-        <xarray.Dataset>
-        Dimensions:  (dim: 3, bit32: 32)
-        Coordinates:
-          * dim      (dim) <U4 'lat' 'lon' 'time'
-          * bit32    (bit32) <U3 '±' 'e1' 'e2' 'e3' 'e4' ... 'm20' 'm21' 'm22' 'm23'
-        Data variables:
-            air      (dim, bit32) float64 0.0 0.0 0.0 0.0 ... 0.0 6.327e-06 0.0004285
-        Attributes:
-            xbitinfo_description:       bitinformation calculated by xbitinfo.get_bit...
-            python_repository:          https://github.com/observingClouds/xbitinfo
-            julia_repository:           https://github.com/milankl/BitInformation.jl
-            reference_paper:            http://www.nature.com/articles/s43588-021-001...
-            xbitinfo_version:           ...
-            BitInformation.jl_version:  ...
+    >>> ds = xr.tutorial.load_dataset("air_temperature")
+    >>> xb.get_bitinformation(ds, dim="lon")  # doctest: +ELLIPSIS
+    <xarray.Dataset>
+    Dimensions:  (bit32: 32)
+    Coordinates:
+      * bit32    (bit32) <U3 '±' 'e1' 'e2' 'e3' 'e4' ... 'm20' 'm21' 'm22' 'm23'
+        dim      <U3 'lon'
+    Data variables:
+        air      (bit32) float64 0.0 0.0 0.0 0.0 ... 0.0 3.953e-05 0.0006889
+    Attributes:
+        xbitinfo_description:       bitinformation calculated by xbitinfo.get_bit...
+        python_repository:          https://github.com/observingClouds/xbitinfo
+        julia_repository:           https://github.com/milankl/BitInformation.jl
+        reference_paper:            http://www.nature.com/articles/s43588-021-001...
+        xbitinfo_version:           ...
+        BitInformation.jl_version:  ...
+    >>> xb.get_bitinformation(ds)
+    <xarray.Dataset>
+    Dimensions:  (dim: 3, bit32: 32)
+    Coordinates:
+      * dim      (dim) <U4 'lat' 'lon' 'time'
+      * bit32    (bit32) <U3 '±' 'e1' 'e2' 'e3' 'e4' ... 'm20' 'm21' 'm22' 'm23'
+    Data variables:
+        air      (dim, bit32) float64 0.0 0.0 0.0 0.0 ... 0.0 6.327e-06 0.0004285
+    Attributes:
+        xbitinfo_description:       bitinformation calculated by xbitinfo.get_bit...
+        python_repository:          https://github.com/observingClouds/xbitinfo
+        julia_repository:           https://github.com/milankl/BitInformation.jl
+        reference_paper:            http://www.nature.com/articles/s43588-021-001...
+        xbitinfo_version:           ...
+        BitInformation.jl_version:  ...
     """
     if dim is None and axis is None:
         # gather bitinformation on all axis
@@ -213,11 +215,11 @@ def get_bitinformation(ds, dim=None, axis=None, label=None, overwrite=False, **k
 
 
 def _get_bitinformation_along_all_dims(ds, label=None, overwrite=False, **kwargs):
-    """Helper function for `get_bitinformation` to handle multi-dimensional analysis.
+    """Helper function for :py:func:`xbitinfo.xbitinfo.get_bitinformation` to handle multi-dimensional analysis.
 
-    Simple wrapper around `get_bitinformation`, which calls `get_bitinformation`
-    for each dimension found in the provided dataset. The retrieved bitinformation
-    is gathered in a joint dataset and is returned.
+    Simple wrapper around :py:func:`xbitinfo.xbitinfo.get_bitinformation`, which calls :py:func:`xbitinfo.xbitinfo.get_bitinformation`
+    for each dimension found in the provided :py:func:`xarray.Dataset`. The retrieved bitinformation
+    is gathered in a joint :py:func:`xarray.Dataset` and is returned.
     """
     info_per_bit_per_dim = {}
     for d in ds.dims:
@@ -232,7 +234,7 @@ def _get_bitinformation_along_all_dims(ds, label=None, overwrite=False, **kwargs
 
 
 def _get_bitinformation_kwargs_handler(da, kwargs):
-    """Helper function to preprocess kwargs args of get_bitinformation"""
+    """Helper function to preprocess kwargs args of :py:func:`xbitinfo.xbitinfo.get_bitinformation`."""
     if "masked_value" not in kwargs:
         kwargs["masked_value"] = f"convert({str(da.dtype).capitalize()},NaN)"
     elif kwargs["masked_value"] is None:
@@ -258,12 +260,12 @@ def load_bitinformation(label):
 
 
 def get_keepbits(info_per_bit, inflevel=0.99):
-    """Get the number of mantissa bits to keep. To be used in xr_bitround and jl_bitround.
+    """Get the number of mantissa bits to keep. To be used in :py:func:`xbitinfo.bitround.xr_bitround` and :py:func:`xbitinfo.bitround.jl_bitround`.
 
-    Inputs
-    ------
-    info_per_bit : xr.Dataset
-      Information content of each bit. This is the output from `xb.get_bitinformation`.
+    Parameters
+    ----------
+    info_per_bit : :py:class:`xarray.Dataset`
+      Information content of each bit. This is the output from :py:func:`xbitinfo.xbitinfo.get_bitinformation`.
     inflevel : float or list
       Level of information that shall be preserved.
 
@@ -364,7 +366,7 @@ def get_keepbits(info_per_bit, inflevel=0.99):
 
 
 def _jl_bitround(X, keepbits):
-    """Wrap BitInformation.round. Used in xb.jl_bitround."""
+    """Wrap `BitInformation.jl.round <https://github.com/milankl/BitInformation.jl/blob/main/src/round_nearest.jl>`__. Used in :py:func:`xbitinfo.bitround.jl_bitround`."""
     Main.X = X
     Main.keepbits = keepbits
     return jl.eval("round!(X, keepbits)")
@@ -372,38 +374,38 @@ def _jl_bitround(X, keepbits):
 
 def get_prefect_flow(paths=[]):
     """
-    Create prefect.Flow for xbitinfo bitrounding paths.
+    Create `prefect.Flow <https://docs.prefect.io/core/concepts/flows.html#overview>`__ for paths to be:
 
-    1. Analyse bitwise real information content
-    2. Retrieve keepbits
-    3. Apply bitrounding with `xr_bitround`
-    4. Save as compressed netcdf with `to_compressed_netcdf`
+    1. Analyse bitwise real information content with :py:func:`xbitinfo.xbitinfo.get_bitinformation`
+    2. Retrieve keepbits with :py:func:`xbitinfo.xbitinfo.get_keepbits`
+    3. Apply bitrounding with :py:func:`xbitinfo.bitround.xr_bitround`
+    4. Save as compressed netcdf with :py:class:`xbitinfo.save_compressed.ToCompressed_Netcdf`
 
-    Many parameters can be changed when running the flow `flow.run(parameters=dict(chunk="auto"))`:
+    Many parameters can be changed when running the flow ``flow.run(parameters=dict(chunk="auto"))``:
     - paths: list of paths
         Paths to be bitrounded
     - analyse_paths: str or int
-        Which paths to be passed to `xb.get_bitinformation`. Choose from ["first_last", "all", int], where int is interpreted as stride, i.e. paths[::stride]. Defaults to "first".
+        Which paths to be passed to :py:func:`xbitinfo.xbitinfo.get_bitinformation`. Choose from ``["first_last", "all", int]``, where int is interpreted as stride, i.e. paths[::stride]. Defaults to ``"first"``.
     - enforce_dtype : str or None
-        Enforce dtype for all variables. Currently, `get_bitinformation` fails for different dtypes in variables. Do nothing if None. Defaults to None.
-    - label : see get_bitinformation
-    - dim/axis : see get_bitinformation
-    - inflevel : see get_keepbits
+        Enforce dtype for all variables. Currently, :py:func:`xbitinfo.xbitinfo.get_bitinformation` fails for different dtypes in variables. Do nothing if ``None``. Defaults to ``None``.
+    - label : see :py:func:`xbitinfo.xbitinfo.get_bitinformation`
+    - dim/axis : see :py:func:`xbitinfo.xbitinfo.get_bitinformation`
+    - inflevel : see :py:func:`xbitinfo.xbitinfo.get_keepbits`
     - non_negative_keepbits : bool
-        Set negative keepbits from `get_keepbits` to 0. Required when using `xr_bitround`. Defaults to True.
-    - chunks : see https://xarray.pydata.org/en/stable/generated/xarray.open_mfdataset.html. Note that with `chunks=None`, `dask` is not used for I/O and the flow is still parallelized when using `DaskExecutor`.
+        Set negative keepbits from :py:func:`xbitinfo.xbitinfo.get_keepbits` to ``0``. Required when using :py:func:`xbitinfo.bitround.xr_bitround`. Defaults to True.
+    - chunks : see :py:meth:`xarray.open_mfdataset`. Note that with ``chunks=None``, ``dask`` is not used for I/O and the flow is still parallelized when using ``DaskExecutor``.
     - bitround_in_julia : bool
-        Use `jl_bitround` instead of `xr_bitround`. Both should yield identical results. Defaults to False.
+        Use :py:func:`xbitinfo.bitround.jl_bitround` instead of :py:func:`xbitinfo.bitround.xr_bitround`. Both should yield identical results. Defaults to ``False``.
     - overwrite : bool
-        Whether to overwrite bitrounded netcdf files. False (default) skips existing files.
-    - complevel : see to_compressed_netcdf, defaults to 7.
+        Whether to overwrite bitrounded netcdf files. ``False`` (default) skips existing files.
+    - complevel : see to_compressed_netcdf, defaults to ``7``.
     - rename : list
-        Replace mapping for paths towards new_path of bitrounded file, i.e. replace=[".nc", "_bitrounded_compressed.nc"]
+        Replace mapping for paths towards new_path of bitrounded file, i.e. ``replace=[".nc", "_bitrounded_compressed.nc"]``
 
-    Inputs
+    Parameters
     ------
     paths : list
-      List of paths of files to be processed by `get_bitinformation`, `get_keepbits`, `xr_bitround` and `to_compressed_netcdf`.
+      List of paths of files to be processed by :py:func:`xbitinfo.xbitinfo.get_bitinformation`, :py:func:`xbitinfo.xbitinfo.get_keepbits`, :py:func:`xbitinfo.bitround.xr_bitround` and ``to_compressed_netcdf``.
 
     Returns
     -------
@@ -523,7 +525,7 @@ def get_prefect_flow(paths=[]):
         ds_bitround.to_compressed_netcdf(new_path, complevel=complevel)
         return
 
-    with Flow("xbitinfo") as flow:
+    with Flow("xbitinfo_pipeline") as flow:
         if paths == []:
             raise ValueError("Please provide paths of files to bitround, found [].")
         paths = Parameter("paths", default=paths)
