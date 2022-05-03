@@ -30,4 +30,5 @@ dependencies:
   - pip
   - pip:
     - git+https://github.com/rabernat/numcodecs@bitround
+    - pytest-lazy-fixture
     - -e .

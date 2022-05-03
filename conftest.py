@@ -2,6 +2,7 @@ import os
 import shutil
 
 import numpy as np
+import pooch
 import pytest
 import xarray as xr
 from xarray.tutorial import load_dataset
@@ -62,3 +63,34 @@ def era52mt():
 def eraint_uvz():
     """three atmospheric variable float32 global no mask"""
     return load_dataset("eraint_uvz")
+
+
+@pytest.fixture()
+def ugrid_demo():
+    """sea surface height of a Tsunami simulation with ICON"""
+    return xr.open_dataset(
+        pooch.retrieve(
+            url="https://psyplot.github.io/examples/_downloads/3fe9a9cde72c892e7e26accd0a57cff8/ugrid_demo.nc",
+            known_hash=None,
+        )
+    )[
+        [
+            "Mesh2_height",
+            "Mesh2_bathy",
+            "Mesh2_m_x",
+            "Mesh2_m_y",
+            "Mesh2_u_x",
+            "Mesh2_u_y",
+        ]
+    ]
+
+
+@pytest.fixture()
+def icon_grid_demo():
+    """Temperature, zonal and meridional wind simulated with ICON"""
+    return xr.open_dataset(
+        pooch.retrieve(
+            url="https://psyplot.github.io/examples/_downloads/c8ccf6e61c8a76db0065720e09d2ed6e/icon_grid_demo.nc",
+            known_hash=None,
+        )
+    )[["t2m", "u", "v"]]

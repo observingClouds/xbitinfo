@@ -6,16 +6,28 @@ import xarray as xr
 import xbitinfo as xb
 
 
-def test_full():
+@pytest.mark.parametrize(
+    "ds,dim,axis",
+    [
+        (pytest.lazy_fixture("ugrid_demo"), None, -1),
+        (pytest.lazy_fixture("icon_grid_demo"), "ncells", None),
+        (pytest.lazy_fixture("air_temperature"), "lon", None),
+        (pytest.lazy_fixture("rasm"), "x", None),
+        (pytest.lazy_fixture("ROMS_example"), "eta_rho", None),
+        (pytest.lazy_fixture("era52mt"), "time", None),
+        (pytest.lazy_fixture("eraint_uvz"), "longitude", None),
+    ],
+)
+def test_full(ds, dim, axis):
     """Test xbitinfo end to end."""
-    label = "air_temperature"
-    ds = xr.tutorial.load_dataset(label)
     # xbitinfo
-    bitinfo = xb.get_bitinformation(ds, dim="lon")
+    bitinfo = xb.get_bitinformation(ds, dim=dim, axis=axis)
     keepbits = xb.get_keepbits(bitinfo)
     # ds_bitrounded = xb.jl_bitround(ds, keepbits)
     ds_bitrounded = xb.xr_bitround(ds, keepbits)  # identical
     # save
+    label = os.path.basename(ds.encoding["source"])
+    print(label)
     ds.to_netcdf(f"./tmp_testdir/{label}.nc")
     ds.to_compressed_netcdf(f"./tmp_testdir/{label}_compressed.nc")
     ds_bitrounded.to_compressed_netcdf(
@@ -27,7 +39,12 @@ def test_full():
     bitrounded_compressed_size = os.path.getsize(
         f"./tmp_testdir/{label}_bitrounded_compressed.nc"
     )
-    assert compressed_size < ori_size
+    if dim == "eta_rho":
+        assert (
+            compressed_size < ori_size * 1.1
+        )  # previous compression is already really good for ROMS_example
+    else:
+        assert compressed_size < ori_size
     assert bitrounded_compressed_size < compressed_size
 
 
