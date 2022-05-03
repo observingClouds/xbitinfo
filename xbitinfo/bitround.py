@@ -25,7 +25,7 @@ def _keepbits_interface(da, keepbits):
     Returns
     -------
     keep : int
-      Number of keepbits for variable given in `da`
+      Number of keepbits for variable given in ``da``
     """
     assert isinstance(da, xr.DataArray)
     if isinstance(keepbits, int):
@@ -67,7 +67,7 @@ def _keepbits_interface(da, keepbits):
 
 
 def xr_bitround(da, keepbits):
-    """Apply bitrounding based on keepbits from xb.get_keepbits for xarray.Dataset or :py:class:`xarray.DataArray` wrapping numcodecs.bitround
+    """Apply bitrounding based on keepbits from xb.get_keepbits for xarray.Dataset or :py:class:`xarray.DataArray` wrapping ``numcodecs.bitround``
 
     Inputs
     ------
@@ -82,10 +82,10 @@ def xr_bitround(da, keepbits):
 
     Example
     -------
-        >>> ds = xr.tutorial.load_dataset("air_temperature")
-        >>> info_per_bit = xb.get_bitinformation(ds, dim="lon")
-        >>> keepbits = xb.get_keepbits(info_per_bit, 0.99)
-        >>> ds_bitrounded = xb.xr_bitround(ds, keepbits)
+    >>> ds = xr.tutorial.load_dataset("air_temperature")
+    >>> info_per_bit = xb.get_bitinformation(ds, dim="lon")
+    >>> keepbits = xb.get_keepbits(info_per_bit, 0.99)
+    >>> ds_bitrounded = xb.xr_bitround(ds, keepbits)
     """
     if isinstance(da, xr.Dataset):
         da_bitrounded = da.copy()
@@ -117,10 +117,10 @@ def jl_bitround(da, keepbits):
 
     Example
     -------
-        >>> ds = xr.tutorial.load_dataset("air_temperature")
-        >>> info_per_bit = xb.get_bitinformation(ds, dim="lon")
-        >>> keepbits = xb.get_keepbits(info_per_bit, 0.99)
-        >>> ds_bitrounded = xb.jl_bitround(ds, keepbits)
+    >>> ds = xr.tutorial.load_dataset("air_temperature")
+    >>> info_per_bit = xb.get_bitinformation(ds, dim="lon")
+    >>> keepbits = xb.get_keepbits(info_per_bit, 0.99)
+    >>> ds_bitrounded = xb.jl_bitround(ds, keepbits)
     """
     if isinstance(da, xr.Dataset):
         da_bitrounded = da.copy()
@@ -155,12 +155,12 @@ def bitround_along_dim(
     dim : str
       Name of dimension for slicing
     inflevels : list of floats
-      Level of information that shall be preserved. Defaults to [1.0, 0.9999, 0.99, 0.975, 0.95].
+      Level of information that shall be preserved. Defaults to ``[1.0, 0.9999, 0.99, 0.975, 0.95]``.
 
     Returns
     -------
     ds : :py:class:`xarray.Dataset`, :py:class:`xarray.DataArray`
-      Bitrounded on slices along dim based on inflevels
+      Bitrounded on slices along ``dim`` based on ``inflevels``
 
     Example
     -------

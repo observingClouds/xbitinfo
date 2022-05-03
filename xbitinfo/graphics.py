@@ -5,7 +5,7 @@ from .xbitinfo import NMBITS, get_keepbits
 
 
 def add_bitinfo_labels(
-    ds,
+    da,
     info_per_bit,
     inflevels,
     ax=None,
@@ -26,28 +26,28 @@ def add_bitinfo_labels(
 
     Inputs
     ------
-    da : xr.DataArray
-      Plotted dataset
+    da : :py:func:`xarray.DataArray`
+      Plotted data
     info_per_bit : dict
-      Information content of each bit for each variable in da. This is the output from get_bitinformation.
+      Information content of each bit for each variable in ``da``. This is the output from :py:func:`xbitinfo.xbitinfo.get_bitinformation`.
     inflevels : list of floats
       Level of information that shall be preserved.
     ax : plt.Axes or None
-      Axes. If None, get current axis.
+      Axes. If ``None``, get current axis.
     x_dim_name : str
-      Name of the x dimension. Defaults to "lon".
+      Name of the x dimension. Defaults to ``"lon"``.
     y_dim_name : str
-      Name of the y dimension. Defaults to "lat".
+      Name of the y dimension. Defaults to ``"lat"``.
     lon_coord_name : str
-      Name of the longitude coordinate. Only matters when plotting with multi-dimensional coordinates (i.e. curvilinear grids) with `cartopy` (when `transform=ccrs.Geodetic()` must be also set via `kwargs`). Defaults to x_dim_name.
+      Name of the longitude coordinate. Only matters when plotting with multi-dimensional coordinates (i.e. curvilinear grids) with ``cartopy`` (when ``transform=ccrs.Geodetic()`` must be also set via ``kwargs``). Defaults to ``x_dim_name``.
     lat_coord_name : str
-      Name of the latitude coordinate. Only matters when plotting with multi-dimensional coordinates (i.e. curvilinear grids) with `cartopy` (when `transform=ccrs.Geodetic()` must be also set via `kwargs`). Defaults to y_dim_name.
+      Name of the latitude coordinate. Only matters when plotting with multi-dimensional coordinates (i.e. curvilinear grids) with ``cartopy`` (when ``transform=ccrs.Geodetic()`` must be also set via ``kwargs``). Defaults to ``y_dim_name``.
     label_latitude :  float or str
-      Latitude for the label. Defaults to "center", which uses the mean lat_coord_name.
+      Latitude for the label. Defaults to ``"center"``, which uses the mean ``lat_coord_name``.
     label_latitude_offset : float
-      Distance between `keepbits = int` and `x%` label. Defaults to 8.
+      Distance between ``keepbits = int`` and ``x%`` label. Defaults to ``8``.
     kwargs : dict
-      Kwargs to be passed to `ax.text` and `ax.plot`. Use `transform=ccrs.Geodetic()` when using `cartopy`
+      Kwargs to be passed to ``ax.text`` and ``ax.plot``. Use ``transform=ccrs.Geodetic()`` when using ``cartopy``
 
     Returns
     -------
@@ -143,14 +143,18 @@ def add_bitinfo_labels(
 
 
 def plot_bitinformation(bitinfo, cmap="turku"):
-    """Plot bitwise information content.
+    """Plot bitwise information content as in Klöwer et al. 2021 Fig. 2.
+
+    Klöwer, M., Razinger, M., Dominguez, J. J., Düben, P. D., & Palmer, T. N. (2021).
+    Compressing atmospheric data into its real information content.
+    Nature Computational Science, 1(11), 713–724. doi: 10/gnm4jj
 
     Inputs
     ------
-    bitinfo : dict
-      Dictionary containing the bitwise information content for each variable
+    bitinfo : :py:func:`xarray.Dataset`
+      Containing the bitwise information content for each variable
     cmap : str or plt.cm
-      colormap
+      Colormap. Defaults to ``"turku"``.
 
     Returns
     -------
@@ -331,14 +335,14 @@ def plot_distribution(ds, nbins=1000, cmap="viridis", offset=0.01, close_zero=1e
     bitinfo : :py:class:`xarray.Dataset`
       Raw input values for distributions
     nbints : int
-      Number of bins for histograms across all variable range. Defaults to 1000.
+      Number of bins for histograms across all variable range. Defaults to ``1000``.
     cmap : str
-      Which matplotlib colormap to use. Defaults to "viridis".
+      Which matplotlib colormap to use. Defaults to ``"viridis"``.
     offset : float
-      Offset on the yaxis between variables 0 lines. Defaults to 0.01.
+      Offset on the yaxis between variables 0 lines. Defaults to ``0.01``.
     close_zero : float
       Threshold where to stop close to 0, when distributions ranges from negative to positive.
-      Increase this value when seeing an unexpected dip around 0 in the distribution. Defaults to 0.01.
+      Increase this value when seeing an unexpected dip around 0 in the distribution. Defaults to ``0.01``.
 
     Returns
     -------

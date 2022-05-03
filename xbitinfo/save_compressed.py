@@ -5,8 +5,8 @@ import xarray as xr
 
 
 def get_chunksizes(da, for_cdo=False, time_dim="time", chunks=None):
-    """Get chunksizes for xr.DataArray for to_netcdf(encoding) from original file.
-    If for_cdo, ensure time chunksize of 1 when compressed."""
+    """Get chunksizes for :py:func:`xarray.DataArray` for ``to_netcdf(encoding)`` from original file.
+    If ``for_cdo=True``, ensure ``time_dim`` ``chunksize`` of 1 when compressed."""
     assert isinstance(da, xr.DataArray)
     if chunks:  # use new chunksizes
         return da.chunk(chunks).data.chunksize
@@ -34,14 +34,19 @@ def get_compress_encoding_nc(
     time_dim="time",
     chunks=None,
 ):
-    """Generate encoding for ds_bitrounded.to_netcdf(encoding).
+    """Generate encoding for ``ds_bitrounded.to_netcdf(encoding)``.
 
-    Example:
-        >>> ds = xr.tutorial.load_dataset("rasm")
-        >>> get_compress_encoding_nc(ds)
-        {'Tair': {'zlib': True, 'shuffle': True, 'complevel': 9, 'chunksizes': (36, 205, 275)}}
-        >>> get_compress_encoding_nc(ds, for_cdo=True)
-        {'Tair': {'zlib': True, 'shuffle': True, 'complevel': 9, 'chunksizes': (1, 205, 275)}}
+    Example
+    -------
+    >>> ds = xr.tutorial.load_dataset("rasm")
+    >>> get_compress_encoding_nc(ds)
+    {'Tair': {'zlib': True, 'shuffle': True, 'complevel': 9, 'chunksizes': (36, 205, 275)}}
+    >>> get_compress_encoding_nc(ds, for_cdo=True)
+    {'Tair': {'zlib': True, 'shuffle': True, 'complevel': 9, 'chunksizes': (1, 205, 275)}}
+
+    See also
+    --------
+    - :py:meth:`xarray.Dataset.to_netcdf`
 
     """
     return {
@@ -81,14 +86,19 @@ class ToCompressed_Netcdf:
       How should the data be chunked on disk. None keeps defaults. "auto" uses dask.chunk("auto"),
       dict individual chunking. Defaults to None.
     kwargs : dict
-      Kwargs to be passed to :py:class:`xarray.Dataset`.to_netcdf(**kwargs)
+      Kwargs to be passed to :py:meth:`xarray.Dataset.to_netcdf`
 
-    Example:
-        >>> ds = xr.tutorial.load_dataset("rasm")
-        >>> path = "compressed_rasm.nc"
-        >>> ds.to_compressed_netcdf(path)
-        >>> ds.to_compressed_netcdf(path, complevel=4)
-        >>> ds.to_compressed_netcdf(path, for_cdo=True)
+    Example
+    -------
+    >>> ds = xr.tutorial.load_dataset("rasm")
+    >>> path = "compressed_rasm.nc"
+    >>> ds.to_compressed_netcdf(path)
+    >>> ds.to_compressed_netcdf(path, complevel=4)
+    >>> ds.to_compressed_netcdf(path, for_cdo=True)
+
+    See also
+    --------
+    - :py:meth:`xarray.Dataset.to_netcdf`
 
     """
 
@@ -125,12 +135,17 @@ def get_compress_encoding_zarr(
     ds_bitrounded,
     compressor=numcodecs.Blosc("zstd", shuffle=numcodecs.Blosc.BITSHUFFLE),
 ):
-    """Generate encoding for ds_bitrounded.to_zarr(encoding).
+    """Generate encoding for ``ds_bitrounded.to_zarr(encoding)``.
 
-    Example:
+    Example
+    -------
         >>> ds = xr.tutorial.load_dataset("rasm")
         >>> get_compress_encoding_zarr(ds)
         {'Tair': {'compressor': Blosc(cname='zstd', clevel=5, shuffle=BITSHUFFLE, blocksize=0)}}
+
+    See also
+    --------
+    - :py:meth:`xarray.Dataset.to_zarr`
     """
     encoding = {}
     if isinstance(compressor, dict):
@@ -155,7 +170,7 @@ def get_compress_encoding_zarr(
 
 @xr.register_dataset_accessor("to_compressed_zarr")
 class ToCompressed_Zarr:
-    """Save to compressed zarr wrapping ds.to_zarr(encoding=get_compress_encoding_zarr(ds)).
+    """Save to compressed zarr wrapping ``ds.to_zarr(encoding=get_compress_encoding_zarr(ds))``.
 
     Inputs
     ------
@@ -166,14 +181,19 @@ class ToCompressed_Zarr:
     kwargs : dict
       Arguments to be passed to :py:meth:`xarray.Dataset.to_zarr`
 
-    Example:
-        >>> ds = xr.tutorial.load_dataset("rasm")
-        >>> path = "compressed_rasm.zarr"
-        >>> ds.to_compressed_zarr(path, mode="w")
-        >>> ds.to_compressed_zarr(path, compressor=numcodecs.Blosc("zlib"), mode="w")
-        >>> ds.to_compressed_zarr(
-        ...     path, compressor={"Tair": numcodecs.Blosc("zstd")}, mode="w"
-        ... )
+    Example
+    -------
+    >>> ds = xr.tutorial.load_dataset("rasm")
+    >>> path = "compressed_rasm.zarr"
+    >>> ds.to_compressed_zarr(path, mode="w")
+    >>> ds.to_compressed_zarr(path, compressor=numcodecs.Blosc("zlib"), mode="w")
+    >>> ds.to_compressed_zarr(
+    ...     path, compressor={"Tair": numcodecs.Blosc("zstd")}, mode="w"
+    ... )
+
+    See also
+    --------
+    - :py:meth:`xarray.Dataset.to_zarr`
 
     """
 
