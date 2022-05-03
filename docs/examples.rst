@@ -13,15 +13,6 @@ Examples
     notebooks listed here.
 
 
-Quick start
-===========
-.. toctree::
-  :maxdepth: 1
-
-  quick-start.ipynb
-  https://nbviewer.org/github/observingClouds/xbitinfo/tree/main/docs/quick-start.ipynb
-
-
 Big data example
 ================
 .. toctree::
