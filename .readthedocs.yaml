@@ -7,6 +7,7 @@ build:
   jobs:
     post_install:
     - julia install_julia_packages.jl  # https://docs.readthedocs.io/en/stable/config-file/v2.html  # https://github.com/readthedocs/readthedocs.org/issues/1740
+    - conda env list
 
 conda:
   environment: docs/environment.yml
