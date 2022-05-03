@@ -143,7 +143,7 @@ def test_get_bitinformation_multidim(rasm):
     ds = rasm
     bi = xb.get_bitinformation(ds)
     # check length of dimension
-    assert bi.dims["dim"] == 3
+    assert bi.dims["dim"] == len(ds.dims)
     bi_time = bi.sel(dim="time").Tair.values
     bi_x = bi.sel(dim="x").Tair.values
     bi_y = bi.sel(dim="y").Tair.values
