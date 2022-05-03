@@ -36,7 +36,20 @@ with open("CHANGELOG.rst") as history_file:
 with open("requirements.txt") as f:
     requirements = f.read().strip().split("\n")
 
-test_requirements = ["pytest", "pooch", "netcdf4"]
+test_requirements = ["pytest", "pooch", "netcdf4", "dask"]
+
+extras_require = {
+    "viz": ["matplotlib", "cmcrameri"],
+    "prefect": ["prefect"],
+}
+extras_require["complete"] = sorted({v for req in extras_require.values() for v in req})
+extras_require["test"] = test_requirements
+extras_require["docs"] = extras_require["complete"] + [
+    "sphinx",
+    "sphinxcontrib-napoleon",
+    "sphinx-copybutton",
+    "sphinx_book_theme",
+]
 
 setup(
     author="Hauke Schulz",

@@ -2,7 +2,6 @@ import logging
 
 import numcodecs
 import xarray as xr
-from dask import is_dask_collection
 
 
 def get_chunksizes(da, for_cdo=False, time_dim="time", chunks=None):
@@ -14,7 +13,7 @@ def get_chunksizes(da, for_cdo=False, time_dim="time", chunks=None):
     if for_cdo:  # take shape as chunksize and ensure time chunksize 1
         if time_dim in da.dims:
             time_axis_num = da.get_axis_num(time_dim)
-            chunksize = da.data.chunksize if is_dask_collection(da) else da.shape
+            chunksize = da.data.chunksize if da.chunks is not None else da.shape
             # https://code.mpimet.mpg.de/boards/2/topics/12598
             chunksize = list(chunksize)
             chunksize[time_axis_num] = 1
@@ -23,7 +22,7 @@ def get_chunksizes(da, for_cdo=False, time_dim="time", chunks=None):
         else:
             return get_chunksizes(da, for_cdo=False, time_dim=time_dim)
     else:
-        return da.data.chunksize if is_dask_collection(da.data) else da.shape
+        return da.data.chunksize if da.chunks is not None else da.shape
 
 
 def get_compress_encoding_nc(

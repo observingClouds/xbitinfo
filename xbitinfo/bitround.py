@@ -1,5 +1,4 @@
 import xarray as xr
-from dask import is_dask_collection
 from numcodecs.bitround import BitRound
 
 from .xbitinfo import _jl_bitround, get_keepbits
