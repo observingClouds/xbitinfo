@@ -14,7 +14,7 @@ xbitinfo: Retrieve information content and compress accordingly
    :target: https://xbitinfo.readthedocs.io/en/latest
 
 .. image:: https://mybinder.org/badge_logo.svg
-   :target: https://mybinder.org/v2/gh/xbitinfo/xbitinfo/main
+   :target: https://mybinder.org/v2/gh/observingClouds/xbitinfo/main?labpath=docs%2Fquick-start.ipynb
 
 This is an `xarray <xarray.pydata.org>`__-wrapper around `BitInformation.jl <https://github.com/milankl/BitInformation.jl>`__ to retrieve and apply bitrounding from within python.
 The package intends to present an easy pipeline to compress (climate) datasets based on the real information content.
