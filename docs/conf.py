@@ -157,7 +157,7 @@ intersphinx_mapping = {
 nbsphinx_allow_errors = False
 nbsphinx_timeout = 600
 nbsphinx_execute = "never"  # "auto" "always"
-jupyter_execute_notebooks = "auto"
+jupyter_execute_notebooks = "off"
 
 # Napoleon configurations
 napoleon_google_docstring = False
