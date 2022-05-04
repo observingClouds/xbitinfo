@@ -1,6 +1,4 @@
 xarray
 julia
-matplotlib
 tqdm
-prefect
 numcodecs @ git+https://github.com/rabernat/numcodecs@bitround
