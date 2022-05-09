@@ -344,7 +344,7 @@ def get_keepbits(info_per_bit, inflevel=0.99):
                     "inflevel",
                 ).sel(inflevel=keepmantissabits_bitdim.inflevel)
             keepmantissabits.append(keepmantissabits_bitdim)
-    return xr.merge(keepmantissabits).squeeze(dim="inflevel")
+    return xr.merge(keepmantissabits) #  .squeeze(dim="inflevel")
 
 
 def _jl_bitround(X, keepbits):
