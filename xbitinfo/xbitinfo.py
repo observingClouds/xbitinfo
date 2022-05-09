@@ -283,24 +283,24 @@ def get_keepbits(info_per_bit, inflevel=0.99):
     <xarray.Dataset>
     Dimensions:   (inflevel: 1)
     Coordinates:
-      * inflevel  (inflevel) float64 0.99
         dim       <U3 'lon'
+      * inflevel  (inflevel) float64 0.99
     Data variables:
         air       (inflevel) int64 7
     >>> xb.get_keepbits(info_per_bit, inflevel=0.99999999)
     <xarray.Dataset>
     Dimensions:   (inflevel: 1)
     Coordinates:
-      * inflevel  (inflevel) float64 1.0
         dim       <U3 'lon'
+      * inflevel  (inflevel) float64 1.0
     Data variables:
         air       (inflevel) int64 14
     >>> xb.get_keepbits(info_per_bit, inflevel=1.0)
     <xarray.Dataset>
     Dimensions:   (inflevel: 1)
     Coordinates:
-      * inflevel  (inflevel) float64 1.0
         dim       <U3 'lon'
+      * inflevel  (inflevel) float64 1.0
     Data variables:
         air       (inflevel) int64 23
     >>> info_per_bit = xb.get_bitinformation(ds)
@@ -308,8 +308,8 @@ def get_keepbits(info_per_bit, inflevel=0.99):
     <xarray.Dataset>
     Dimensions:   (inflevel: 1, dim: 3)
     Coordinates:
-      * inflevel  (inflevel) float64 0.99
       * dim       (dim) <U4 'lat' 'lon' 'time'
+      * inflevel  (inflevel) float64 0.99
     Data variables:
         air       (dim, inflevel) int64 5 7 6
     """
