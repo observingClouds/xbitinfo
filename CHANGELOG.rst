@@ -5,7 +5,7 @@ CHANGELOG
 0.0.x (2022-xx-xx)
 ------------------
 
-* Fix `kwargs` in are not reused for other variables in :py:func:`xbitinfo.xbitinfo.get_bitinformation`.
+* Fix ``kwargs`` in are not reused for other variables in :py:func:`xbitinfo.xbitinfo.get_bitinformation`.
   (:issue:`99`, :pr:`101`) `Aaron Spring`_.
 
 
