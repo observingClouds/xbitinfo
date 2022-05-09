@@ -235,13 +235,14 @@ def _get_bitinformation_along_all_dims(ds, label=None, overwrite=False, **kwargs
 
 def _get_bitinformation_kwargs_handler(da, kwargs):
     """Helper function to preprocess kwargs args of :py:func:`xbitinfo.xbitinfo.get_bitinformation`."""
-    if "masked_value" not in kwargs:
-        kwargs["masked_value"] = f"convert({str(da.dtype).capitalize()},NaN)"
-    elif kwargs["masked_value"] is None:
-        kwargs["masked_value"] = "nothing"
-    if "set_zero_insignificant" not in kwargs:
-        kwargs["set_zero_insignificant"] = True
-    kwargs_str = ", ".join([f"{k}={v}" for k, v in kwargs.items()])
+    kwargs_var = kwargs.copy()
+    if "masked_value" not in kwargs_var:
+        kwargs_var["masked_value"] = f"convert({str(da.dtype).capitalize()},NaN)"
+    elif kwargs_var["masked_value"] is None:
+        kwargs_var["masked_value"] = "nothing"
+    if "set_zero_insignificant" not in kwargs_var:
+        kwargs_var["set_zero_insignificant"] = True
+    kwargs_str = ", ".join([f"{k}={v}" for k, v in kwargs_var.items()])
     # convert python to julia bool
     kwargs_str = kwargs_str.replace("True", "true").replace("False", "false")
     return kwargs_str
