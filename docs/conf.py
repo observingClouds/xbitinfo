@@ -150,8 +150,8 @@ copybutton_only_copy_prompt_lines = True
 copybutton_remove_prompts = True
 
 extlinks = {
-    "issue": ("https://github.com/pangeo-data/climpred/issues/%s", "GH#"),
-    "pr": ("https://github.com/pangeo-data/climpred/pull/%s", "GH#"),
+    "issue": ("https://github.com/observingClouds/xbitinfo/issues/%s", "GH#"),
+    "pr": ("https://github.com/observingClouds/xbitinfo/pull/%s", "GH#"),
 }
 
 
