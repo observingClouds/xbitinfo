@@ -334,9 +334,13 @@ def get_keepbits(info_per_bit, inflevel=0.99):
             (cdf > inflevel).argmax(bitdim) + 1 - NMBITS[int(bitdim[3:])]
         )
         # keep all for 100% information
-        if 1. in inflevels:
-            keepall = xr.ones_like(xb.get_keepbits(info_per_bit)) * (int(bitdim[3:]) - NMBITS[int(bitdim[3:])])
-            keepmantissabits_bitdim = xr.concat([keepmantissabits_bitdim.drop_sel(inflevel=1.), keepall], "inflevel").sel(inflevel=keepmantissabits_bitdim.inflevel)            
+        if 1.0 in inflevels:
+            keepall = xr.ones_like(xb.get_keepbits(info_per_bit)) * (
+                int(bitdim[3:]) - NMBITS[int(bitdim[3:])]
+            )
+            keepmantissabits_bitdim = xr.concat(
+                [keepmantissabits_bitdim.drop_sel(inflevel=1.0), keepall], "inflevel"
+            ).sel(inflevel=keepmantissabits_bitdim.inflevel)
         keepmantissabits.append(keepmantissabits_bitdim)
     return xr.merge(keepmantissabits)
 
