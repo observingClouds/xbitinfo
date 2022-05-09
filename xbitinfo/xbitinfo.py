@@ -312,7 +312,7 @@ def get_keepbits(info_per_bit, inflevel=0.99):
     Data variables:
         air       (dim, inflevel) int64 5 7 6
     """
-    if isinstance(inflevel, list):
+    if not isinstance(inflevel, list):
         inflevel = [inflevel]
     keepmantissabits = []
     for bitdim in ["bit16", "bit32", "bit64"]:
