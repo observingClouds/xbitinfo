@@ -162,3 +162,13 @@ def test_get_bitinformation_different_variables_dims(rasm):
     bi_Tair_mean_x = bi.Tair_mean.sel(dim="x")
     bi_Tair_x = bi.Tair.sel(dim="x")
     assert_different(bi_Tair_mean_x, bi_Tair_x)
+
+
+def test_get_bitinformation_different_dtypes(rasm):
+    ds = rasm
+    ds["Tair32"] = ds.Tair.astype("float32")
+    ds["Tair16"] = ds.Tair.astype("float16")
+    bi = xb.get_bitinformation(ds)
+    for bitdim in ["bits16", "bits32", "bits64"]:
+        assert bitdim in bi.dims
+        assert bitdim in bi.coords
