@@ -335,7 +335,7 @@ def get_keepbits(info_per_bit, inflevel=0.99):
         )
         # keep all for 100% information
         if 1.0 in inflevels:
-            keepall = xr.ones_like(xb.get_keepbits(info_per_bit)) * (
+            keepall = xr.ones_like(keepmantissabits_bitdim) * (
                 int(bitdim[3:]) - NMBITS[int(bitdim[3:])]
             )
             keepmantissabits_bitdim = xr.concat(
