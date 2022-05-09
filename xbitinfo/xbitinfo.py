@@ -316,7 +316,11 @@ def get_keepbits(info_per_bit, inflevel=0.99):
     # - shortcut for  == 1.0: keepmantissabits_inflevels[il] = len(ic) - NMBITS[len(ic)]
     # - loop over dim if bitdim multiple present
     bitdim = "bit32"
-    inflevel = xr.DataArray(inflevel, dims="inflevel" if isinstance(inflevel, list) else None, coords={"inflevel": inflevel})
+    inflevel = xr.DataArray(
+        inflevel,
+        dims="inflevel" if isinstance(inflevel, list) else None,
+        coords={"inflevel": inflevel},
+    )
     if (inflevel < 0).any() or (inflevel > 1.0).any():
         raise ValueError("Please provide `inflevel` from interval [0.,1.]")
     info_per_bit_cleaned = info_per_bit.where(
