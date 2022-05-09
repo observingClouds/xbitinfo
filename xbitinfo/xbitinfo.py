@@ -340,7 +340,8 @@ def get_keepbits(info_per_bit, inflevel=0.99):
                     int(bitdim[3:]) - NMBITS[int(bitdim[3:])]
                 )
                 keepmantissabits_bitdim = xr.concat(
-                    [keepmantissabits_bitdim.drop_sel(inflevel=1.0), keepall], "inflevel"
+                    [keepmantissabits_bitdim.drop_sel(inflevel=1.0), keepall],
+                    "inflevel",
                 ).sel(inflevel=keepmantissabits_bitdim.inflevel)
             keepmantissabits.append(keepmantissabits_bitdim)
     return xr.merge(keepmantissabits)
