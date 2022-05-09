@@ -169,6 +169,6 @@ def test_get_bitinformation_different_dtypes(rasm):
     ds["Tair32"] = ds.Tair.astype("float32")
     ds["Tair16"] = ds.Tair.astype("float16")
     bi = xb.get_bitinformation(ds)
-    for bitdim in ["bits16", "bits32", "bits64"]:
+    for bitdim in ["bit16", "bit32", "bit64"]:
         assert bitdim in bi.dims
         assert bitdim in bi.coords
