@@ -140,6 +140,21 @@ html_context = {
 }
 
 
+myst_url_schemes = ["http", "https", "mailto"]
+
+# Cupybutton configuration
+# See: https://sphinx-copybutton.readthedocs.io/en/latest/
+copybutton_prompt_text = r">>> |\.\.\. |\$ |In \[\d*\]: | {2,5}\.\.\.: | {5,8}: "
+copybutton_prompt_is_regexp = True
+copybutton_only_copy_prompt_lines = True
+copybutton_remove_prompts = True
+
+extlinks = {
+    "issue": ("https://github.com/pangeo-data/climpred/issues/%s", "GH#"),
+    "pr": ("https://github.com/pangeo-data/climpred/pull/%s", "GH#"),
+}
+
+
 # Add any paths that contain custom static files (such as style sheets) here,
 # relative to this directory. They are copied after the builtin static files,
 # so a file named "default.css" will overwrite the builtin "default.css".
