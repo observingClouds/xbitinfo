@@ -323,25 +323,26 @@ def get_keepbits(info_per_bit, inflevel=0.99):
             raise ValueError("Please provide `inflevel` from interval [0.,1.]")
         # get only variables of bitdim
         bit_vars = [v for v in info_per_bit.data_vars if bitdim in info_per_bit[v].dims]
-        info_per_bit_cleaned = info_per_bit[bit_vars].where(
-            info_per_bit
-            > info_per_bit.isel({bitdim: slice(-4, None)}).max(bitdim) * 1.5
-        )
-        cdf = info_per_bit_cleaned.cumsum(bitdim) / info_per_bit_cleaned.cumsum(
-            bitdim
-        ).isel({bitdim: -1})
-        keepmantissabits_bitdim = (
-            (cdf > inflevel).argmax(bitdim) + 1 - NMBITS[int(bitdim[3:])]
-        )
-        # keep all for 100% information
-        if 1.0 in inflevel:
-            keepall = xr.ones_like(keepmantissabits_bitdim) * (
-                int(bitdim[3:]) - NMBITS[int(bitdim[3:])]
+        if bit_vars != []:
+            info_per_bit_cleaned = info_per_bit[bit_vars].where(
+                info_per_bit
+                > info_per_bit.isel({bitdim: slice(-4, None)}).max(bitdim) * 1.5
             )
-            keepmantissabits_bitdim = xr.concat(
-                [keepmantissabits_bitdim.drop_sel(inflevel=1.0), keepall], "inflevel"
-            ).sel(inflevel=keepmantissabits_bitdim.inflevel)
-        keepmantissabits.append(keepmantissabits_bitdim)
+            cdf = info_per_bit_cleaned.cumsum(bitdim) / info_per_bit_cleaned.cumsum(
+                bitdim
+            ).isel({bitdim: -1})
+            keepmantissabits_bitdim = (
+                (cdf > inflevel).argmax(bitdim) + 1 - NMBITS[int(bitdim[3:])]
+            )
+            # keep all for 100% information
+            if 1.0 in inflevel:
+                keepall = xr.ones_like(keepmantissabits_bitdim) * (
+                    int(bitdim[3:]) - NMBITS[int(bitdim[3:])]
+                )
+                keepmantissabits_bitdim = xr.concat(
+                    [keepmantissabits_bitdim.drop_sel(inflevel=1.0), keepall], "inflevel"
+                ).sel(inflevel=keepmantissabits_bitdim.inflevel)
+            keepmantissabits.append(keepmantissabits_bitdim)
     return xr.merge(keepmantissabits)
 
 
