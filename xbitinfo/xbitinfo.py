@@ -312,8 +312,6 @@ def get_keepbits(info_per_bit, inflevel=0.99):
     Data variables:
         air       (dim, inflevel) int64 5 7 6
     """
-    # todo:
-    # - shortcut for  == 1.0: keepmantissabits_inflevels[il] = len(ic) - NMBITS[len(ic)]
     if isinstance(inflevel, list):
         inflevel = [inflevel]
     keepmantissabits = []
@@ -335,6 +333,10 @@ def get_keepbits(info_per_bit, inflevel=0.99):
         keepmantissabits_bitdim = (
             (cdf > inflevel).argmax(bitdim) + 1 - NMBITS[int(bitdim[3:])]
         )
+        # keep all for 100% information
+        if 1. in inflevels:
+            keepall = xr.ones_like(xb.get_keepbits(info_per_bit)) * (int(bitdim[3:]) - NMBITS[int(bitdim[3:])])
+            keepmantissabits_bitdim = xr.concat([keepmantissabits_bitdim.drop_sel(inflevel=1.), keepall], "inflevel").sel(inflevel=keepmantissabits_bitdim.inflevel)            
         keepmantissabits.append(keepmantissabits_bitdim)
     return xr.merge(keepmantissabits)
 
