@@ -318,18 +318,23 @@ def get_keepbits(info_per_bit, inflevel=0.99):
         inflevel = [inflevel]
     keepmantissabits = []
     for bitdim in ["bit16", "bit32", "bit64"]:
-        inflevel = xr.DataArray(inflevel, dims="inflevel", coords={"inflevel": inflevel})
+        inflevel = xr.DataArray(
+            inflevel, dims="inflevel", coords={"inflevel": inflevel}
+        )
         if (inflevel < 0).any() or (inflevel > 1.0).any():
             raise ValueError("Please provide `inflevel` from interval [0.,1.]")
         # get only variables of bitdim
         bit_vars = [v for v in info_per_bit.data_vars if bitdim in info_per_bit[v].dims]
         info_per_bit_cleaned = info_per_bit[bit_vars].where(
-            info_per_bit > info_per_bit.isel({bitdim: slice(-4, None)}).max(bitdim) * 1.5
+            info_per_bit
+            > info_per_bit.isel({bitdim: slice(-4, None)}).max(bitdim) * 1.5
         )
         cdf = info_per_bit_cleaned.cumsum(bitdim) / info_per_bit_cleaned.cumsum(
             bitdim
         ).isel({bitdim: -1})
-        keepmantissabits_bitdim = (cdf > inflevel).argmax(bitdim) + 1 - NMBITS[int(bitdim[3:])]
+        keepmantissabits_bitdim = (
+            (cdf > inflevel).argmax(bitdim) + 1 - NMBITS[int(bitdim[3:])]
+        )
         keepmantissabits.append(keepmantissabits_bitdim)
     return xr.merge(keepmantissabits)
 
