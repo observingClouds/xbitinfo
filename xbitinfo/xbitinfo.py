@@ -315,14 +315,12 @@ def get_keepbits(info_per_bit, inflevel=0.99):
     """
     if not isinstance(inflevel, list):
         inflevel = [inflevel]
-    keepmantissabits = [] 
-    inflevel = xr.DataArray(
-        inflevel, dims="inflevel", coords={"inflevel": inflevel}
-    )
+    keepmantissabits = []
+    inflevel = xr.DataArray(inflevel, dims="inflevel", coords={"inflevel": inflevel})
     if (inflevel < 0).any() or (inflevel > 1.0).any():
         raise ValueError("Please provide `inflevel` from interval [0.,1.]")
     for bitdim in ["bit16", "bit32", "bit64"]:
-        # get only variables of bitdim 
+        # get only variables of bitdim
         bit_vars = [v for v in info_per_bit.data_vars if bitdim in info_per_bit[v].dims]
         if bit_vars != []:
             info_per_bit_cleaned = info_per_bit[bit_vars].where(
@@ -346,9 +344,10 @@ def get_keepbits(info_per_bit, inflevel=0.99):
                 )
             keepmantissabits.append(keepmantissabits_bitdim)
     keepmantissabits = xr.merge(keepmantissabits)
-    if inflevel.inflevel.size > 1: # restore orginal ordering
+    if inflevel.inflevel.size > 1:  # restore orginal ordering
         keepmantissabits = keepmantissabits.sel(inflevel=inflevel.inflevel)
     return keepmantissabits
+
 
 def _jl_bitround(X, keepbits):
     """Wrap `BitInformation.jl.round <https://github.com/milankl/BitInformation.jl/blob/main/src/round_nearest.jl>`__. Used in :py:func:`xbitinfo.bitround.jl_bitround`."""
