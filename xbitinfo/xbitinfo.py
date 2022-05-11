@@ -326,7 +326,7 @@ def get_keepbits(info_per_bit, inflevel=0.99):
             cdf = _cdf_from_info_per_bit(info_per_bit[bit_vars], bitdim)
             bitdim_non_mantissa_bits = NMBITS[int(bitdim[3:])]
             keepmantissabits_bitdim = (
-                (cdf > inflevel).argmax(bitdim) + 1 - bitdim_non_mantissa_bits]
+                (cdf > inflevel).argmax(bitdim) + 1 - bitdim_non_mantissa_bits
             )
             # keep all mantissa bits for 100% information
             if 1.0 in inflevel:
