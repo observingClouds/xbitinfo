@@ -324,7 +324,7 @@ def get_keepbits(info_per_bit, inflevel=0.99):
         bit_vars = [v for v in info_per_bit.data_vars if bitdim in info_per_bit[v].dims]
         if bit_vars != []:
             cdf = _cdf_from_info_per_bit(info_per_bit[bit_vars], bitdim)
-            bitdim_non_mantissa_bits = NMBITS[int(bitdim[3:])
+            bitdim_non_mantissa_bits = NMBITS[int(bitdim[3:])]
             keepmantissabits_bitdim = (
                 (cdf > inflevel).argmax(bitdim) + 1 - bitdim_non_mantissa_bits]
             )
