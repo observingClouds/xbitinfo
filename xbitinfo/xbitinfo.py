@@ -283,87 +283,79 @@ def get_keepbits(info_per_bit, inflevel=0.99):
     <xarray.Dataset>
     Dimensions:   (inflevel: 1)
     Coordinates:
-      * inflevel  (inflevel) float64 0.99
         dim       <U3 'lon'
+      * inflevel  (inflevel) float64 0.99
     Data variables:
         air       (inflevel) int64 7
     >>> xb.get_keepbits(info_per_bit, inflevel=0.99999999)
     <xarray.Dataset>
     Dimensions:   (inflevel: 1)
     Coordinates:
-      * inflevel  (inflevel) float64 1.0
         dim       <U3 'lon'
+      * inflevel  (inflevel) float64 1.0
     Data variables:
         air       (inflevel) int64 14
     >>> xb.get_keepbits(info_per_bit, inflevel=1.0)
     <xarray.Dataset>
     Dimensions:   (inflevel: 1)
     Coordinates:
-      * inflevel  (inflevel) float64 1.0
         dim       <U3 'lon'
+      * inflevel  (inflevel) float64 1.0
     Data variables:
         air       (inflevel) int64 23
     >>> info_per_bit = xb.get_bitinformation(ds)
     >>> xb.get_keepbits(info_per_bit)
     <xarray.Dataset>
-    Dimensions:   (inflevel: 1, dim: 3)
+    Dimensions:   (dim: 3, inflevel: 1)
     Coordinates:
-      * inflevel  (inflevel) float64 0.99
       * dim       (dim) <U4 'lat' 'lon' 'time'
+      * inflevel  (inflevel) float64 0.99
     Data variables:
         air       (dim, inflevel) int64 5 7 6
     """
-    if "dim" in info_per_bit.dims:
-        keepmantissabits_dict = {}
-        for d, d_name in enumerate(info_per_bit.coords["dim"].values):
-            keepmantissabits_dict[d_name] = get_keepbits(
-                info_per_bit.isel({"dim": d}), inflevel
-            )  # .expand_dim(dim=('inflevel', [inflevel]), axis=0)
-        keepmantissabits_ds = xr.concat(keepmantissabits_dict.values(), dim="dim")
-        keepmantissabits_ds = keepmantissabits_ds.assign_coords(
-            {"dim": ("dim", list(keepmantissabits_dict.keys()))}
-        )
-        return keepmantissabits_ds
-    else:
-        if "attrs" in info_per_bit.keys():
-            global_attrs = info_per_bit.attrs
-        else:
-            global_attrs = {}
-        global_attrs["xbitinfo_version"]: __version__
-        keepmantissabits = xr.Dataset(attrs=global_attrs)
-        if isinstance(inflevel, (int, float)):
-            inflevel = [inflevel]
-        for il in inflevel:
-            if il < 0 or il > 1.0:
-                raise ValueError("Please provide `inflevel` from interval [0.,1.]")
-        for v in info_per_bit.data_vars:
-            ic = info_per_bit[v].values
-            keepmantissabits_inflevels = {}
-            for il in inflevel:
-                if il == 1.0:
-                    keepmantissabits_inflevels[il] = len(ic) - NMBITS[len(ic)]
-                else:
-                    # set below threshold to zero
-                    # use something a bit bigger than maximum of the last 4 bits
-                    threshold = 1.5 * np.max(ic[-4:])
-                    ic_over_threshold = np.where(ic < threshold, 0, ic)
-                    ic_over_threshold_cum = ic_over_threshold.cumsum()  # CDF
-                    # normed CDF
-                    ic_over_threshold_cum_normed = (
-                        ic_over_threshold_cum / ic_over_threshold_cum.max()
-                    )
-                    # return mantissabits to keep therefore subtract sign and exponent bits
-                    keepmantissabits_inflevels[il] = (
-                        np.argmax(ic_over_threshold_cum_normed > il)
-                        + 1
-                        - NMBITS[len(ic)]
-                    )
-            keepmantissabits[v] = xr.DataArray(
-                list(keepmantissabits_inflevels.values()),
-                dims=["inflevel"],
-                coords={"inflevel": inflevel, "dim": info_per_bit.coords["dim"]},
+    if not isinstance(inflevel, list):
+        inflevel = [inflevel]
+    keepmantissabits = []
+    inflevel = xr.DataArray(inflevel, dims="inflevel", coords={"inflevel": inflevel})
+    if (inflevel < 0).any() or (inflevel > 1.0).any():
+        raise ValueError("Please provide `inflevel` from interval [0.,1.]")
+    for bitdim in ["bit16", "bit32", "bit64"]:
+        # get only variables of bitdim
+        bit_vars = [v for v in info_per_bit.data_vars if bitdim in info_per_bit[v].dims]
+        if bit_vars != []:
+            cdf = _cdf_from_info_per_bit(info_per_bit[bit_vars], bitdim)
+            bitdim_non_mantissa_bits = NMBITS[int(bitdim[3:])]
+            keepmantissabits_bitdim = (
+                (cdf > inflevel).argmax(bitdim) + 1 - bitdim_non_mantissa_bits
             )
-        return keepmantissabits
+            # keep all mantissa bits for 100% information
+            if 1.0 in inflevel:
+                bitdim_all_mantissa_bits = int(bitdim[3:]) - bitdim_non_mantissa_bits
+                keepall = xr.ones_like(keepmantissabits_bitdim.sel(inflevel=1.0)) * (
+                    bitdim_all_mantissa_bits
+                )
+                keepmantissabits_bitdim = xr.concat(
+                    [keepmantissabits_bitdim.drop_sel(inflevel=1.0), keepall],
+                    "inflevel",
+                )
+            keepmantissabits.append(keepmantissabits_bitdim)
+    keepmantissabits = xr.merge(keepmantissabits)
+    if inflevel.inflevel.size > 1:  # restore orginal ordering
+        keepmantissabits = keepmantissabits.sel(inflevel=inflevel.inflevel)
+    return keepmantissabits
+
+
+def _cdf_from_info_per_bit(info_per_bit, bitdim):
+    """Convert info_per_bit to cumulative distribution function on dimension bitdim."""
+    # set below rounding error from last digit to zero
+    info_per_bit_cleaned = info_per_bit.where(
+        info_per_bit > info_per_bit.isel({bitdim: slice(-4, None)}).max(bitdim) * 1.5
+    )
+    # make cumulative distribution function
+    cdf = info_per_bit_cleaned.cumsum(bitdim) / info_per_bit_cleaned.cumsum(
+        bitdim
+    ).isel({bitdim: -1})
+    return cdf
 
 
 def _jl_bitround(X, keepbits):
