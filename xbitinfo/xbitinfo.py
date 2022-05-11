@@ -323,20 +323,16 @@ def get_keepbits(info_per_bit, inflevel=0.99):
         # get only variables of bitdim
         bit_vars = [v for v in info_per_bit.data_vars if bitdim in info_per_bit[v].dims]
         if bit_vars != []:
-            info_per_bit_cleaned = info_per_bit[bit_vars].where(
-                info_per_bit
-                > info_per_bit.isel({bitdim: slice(-4, None)}).max(bitdim) * 1.5
-            )
-            cdf = info_per_bit_cleaned.cumsum(bitdim) / info_per_bit_cleaned.cumsum(
-                bitdim
-            ).isel({bitdim: -1})
+            cdf = _cdf_from_info_per_bit(info_per_bit[bit_vars], bitdim)
+            bitdim_non_mantissa_bits = NMBITS[int(bitdim[3:])
             keepmantissabits_bitdim = (
-                (cdf > inflevel).argmax(bitdim) + 1 - NMBITS[int(bitdim[3:])]
+                (cdf > inflevel).argmax(bitdim) + 1 - bitdim_non_mantissa_bits]
             )
-            # keep all for 100% information
+            # keep all mantissa bits for 100% information
             if 1.0 in inflevel:
+                bitdim_all_mantissa_bits = int(bitdim[3:]) - bitdim_non_mantissa_bits
                 keepall = xr.ones_like(keepmantissabits_bitdim.sel(inflevel=1.0)) * (
-                    int(bitdim[3:]) - NMBITS[int(bitdim[3:])]
+                    bitdim_all_mantissa_bits
                 )
                 keepmantissabits_bitdim = xr.concat(
                     [keepmantissabits_bitdim.drop_sel(inflevel=1.0), keepall],
@@ -347,6 +343,20 @@ def get_keepbits(info_per_bit, inflevel=0.99):
     if inflevel.inflevel.size > 1:  # restore orginal ordering
         keepmantissabits = keepmantissabits.sel(inflevel=inflevel.inflevel)
     return keepmantissabits
+
+
+def _cdf_from_info_per_bit(info_per_bit, bitdim):
+    """Convert info_per_bit to cumulative distribution function on dimension bitdim."""
+    # set below rounding error from last digit to zero
+    info_per_bit_cleaned = info_per_bit.where(
+        info_per_bit
+        > info_per_bit.isel({bitdim: slice(-4, None)}).max(bitdim) * 1.5
+    )
+    # make cumulative distribution function
+    cdf = info_per_bit_cleaned.cumsum(bitdim) / info_per_bit_cleaned.cumsum(
+        bitdim
+    ).isel({bitdim: -1})
+    return cdf
 
 
 def _jl_bitround(X, keepbits):
