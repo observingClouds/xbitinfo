@@ -349,8 +349,7 @@ def _cdf_from_info_per_bit(info_per_bit, bitdim):
     """Convert info_per_bit to cumulative distribution function on dimension bitdim."""
     # set below rounding error from last digit to zero
     info_per_bit_cleaned = info_per_bit.where(
-        info_per_bit
-        > info_per_bit.isel({bitdim: slice(-4, None)}).max(bitdim) * 1.5
+        info_per_bit > info_per_bit.isel({bitdim: slice(-4, None)}).max(bitdim) * 1.5
     )
     # make cumulative distribution function
     cdf = info_per_bit_cleaned.cumsum(bitdim) / info_per_bit_cleaned.cumsum(
