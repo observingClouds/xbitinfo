@@ -5,7 +5,7 @@ import xarray as xr
 import xbitinfo as xb
 
 
-pytest.fixture
+@pytest.fixture
 def rasm_info_per_bit(rasm):
     return xb.get_bitinformation(rasm, axis=0)
 
@@ -26,6 +26,6 @@ def test_get_keepbits_inflevel_dim(rasm_info_per_bit, inflevel):
     """Test xb.get_keepbits returns inflevel as dim."""
     keepbits = xb.get_keepbits(rasm_info_per_bit, inflevel=inflevel)
     assert "inflevel" in keepbits.dims
-    if isinstance(inflevel, [int, float]):
+    if isinstance(inflevel, (int, float)):
       inflevel = [inflevel]
     assert keepbits.inflevel.size == len(inflevel)
