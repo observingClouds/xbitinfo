@@ -28,4 +28,4 @@ def test_get_keepbits_inflevel_dim(rasm_info_per_bit, inflevel):
     assert "inflevel" in keepbits.dims
     if isinstance(inflevel, (int, float)):
         inflevel = [inflevel]
-    assert keepbits.inflevel.size == len(inflevel)
+    assert (keepbits.inflevel == inflevel).all()
