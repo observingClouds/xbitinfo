@@ -21,11 +21,11 @@ def test_get_keepbits_inflevel_1(rasm_info_per_bit):
     assert (keepbits == 53).all()
 
 
-@pytest.mark.parametrize("inflevel", [.99, [.99, 1.]])
+@pytest.mark.parametrize("inflevel", [0.99, [0.99, 1.0]])
 def test_get_keepbits_inflevel_dim(rasm_info_per_bit, inflevel):
     """Test xb.get_keepbits returns inflevel as dim."""
     keepbits = xb.get_keepbits(rasm_info_per_bit, inflevel=inflevel)
     assert "inflevel" in keepbits.dims
     if isinstance(inflevel, (int, float)):
-      inflevel = [inflevel]
+        inflevel = [inflevel]
     assert keepbits.inflevel.size == len(inflevel)
