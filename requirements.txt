@@ -1,4 +1,4 @@
 xarray
 julia
 tqdm
-numcodecs @ git+https://github.com/rabernat/numcodecs@bitround
+numcodecs @ git+https://github.com/zarr-developers/numcodecs
