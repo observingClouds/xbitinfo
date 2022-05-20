@@ -24,5 +24,5 @@ dependencies:
   - myst-nb
   - pip
   - pip:
-    - git+https://github.com/rabernat/numcodecs@bitround
+    - git+https://github.com/zarr-developers/numcodecs
     - -e ../.
