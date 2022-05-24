@@ -9,7 +9,7 @@ CHANGELOG
   (:issue:`99`, :pr:`101`) `Aaron Spring`_.
 * Refactor :py:func:`xbitinfo.xbitinfo.get_keepbits` with xarray functions.
   (:pr:`100`) `Aaron Spring`_.
-* Allow `dim` as `list` in :py:func:`xbitinfo.xbitinfo.get_bitinformation`.
+* Allow ``dim`` as ``list`` in :py:func:`xbitinfo.xbitinfo.get_bitinformation`.
   (:issue:`105`, :pr:`106`) `Aaron Spring`_.
 
 
