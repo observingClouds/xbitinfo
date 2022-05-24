@@ -176,4 +176,4 @@ def test_get_bitinformation_different_dtypes(rasm):
 
 def test_get_bitinformation_dim_list(rasm):
     bi = xb.get_bitinformation(rasm, dim=["x", "y"])
-    assert set(bi.dims) == {"x", "y"}
+    assert bi.dim == ["x", "y"]
