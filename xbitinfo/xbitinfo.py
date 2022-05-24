@@ -150,8 +150,13 @@ def get_bitinformation(ds, dim=None, axis=None, label=None, overwrite=False, **k
     """
     if dim is None and axis is None:
         # gather bitinformation on all axis
-        return _get_bitinformation_along_all_dims(
-            ds, label=label, overwrite=overwrite, **kwargs
+        return _get_bitinformation_along_dims(
+            ds, dim=dim, label=label, overwrite=overwrite, **kwargs
+        )
+    if isinstance(dim, list) and axis is None:
+        # gather bitinformation on dims specified
+        return _get_bitinformation_along_dims(
+            ds, dim=dim, label=label, overwrite=overwrite, **kwargs
         )
     else:
         # gather bitinformation along one axis
@@ -214,15 +219,17 @@ def get_bitinformation(ds, dim=None, axis=None, label=None, overwrite=False, **k
     return dict_to_dataset(info_per_bit)
 
 
-def _get_bitinformation_along_all_dims(ds, label=None, overwrite=False, **kwargs):
-    """Helper function for :py:func:`xbitinfo.xbitinfo.get_bitinformation` to handle multi-dimensional analysis.
+def _get_bitinformation_along_dims(ds, dim=None, label=None, overwrite=False, **kwargs):
+    """Helper function for :py:func:`xbitinfo.xbitinfo.get_bitinformation` to handle multi-dimensional analysis for each dim specified.
 
     Simple wrapper around :py:func:`xbitinfo.xbitinfo.get_bitinformation`, which calls :py:func:`xbitinfo.xbitinfo.get_bitinformation`
     for each dimension found in the provided :py:func:`xarray.Dataset`. The retrieved bitinformation
     is gathered in a joint :py:func:`xarray.Dataset` and is returned.
     """
     info_per_bit_per_dim = {}
-    for d in ds.dims:
+    if dim is None:
+        dim = ds.dims
+    for d in dim:
         logging.info(f"Get bitinformation along dimension {d}")
         if label is not None:
             label = "_".join([label, d])
