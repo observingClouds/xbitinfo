@@ -229,7 +229,7 @@ def get_bitinformation(
     return dict_to_dataset(info_per_bit)
 
 
-def _jl_get_bitinformation(ds, var, axis, dim, kwargs):
+def _jl_get_bitinformation(ds, var, axis, dim, kwargs={}):
     X = ds[var].values
     Main.X = X
     if axis is not None:
@@ -256,10 +256,16 @@ def _jl_get_bitinformation(ds, var, axis, dim, kwargs):
     return info_per_bit
 
 
-def _py_get_bitinformation(ds, var, axis, dim, kwargs=None):
-    assert (
-        kwargs == {}
-    ), "This implementation only supports the plain bitinfo implementation"
+def _py_get_bitinformation(ds, var, axis, dim, kwargs={}):
+    if "set_zero_insignificant" in kwargs.keys():
+        if kwargs["set_zero_insignificant"]:
+            raise NotImplementedError(
+                "set_zero_insignificant is not implemented in the python implementation"
+            )
+    else:
+        assert (
+            kwargs == {}
+        ), "This implementation only supports the plain bitinfo implementation"
     X = da.array(ds[var]).astype(np.uint)
     if axis is not None:
         dim = ds[var].dims[axis]

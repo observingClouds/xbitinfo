@@ -11,11 +11,8 @@ def bitpaircount_u1(a, b):
     index = ((unpack_a << 1) | unpack_b).reshape(-1, 8)
 
     selection = np.array([0, 1, 2, 3], dtype="u1")
-    print("selection")
     sel = np.where((index[..., np.newaxis]) == selection, True, False)
-    print("summing stuff")
     to_return = sel.sum(axis=0).reshape(8, 2, 2)
-    print("finished summing stuff")
     return to_return
 
 
@@ -36,10 +33,7 @@ def bitpaircount(a, b):
 
 def mutual_information(a, b, base=2):
     size = np.prod(np.broadcast_shapes(a.shape, b.shape))
-    print("run bitpaircount")
     counts = bitpaircount(a, b)
-    print("finished bitpaircount")
-    print(size)
 
     p = counts.astype("float") / size
     pr = p.sum(axis=-1)[..., np.newaxis]
