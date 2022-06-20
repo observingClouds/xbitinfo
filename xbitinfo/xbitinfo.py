@@ -241,7 +241,7 @@ def _jl_get_bitinformation(ds, var, axis, dim, kwargs={}):
             # in julia convention axis + 1
             axis_jl = ds[var].get_axis_num(dim) + 1
         except ValueError:
-            logging.info(f"Variable [var] does not have dimension {dim}. Skipping.")
+            logging.info(f"Variable {var} does not have dimension {dim}. Skipping.")
             return
     assert isinstance(axis_jl, int)
     Main.dim = axis_jl
