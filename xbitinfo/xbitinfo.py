@@ -276,7 +276,8 @@ def _py_get_bitinformation(ds, var, axis, dim, kwargs={}):
             logging.info(f"Variable {var} does not have dimension {dim}. Skipping.")
             return
     info_per_bit = {}
-    info_per_bit["bitinfo"] = pb.bitinformation(X, axis=axis)
+    logging.info("Calling python implementation now")
+    info_per_bit["bitinfo"] = pb.bitinformation(X, axis=axis).compute()
     info_per_bit["dim"] = dim
     info_per_bit["axis"] = axis
     return info_per_bit
