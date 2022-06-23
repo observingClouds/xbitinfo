@@ -1,4 +1,4 @@
 xarray
 julia
 tqdm
-numcodecs @ git+https://github.com/zarr-developers/numcodecs
+numcodecs >= 0.10.0
