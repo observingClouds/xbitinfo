@@ -29,6 +29,6 @@ dependencies:
   - myst-nb
   - pip
   - pip:
-    - git+https://github.com/zarr-developers/numcodecs
+    - numcodecs
     - pytest-lazy-fixture
     - -e .
