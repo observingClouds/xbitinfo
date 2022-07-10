@@ -1,4 +1,5 @@
 import numpy as np
+import numpy.ma as nm
 
 
 def bitpaircount_u1(a, b):
@@ -46,12 +47,11 @@ def mutual_information(a, b, base=2):
     counts = bitpaircount(a, b)
 
     p = counts.astype("float") / size
+    p = nm.masked_equal(p, 0, copy=False)
     pr = p.sum(axis=-1)[..., np.newaxis]
     ps = p.sum(axis=-2)[..., np.newaxis, :]
-
-    return np.where(p > 0, p * np.log(p / (pr * ps)), 0).sum(axis=(-1, -2)) / np.log(
-        base
-    )
+    mutual_info = (p * np.ma.log(p / (pr * ps))).sum(axis=(-1, -2)) / np.log(base)
+    return mutual_info
 
 
 def bitinformation(a, axis=0):
