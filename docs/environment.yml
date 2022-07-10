@@ -20,7 +20,7 @@ dependencies:
   - sphinx!=4.4.0
   - sphinxcontrib-napoleon
   - sphinx-copybutton
-  - sphinx-book-theme
+  - sphinx-book-theme>=0.1.7
   - myst-nb
   - pip
   - pip:
