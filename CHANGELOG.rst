@@ -2,7 +2,7 @@
 CHANGELOG
 =========
 
-0.0.x (2022-xx-xx)
+0.0.2 (2022-07-11)
 ------------------
 
 * Fix ``kwargs`` in :py:func:`xbitinfo.xbitinfo._get_bitinformation_kwargs_handler` which were not reused for other variables in :py:func:`xbitinfo.xbitinfo.get_bitinformation`.
