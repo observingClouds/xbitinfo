@@ -134,10 +134,10 @@ def get_bitinformation(ds, dim=None, axis=None, label=None, overwrite=False, **k
         BitInformation.jl_version:  ...
     >>> xb.get_bitinformation(ds)
     <xarray.Dataset>
-    Dimensions:  (dim: 3, bit32: 32)
+    Dimensions:  (bit32: 32, dim: 3)
     Coordinates:
-      * dim      (dim) <U4 'lat' 'lon' 'time'
       * bit32    (bit32) <U3 '±' 'e1' 'e2' 'e3' 'e4' ... 'm20' 'm21' 'm22' 'm23'
+      * dim      (dim) <U4 'lat' 'lon' 'time'
     Data variables:
         air      (dim, bit32) float64 0.0 0.0 0.0 0.0 ... 0.0 6.327e-06 0.0004285
     Attributes:
