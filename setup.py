@@ -84,10 +84,13 @@ setup(
     tests_require=test_requirements,
     url="https://github.com/observingClouds/xbitinfo",
     zip_safe=False,
-    use_scm_version={"version_scheme": "post-release", "local_scheme": "dirty-tag"},
     setup_requires=[
         "setuptools_scm",
         "setuptools>=30.3.0",
-        "setuptools_scm_git_archive",
     ],
+    use_scm_version={
+        "write_to": "xbitinfo/_version.py",
+        "write_to_template": '__version__ = "{version}"',
+        "tag_regex": r"^(?P<prefix>v)?(?P<version>[^\+]+)(?P<suffix>.*)?$",
+    },
 )
