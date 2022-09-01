@@ -4,9 +4,9 @@
 # https://github.com/MilesCranmer/PySR/blob/master/pysr/julia_helpers.py
 # https://github.com/MilesCranmer/PySR/blob/master/LICENSE
 
+import os
 import warnings
 from pathlib import Path
-import os
 
 from ._version import __version__
 
@@ -101,7 +101,7 @@ def init_julia():
         # Static python binary, so we turn off pre-compiled modules.
         from julia.core import Julia
 
-        jl = Julia(compiled_modules=False)
+        jl = Julia(compiled_modules=False)  # noqa
         from julia import Main as _Main
 
         Main = _Main
