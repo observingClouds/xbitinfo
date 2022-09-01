@@ -8,6 +8,12 @@ from julia.api import Julia
 from tqdm.auto import tqdm
 
 from . import __version__
+from .julia_helpers import install
+
+already_ran = False
+if not already_ran:
+    already_ran = install(quiet=True)
+
 
 jl = Julia(compiled_modules=False, debug=False)
 from julia import Main  # noqa: E402
