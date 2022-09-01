@@ -37,8 +37,6 @@ jobs:
           which conda
           pip install asv
           pip install .
-          julia install_julia_packages.jl
-          julia -e "using Pkg; Pkg.status()"
           sudo apt-get update -y
       - name: Run benchmarks
         shell: bash -l {0}
