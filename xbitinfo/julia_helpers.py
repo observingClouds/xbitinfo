@@ -1,4 +1,9 @@
 """Functions for initializing the Julia environment and installing deps."""
+
+# Lifted from:
+# https://github.com/MilesCranmer/PySR/blob/master/pysr/julia_helpers.py
+# https://github.com/MilesCranmer/PySR/blob/master/LICENSE
+
 import warnings
 from pathlib import Path
 import os
