@@ -15,7 +15,7 @@ if not already_ran:
     already_ran = install(quiet=False)
 
 
-jl = Julia(compiled_modules=False, debug=False)
+jl = Julia(compiled_modules=False, debug=True)
 from julia import Main  # noqa: E402
 
 path_to_julia_functions = os.path.join(
