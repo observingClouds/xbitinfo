@@ -12,7 +12,7 @@ from .julia_helpers import install
 
 already_ran = False
 if not already_ran:
-    already_ran = install(quiet=True)
+    already_ran = install(quiet=False)
 
 
 jl = Julia(compiled_modules=False, debug=False)
