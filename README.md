@@ -1,3 +1,7 @@
+<h1 align="center">
+<img src="/docs/_static/xbitinfo_logo.svg" width="300">
+</h1><br>
+
 # xbitinfo: Retrieve information content and compress accordingly
 
 [![Binder](https://mybinder.org/badge_logo.svg)](https://mybinder.org/v2/gh/observingClouds/xbitinfo/main?labpath=docs%2Fquick-start.ipynb) [![CI](https://github.com/observingClouds/xbitinfo/actions/workflows/ci.yaml/badge.svg?branch=main)](https://github.com/observingClouds/xbitinfo/actions/workflows/ci.yaml) [![pre-commit.ci status](https://results.pre-commit.ci/badge/github/observingClouds/xbitinfo/main.svg)](https://results.pre-commit.ci/latest/github/observingClouds/xbitinfo/main) [![Documentation Status](https://readthedocs.org/projects/xbitinfo/badge/?version=latest)](https://xbitinfo.readthedocs.io/en/latest/?badge=latest) [![pypi](https://img.shields.io/pypi/v/xbitinfo.svg)](https://pypi.python.org/pypi/xbitinfo)
