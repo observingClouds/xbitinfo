@@ -8,8 +8,14 @@ from julia.api import Julia
 from tqdm.auto import tqdm
 
 from . import __version__
+from .julia_helpers import install
 
-jl = Julia(compiled_modules=False, debug=False)
+already_ran = False
+if not already_ran:
+    already_ran = install(quiet=True)
+
+
+jl = Julia(compiled_modules=False, debug=True)
 from julia import Main  # noqa: E402
 
 path_to_julia_functions = os.path.join(
