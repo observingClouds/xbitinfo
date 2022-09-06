@@ -115,14 +115,12 @@ def _add_to_julia_project(Main, io_arg):
         url="https://github.com/milankl/BitInformation.jl",
         rev="v0.6.0",
     )
-    Main.eval(f"Pkg.add(bitinformation_spec, {io_arg})")
-
     Main.statsbase_spec = Main.PackageSpec(
         name="StatsBase",
         url="https://github.com/JuliaStats/StatsBase.jl",
         rev="v0.33.21",
     )
-    Main.eval(f"Pkg.add(statsbase_spec, {io_arg})")
+    Main.eval(f"Pkg.add([bitinformation_spec, statsbase_spec], {io_arg})")
 
 
 def _escape_filename(filename):
