@@ -27,8 +27,8 @@ dependencies:
   - sphinx-copybutton
   - sphinx-book-theme
   - myst-nb
+  - numcodecs>=0.10.0
+  - pytest-lazy-fixture
   - pip
   - pip:
-    - numcodecs
-    - pytest-lazy-fixture
     - -e .

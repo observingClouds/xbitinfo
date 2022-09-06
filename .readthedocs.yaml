@@ -10,8 +10,6 @@ build:
     - conda list
     - which python
     - which conda
-    - julia install_julia_packages.jl  # https://docs.readthedocs.io/en/stable/config-file/v2.html  # https://github.com/readthedocs/readthedocs.org/issues/1740
-    - julia -e "import Pkg; Pkg.status()"
 
 conda:
   environment: docs/environment.yml

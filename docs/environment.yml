@@ -22,7 +22,7 @@ dependencies:
   - sphinx-copybutton
   - sphinx-book-theme>=0.1.7
   - myst-nb
+  - numcodecs>=0.10.0
   - pip
   - pip:
-    - git+https://github.com/zarr-developers/numcodecs
     - -e ../.
