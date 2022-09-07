@@ -2,6 +2,12 @@
 CHANGELOG
 =========
 
+0.0.3 (unreleased)
+------------------
+
+* Fix julia package installations for PyPi and enable installation via pip and conda (:issue:`18`, :pr:`132`, :pr:`131`) `Filipe Fernandes`_, `Mark Kittisopikul`_.
+* Fix compression example for zarr-files (:issue:`119`, :pr:`121`) `Hauke Schulz`_.
+
 0.0.2 (2022-07-11)
 ------------------
 
