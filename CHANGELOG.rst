@@ -2,7 +2,7 @@
 CHANGELOG
 =========
 
-0.0.3 (unreleased)
+0.0.3 (2022-07-11)
 ------------------
 
 * Fix julia package installations for PyPi and enable installation via pip and conda (:issue:`18`, :pr:`132`, :pr:`131`) `Filipe Fernandes`_, `Mark Kittisopikul`_.
