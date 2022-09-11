@@ -26,9 +26,9 @@ Klöwer, M., Razinger, M., Dominguez, J. J., Düben, P. D., & Palmer, T. N. (202
 [BitInformation.jl](https://github.com/milankl/BitInformation.jl)
 
 ## How to install
-
+### Preferred installation
 `conda install -c conda-forge xbitinfo`
-
+### Alternative installation
 `pip install xbitinfo` # ensure julia is already installed
 
 ## How to use
