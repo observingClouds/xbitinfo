@@ -29,7 +29,7 @@ Klöwer, M., Razinger, M., Dominguez, J. J., Düben, P. D., & Palmer, T. N. (202
 ### Preferred installation
 `conda install -c conda-forge xbitinfo`
 ### Alternative installation
-`pip install xbitinfo` # ensure julia is already installed
+`pip install xbitinfo` # ensure to install julia manually
 
 ## How to use
 
