@@ -351,7 +351,7 @@ def plot_distribution(ds, nbins=1000, cmap="viridis", offset=0.01, close_zero=1e
     Example
     -------
     >>> ds = xr.tutorial.load_dataset("eraint_uvz")
-    >>> xb.plot_distribution(ds)
+    >>> xb.plot_distribution(ds)  # doctest: +ELLIPSIS
     <AxesSubplot:title={'center':'Statistical distributions'}, xlabel='value', ylabel='Probability density'>
 
     """
