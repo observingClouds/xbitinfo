@@ -26,7 +26,7 @@ def get_chunksizes(da, for_cdo=False, time_dim="time", chunks=None):
 
 
 def get_compress_encoding_nc(
-    ds_bitrounded,
+    ds,
     compression="zlib",
     shuffle=True,
     complevel=9,
@@ -51,15 +51,15 @@ def get_compress_encoding_nc(
     """
     return {
         v: {
-            **ds_bitrounded[v].encoding,
+            **ds[v].encoding,
             compression: True,
             "shuffle": shuffle,
             "complevel": complevel,
             "chunksizes": get_chunksizes(
-                ds_bitrounded[v], for_cdo=for_cdo, time_dim=time_dim, chunks=chunks
+                ds[v], for_cdo=for_cdo, time_dim=time_dim, chunks=chunks
             ),
         }
-        for v in ds_bitrounded.data_vars
+        for v in ds.data_vars
     }
 
 
@@ -133,7 +133,7 @@ class ToCompressed_Netcdf:
 
 
 def get_compress_encoding_zarr(
-    ds_bitrounded,
+    ds,
     compressor=numcodecs.Blosc("zstd", shuffle=numcodecs.Blosc.BITSHUFFLE),
 ):
     """Generate encoding for :py:meth:`xarray.Dataset.to_zarr`.
@@ -150,7 +150,7 @@ def get_compress_encoding_zarr(
     """
     encoding = {}
     if isinstance(compressor, dict):
-        for v in ds_bitrounded.data_vars:
+        for v in ds.data_vars:
             if v in compressor.keys():
                 encoding[v] = {"compressor": compressor[v]}
             else:
@@ -163,7 +163,7 @@ def get_compress_encoding_zarr(
                     )
                 }
     else:
-        for v in ds_bitrounded.data_vars:
+        for v in ds.data_vars:
             encoding[v] = {"compressor": compressor}
 
     return encoding
