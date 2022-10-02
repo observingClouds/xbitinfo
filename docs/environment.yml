@@ -24,5 +24,6 @@ dependencies:
   - myst-nb
   - numcodecs>=0.10.0
   - pip
+  - xbitinfo # to ship julia
   - pip:
     - -e ../.
