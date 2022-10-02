@@ -1,5 +1,3 @@
-import logging
-
 import numcodecs
 import xarray as xr
 
@@ -150,21 +148,15 @@ def get_compress_encoding_zarr(
     """
     encoding = {}
     if isinstance(compressor, dict):
-        for v in ds.data_vars:
-            if v in compressor.keys():
-                encoding[v] = {"compressor": compressor[v]}
-            else:
-                logging.warning(
-                    f"No compressor given for variable {v}. Using default compressor"
-                )
-                encoding[v] = {
-                    "compressor": numcodecs.Blosc(
-                        "zstd", shuffle=numcodecs.Blosc.BITSHUFFLE
-                    )
-                }
+        default_compressor = numcodecs.Blosc("zstd", shuffle=numcodecs.Blosc.BITSHUFFLE)
+        encoding = {
+            v: {**ds[v].encoding, "compressor": compressor.get(v, default_compressor)}
+            for v in ds.data_vars
+        }
     else:
-        for v in ds.data_vars:
-            encoding[v] = {"compressor": compressor}
+        encoding = {
+            v: {**ds[v].encoding, "compressor": compressor} for v in ds.data_vars
+        }
 
     return encoding
 
