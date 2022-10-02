@@ -51,6 +51,7 @@ def get_compress_encoding_nc(
     """
     return {
         v: {
+            **ds_bitrounded[v].encoding,
             compression: True,
             "shuffle": shuffle,
             "complevel": complevel,
