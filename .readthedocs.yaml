@@ -6,12 +6,12 @@ build:
     python: "mambaforge-4.10"
   jobs:
     post_install:
+    - python -m ipykernel install --user
+    - python -c "import xbitinfo"
     - conda env list
     - conda list
     - which python
     - which conda
-    - python -m ipykernel install --user --name bitinfo
-    - python -c "import xbitinfo"
 
 conda:
   environment: docs/environment.yml
