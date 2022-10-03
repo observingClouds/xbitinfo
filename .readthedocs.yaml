@@ -6,7 +6,7 @@ build:
     python: "mambaforge-4.10"
   jobs:
     post_install:
-    - python -m ipykernel install --user
+    - python -m pip install -e .
     - python -c "import xbitinfo"
     - conda env list
     - conda list
