@@ -114,8 +114,10 @@ class ToCompressed_Netcdf:
         for_cdo=False,
         time_dim="time",
         chunks=None,
+        engine="netcdf4",
         **kwargs,
     ):
+        assert engine == "netcdf4", "Only 'netcdf4' engine is currently supported."
         self._obj.to_netcdf(
             path,
             encoding=get_compress_encoding_nc(
@@ -127,6 +129,7 @@ class ToCompressed_Netcdf:
                 time_dim=time_dim,
                 chunks=chunks,
             ),
+            engine=engine,
             **kwargs,
         )
 
