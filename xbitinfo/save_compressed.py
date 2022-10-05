@@ -47,9 +47,10 @@ def get_compress_encoding_nc(
     :py:meth:`xarray.Dataset.to_netcdf`
 
     """
+    enc_checker = xr.backends.netCDF4_._extract_nc4_variable_encoding
     return {
         v: {
-            **ds[v].encoding,
+            **enc_checker(ds[v]),
             compression: True,
             "shuffle": shuffle,
             "complevel": complevel,
