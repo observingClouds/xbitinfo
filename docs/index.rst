@@ -46,20 +46,19 @@ Julia Repository
 How to install
 ==============
 
-You can install the latest release of ``xbitinfo`` soon using ``pip``:
+Preferred installation
+----------------------
 
 .. code-block:: bash
 
-    pip install xbitinfo
+    conda install -c conda-forge xbitinfo
 
-
-You can also install the bleeding edge (pre-release versions) by running:
+Alternative installation
+------------------------
 
 .. code-block:: bash
 
-    pip install git+https://github.com/observingClouds/xbitinfo
-
-    pip install git+https://github.com/observingClouds/xbitinfo.git#egg=xbitinfo[complete]
+    pip install xbitinfo # ensure to install julia manually
 
 
 
