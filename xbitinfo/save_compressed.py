@@ -147,15 +147,19 @@ def get_compress_encoding_zarr(
     :py:meth:`xarray.Dataset.to_zarr`
     """
     encoding = {}
+    enc_checker = xr.backends.zarr.extract_zarr_variable_encoding
     if isinstance(compressor, dict):
         default_compressor = numcodecs.Blosc("zstd", shuffle=numcodecs.Blosc.BITSHUFFLE)
         encoding = {
-            v: {**ds[v].encoding, "compressor": compressor.get(v, default_compressor)}
+            v: {
+                **enc_checker(ds[v]),
+                "compressor": compressor.get(v, default_compressor),
+            }
             for v in ds.data_vars
         }
     else:
         encoding = {
-            v: {**ds[v].encoding, "compressor": compressor} for v in ds.data_vars
+            v: {**enc_checker(ds[v]), "compressor": compressor} for v in ds.data_vars
         }
 
     return encoding
