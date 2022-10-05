@@ -36,11 +36,11 @@ def get_compress_encoding_nc(
 
     Example
     -------
-    >>> ds = xr.tutorial.load_dataset("rasm")
+    >>> ds = xr.Dataset({"Tair": (("time", "x", "y"), np.random.rand(36, 20, 10))})
     >>> get_compress_encoding_nc(ds)
-    {'Tair': {'zlib': True, 'shuffle': True, 'complevel': 9, 'chunksizes': (36, 205, 275)}}
+    {'Tair': {'zlib': True, 'shuffle': True, 'complevel': 9, 'chunksizes': (36, 20, 10)}}
     >>> get_compress_encoding_nc(ds, for_cdo=True)
-    {'Tair': {'zlib': True, 'shuffle': True, 'complevel': 9, 'chunksizes': (1, 205, 275)}}
+    {'Tair': {'zlib': True, 'shuffle': True, 'complevel': 9, 'chunksizes': (1, 20, 10)}}
 
     See also
     --------
