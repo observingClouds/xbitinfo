@@ -10,6 +10,7 @@ build:
     - python -c "import xbitinfo as xb; xb.install()
     - julia -e "using Pkg; Pkg.status()"
     # - julia -e "using Pkg; Pkg.add(Pkg.PackageSpec(name="BitInformation", url="https://github.com/milankl/BitInformation.jl", rev="v0.6.0"))"
+    - julia -e "using Pkg; Pkg.add("BitInformation")"
     - julia -e "using Pkg; Pkg.status()"
     - conda env list
     - conda list
