@@ -5,6 +5,7 @@ try:
 except ImportError:
     __version__ = "unknown"
 
+from .julia_helpers import install
 from .bitround import jl_bitround, xr_bitround
 from .graphics import plot_bitinformation, plot_distribution
 from .save_compressed import get_compress_encoding_nc, get_compress_encoding_zarr
