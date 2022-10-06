@@ -7,7 +7,7 @@ build:
   jobs:
     post_install:
     - python -m pip install -e .
-    - python -c "import xbitinfo"
+    - python -c "import xbitinfo; xbitinfo.install()"
     - conda env list
     - conda list
     - which python
