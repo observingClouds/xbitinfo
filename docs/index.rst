@@ -4,6 +4,9 @@ xbitinfo: Retrieve information content and compress accordingly
 .. image:: https://github.com/observingClouds/xbitinfo/actions/workflows/ci.yaml/badge.svg
    :target: https://github.com/observingClouds/xbitinfo/actions/workflows/ci.yaml
 
+.. image:: https://studiolab.sagemaker.aws/studiolab.svg
+   :target: https://studiolab.sagemaker.aws/import/github/https://github.com/observingClouds/xbitinfo/blob/main/docs/quick-start.ipynb
+
 .. image:: https://results.pre-commit.ci/badge/github/observingClouds/xbitinfo/main.svg
    :target: https://results.pre-commit.ci/latest/github/observingClouds/xbitinfo/main
 
@@ -43,20 +46,19 @@ Julia Repository
 How to install
 ==============
 
-You can install the latest release of ``xbitinfo`` soon using ``pip``:
+Preferred installation
+----------------------
 
 .. code-block:: bash
 
-    pip install xbitinfo
+    conda install -c conda-forge xbitinfo
 
-
-You can also install the bleeding edge (pre-release versions) by running:
+Alternative installation
+------------------------
 
 .. code-block:: bash
 
-    pip install git+https://github.com/observingClouds/xbitinfo
-
-    pip install git+https://github.com/observingClouds/xbitinfo.git#egg=xbitinfo[complete]
+    pip install xbitinfo # ensure to install julia manually
 
 
 

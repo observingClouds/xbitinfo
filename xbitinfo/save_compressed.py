@@ -1,5 +1,3 @@
-import logging
-
 import numcodecs
 import xarray as xr
 
@@ -26,7 +24,7 @@ def get_chunksizes(da, for_cdo=False, time_dim="time", chunks=None):
 
 
 def get_compress_encoding_nc(
-    ds_bitrounded,
+    ds,
     compression="zlib",
     shuffle=True,
     complevel=9,
@@ -38,27 +36,29 @@ def get_compress_encoding_nc(
 
     Example
     -------
-    >>> ds = xr.tutorial.load_dataset("rasm")
+    >>> ds = xr.Dataset({"Tair": (("time", "x", "y"), np.random.rand(36, 20, 10))})
     >>> get_compress_encoding_nc(ds)
-    {'Tair': {'zlib': True, 'shuffle': True, 'complevel': 9, 'chunksizes': (36, 205, 275)}}
+    {'Tair': {'zlib': True, 'shuffle': True, 'complevel': 9, 'chunksizes': (36, 20, 10)}}
     >>> get_compress_encoding_nc(ds, for_cdo=True)
-    {'Tair': {'zlib': True, 'shuffle': True, 'complevel': 9, 'chunksizes': (1, 205, 275)}}
+    {'Tair': {'zlib': True, 'shuffle': True, 'complevel': 9, 'chunksizes': (1, 20, 10)}}
 
     See also
     --------
     :py:meth:`xarray.Dataset.to_netcdf`
 
     """
+    enc_checker = xr.backends.netCDF4_._extract_nc4_variable_encoding
     return {
         v: {
+            **enc_checker(ds[v]),
             compression: True,
             "shuffle": shuffle,
             "complevel": complevel,
             "chunksizes": get_chunksizes(
-                ds_bitrounded[v], for_cdo=for_cdo, time_dim=time_dim, chunks=chunks
+                ds[v], for_cdo=for_cdo, time_dim=time_dim, chunks=chunks
             ),
         }
-        for v in ds_bitrounded.data_vars
+        for v in ds.data_vars
     }
 
 
@@ -114,8 +114,10 @@ class ToCompressed_Netcdf:
         for_cdo=False,
         time_dim="time",
         chunks=None,
+        engine="netcdf4",
         **kwargs,
     ):
+        assert engine == "netcdf4", "Only 'netcdf4' engine is currently supported."
         self._obj.to_netcdf(
             path,
             encoding=get_compress_encoding_nc(
@@ -127,43 +129,42 @@ class ToCompressed_Netcdf:
                 time_dim=time_dim,
                 chunks=chunks,
             ),
+            engine=engine,
             **kwargs,
         )
 
 
 def get_compress_encoding_zarr(
-    ds_bitrounded,
+    ds,
     compressor=numcodecs.Blosc("zstd", shuffle=numcodecs.Blosc.BITSHUFFLE),
 ):
     """Generate encoding for :py:meth:`xarray.Dataset.to_zarr`.
 
     Example
     -------
-        >>> ds = xr.tutorial.load_dataset("rasm")
-        >>> get_compress_encoding_zarr(ds)
-        {'Tair': {'compressor': Blosc(cname='zstd', clevel=5, shuffle=BITSHUFFLE, blocksize=0)}}
+    >>> ds = xr.tutorial.load_dataset("rasm")
+    >>> get_compress_encoding_zarr(ds)
+    {'Tair': {'chunks': None, 'compressor': Blosc(cname='zstd', clevel=5, shuffle=BITSHUFFLE, blocksize=0)}}
 
     See also
     --------
     :py:meth:`xarray.Dataset.to_zarr`
     """
     encoding = {}
+    enc_checker = xr.backends.zarr.extract_zarr_variable_encoding
     if isinstance(compressor, dict):
-        for v in ds_bitrounded.data_vars:
-            if v in compressor.keys():
-                encoding[v] = {"compressor": compressor[v]}
-            else:
-                logging.warning(
-                    f"No compressor given for variable {v}. Using default compressor"
-                )
-                encoding[v] = {
-                    "compressor": numcodecs.Blosc(
-                        "zstd", shuffle=numcodecs.Blosc.BITSHUFFLE
-                    )
-                }
+        default_compressor = numcodecs.Blosc("zstd", shuffle=numcodecs.Blosc.BITSHUFFLE)
+        encoding = {
+            v: {
+                **enc_checker(ds[v]),
+                "compressor": compressor.get(v, default_compressor),
+            }
+            for v in ds.data_vars
+        }
     else:
-        for v in ds_bitrounded.data_vars:
-            encoding[v] = {"compressor": compressor}
+        encoding = {
+            v: {**enc_checker(ds[v]), "compressor": compressor} for v in ds.data_vars
+        }
 
     return encoding
 
