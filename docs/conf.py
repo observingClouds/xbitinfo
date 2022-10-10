@@ -139,6 +139,8 @@ html_context = {
     "doc_path": "docs",
 }
 
+html_logo = "_static/xbitinfo_logo.svg"
+
 
 myst_url_schemes = ["http", "https", "mailto"]
 
