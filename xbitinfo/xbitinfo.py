@@ -353,7 +353,7 @@ def get_keepbits(info_per_bit, inflevel=0.99):
                 )
             keepmantissabits.append(keepmantissabits_bitdim)
     keepmantissabits = xr.merge(keepmantissabits)
-    if inflevel.inflevel.size > 1:  # restore orginal ordering
+    if inflevel.inflevel.size > 1:  # restore original ordering
         keepmantissabits = keepmantissabits.sel(inflevel=inflevel.inflevel)
     return keepmantissabits
 
