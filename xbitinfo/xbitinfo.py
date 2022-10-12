@@ -15,7 +15,7 @@ if not already_ran:
     already_ran = install(quiet=True)
 
 
-jl = Julia(compiled_modules=False, debug=True)
+jl = Julia(compiled_modules=False, debug=False)
 from julia import Main  # noqa: E402
 
 path_to_julia_functions = os.path.join(
@@ -353,7 +353,7 @@ def get_keepbits(info_per_bit, inflevel=0.99):
                 )
             keepmantissabits.append(keepmantissabits_bitdim)
     keepmantissabits = xr.merge(keepmantissabits)
-    if inflevel.inflevel.size > 1:  # restore orginal ordering
+    if inflevel.inflevel.size > 1:  # restore original ordering
         keepmantissabits = keepmantissabits.sel(inflevel=inflevel.inflevel)
     return keepmantissabits
 
