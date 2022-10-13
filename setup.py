@@ -56,6 +56,7 @@ setup(
     package_data={"xbitinfo": ["*.jl"]},
     test_suite="tests",
     tests_require=test_requirements,
+    extras_require=extras_require,
     url="https://github.com/observingClouds/xbitinfo",
     zip_safe=False,
     setup_requires=[
