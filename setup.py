@@ -19,6 +19,7 @@ test_requirements = ["pytest", "pytest-lazy-fixture", "pooch", "netcdf4", "dask"
 extras_require = {
     "viz": ["matplotlib", "cmcrameri"],
     "prefect": ["prefect>=1.0.0,<2.0"],
+    "io": ["netcdf4", "zarr"],
 }
 extras_require["complete"] = sorted({v for req in extras_require.values() for v in req})
 extras_require["test"] = test_requirements
@@ -56,6 +57,7 @@ setup(
     package_data={"xbitinfo": ["*.jl"]},
     test_suite="tests",
     tests_require=test_requirements,
+    extras_require=extras_require,
     url="https://github.com/observingClouds/xbitinfo",
     zip_safe=False,
     setup_requires=[
