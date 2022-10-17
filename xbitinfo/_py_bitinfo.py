@@ -6,20 +6,26 @@ import numpy.ma as nm
 def bitpaircount_u1(a, b):
     assert a.dtype == "u1"
     assert b.dtype == "u1"
-    unpack_a = a.map_blocks(
-        np.unpackbits,
-        drop_axis=0,
-        meta=np.array((), dtype=np.uint8),
-        chunks=(a.size * 8,),
-    ).astype(
-        "u1"
-    )  # compute needed for correct shape
-    unpack_b = b.map_blocks(
-        np.unpackbits,
-        drop_axis=0,
-        meta=np.array((), dtype=np.uint8),
-        chunks=(b.size * 8,),
-    ).astype("u1")
+    unpack_a = (
+        a.flatten()
+        .map_blocks(
+            np.unpackbits,
+            drop_axis=0,
+            meta=np.array((), dtype=np.uint8),
+            chunks=(a.size * 8,),
+        )
+        .astype("u1")
+    )
+    unpack_b = (
+        b.flatten()
+        .map_blocks(
+            np.unpackbits,
+            drop_axis=0,
+            meta=np.array((), dtype=np.uint8),
+            chunks=(b.size * 8,),
+        )
+        .astype("u1")
+    )
     index = ((unpack_a << 1) | unpack_b).reshape(-1, 8)
 
     selection = np.array([0, 1, 2, 3], dtype="u1")
