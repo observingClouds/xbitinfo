@@ -4,16 +4,17 @@ import os
 
 import numpy as np
 import xarray as xr
+from dask import array as da
 from julia.api import Julia
 from tqdm.auto import tqdm
 
 from . import __version__
+from . import _py_bitinfo as pb
 from .julia_helpers import install
 
 already_ran = False
 if not already_ran:
     already_ran = install(quiet=True)
-
 
 jl = Julia(compiled_modules=False, debug=False)
 from julia import Main  # noqa: E402
@@ -212,10 +213,14 @@ def get_bitinformation(
                 else:
                     info_per_bit[var] = info_per_bit_var
             elif implementation == "python":
-                pass
+                info_per_bit_var = _py_get_bitinformation(ds, var, axis, dim, kwargs)
+                if info_per_bit_var is None:
+                    continue
+                else:
+                    info_per_bit[var] = info_per_bit_var
             else:
                 raise ValueError(
-                    f"Implementation of bitinformation algortihm {implementation} is unknown. Please choose a different one."
+                    f"Implementation of bitinformation algorithm {implementation} is unknown. Please choose a different one."
                 )
         if label is not None:
             with open(label + ".json", "w") as f:
@@ -248,6 +253,26 @@ def _jl_get_bitinformation(ds, var, axis, dim, kwargs):
     )
     info_per_bit["dim"] = dim
     info_per_bit["axis"] = axis_jl - 1
+    return info_per_bit
+
+
+def _py_get_bitinformation(ds, var, axis, dim, kwargs=None):
+    assert (
+        kwargs == {}
+    ), "This implementation only supports the plain bitinfo implementation"
+    X = da.array(ds[var]).astype(np.uint)
+    if axis is not None:
+        dim = ds[var].dims[axis]
+    if isinstance(dim, str):
+        try:
+            axis = ds[var].get_axis_num(dim)
+        except ValueError:
+            logging.info(f"Variable {var} does not have dimension {dim}. Skipping.")
+            return
+    info_per_bit = {}
+    info_per_bit["bitinfo"] = pb.bitinformation(X, axis=axis)
+    info_per_bit["dim"] = dim
+    info_per_bit["axis"] = axis
     return info_per_bit
 
 
