@@ -1,3 +1,4 @@
+import dask.array as da
 import numpy as np
 import numpy.ma as nm
 
@@ -47,7 +48,7 @@ def mutual_information(a, b, base=2):
     counts = bitpaircount(a, b)
 
     p = counts.astype("float") / size
-    p = nm.masked_equal(p, 0, copy=False)
+    p = da.ma.masked_equal(p, 0)
     pr = p.sum(axis=-1)[..., np.newaxis]
     ps = p.sum(axis=-2)[..., np.newaxis, :]
     mutual_info = (p * np.ma.log(p / (pr * ps))).sum(axis=(-1, -2)) / np.log(base)
