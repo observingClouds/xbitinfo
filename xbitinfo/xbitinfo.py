@@ -170,12 +170,22 @@ def get_bitinformation(
     if dim is None and axis is None:
         # gather bitinformation on all axis
         return _get_bitinformation_along_dims(
-            ds, dim=dim, label=label, overwrite=overwrite, **kwargs
+            ds,
+            dim=dim,
+            label=label,
+            overwrite=overwrite,
+            implementation=implementation,
+            **kwargs,
         )
     if isinstance(dim, list) and axis is None:
         # gather bitinformation on dims specified
         return _get_bitinformation_along_dims(
-            ds, dim=dim, label=label, overwrite=overwrite, **kwargs
+            ds,
+            dim=dim,
+            label=label,
+            overwrite=overwrite,
+            implementation=implementation,
+            **kwargs,
         )
     else:
         # gather bitinformation along one axis
@@ -283,7 +293,14 @@ def _py_get_bitinformation(ds, var, axis, dim, kwargs={}):
     return info_per_bit
 
 
-def _get_bitinformation_along_dims(ds, dim=None, label=None, overwrite=False, **kwargs):
+def _get_bitinformation_along_dims(
+    ds,
+    dim=None,
+    label=None,
+    overwrite=False,
+    implementation="BitInformation.jl",
+    **kwargs,
+):
     """Helper function for :py:func:`xbitinfo.xbitinfo.get_bitinformation` to handle multi-dimensional analysis for each dim specified.
 
     Simple wrapper around :py:func:`xbitinfo.xbitinfo.get_bitinformation`, which calls :py:func:`xbitinfo.xbitinfo.get_bitinformation`
