@@ -68,7 +68,7 @@ def test_get_bitinformation_returns_dataset(implementation):
     """Test xb.get_bitinformation returns xr.Dataset."""
     ds = xr.tutorial.load_dataset("rasm")
     assert isinstance(
-        xb.get_bitinformation(ds, axis=0, implementation=implementation), xr.Dataset
+        xb.get_bitinformation(ds, implementation=implementation, axis=0), xr.Dataset
     )
 
 
@@ -154,7 +154,7 @@ def test_get_bitinformation_label(rasm, implementation):
 
 @pytest.mark.parametrize("implementation", ["BitInformation.jl", "python"])
 @pytest.mark.parametrize("dtype", ["float64", "float32", "float16"])
-def test_get_bitinformation_dtype(rasm, dtype):
+def test_get_bitinformation_dtype(rasm, dtype, implementation):
     """Test xb.get_bitinformation returns correct number of bits depending on dtype."""
     ds = rasm.astype(dtype)
     v = list(ds.data_vars)[0]
