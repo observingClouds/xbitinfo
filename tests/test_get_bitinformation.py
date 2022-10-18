@@ -110,15 +110,18 @@ def test_get_bitinformation_set_zero_insignificant(implementation):
     """Test xb.get_bitinformation is sensitive to set_zero_insignificant."""
     ds = xr.tutorial.load_dataset("air_temperature")
     dim = "lon"
+    bitinfo = xb.get_bitinformation(ds, dim=dim, implementation=implementation)
     bitinfo_szi_False = xb.get_bitinformation(
         ds, dim=dim, set_zero_insignificant=False, implementation=implementation
     )
-    bitinfo_szi_True = xb.get_bitinformation(
-        ds, dim=dim, set_zero_insignificant=True, implementation=implementation
-    )
-    bitinfo = xb.get_bitinformation(ds, dim=dim, implementation=implementation)
-    assert_different(bitinfo, bitinfo_szi_False)
-    assert_identical(bitinfo, bitinfo_szi_True)
+    try:
+        bitinfo_szi_True = xb.get_bitinformation(
+            ds, dim=dim, set_zero_insignificant=True, implementation=implementation
+        )
+        assert_different(bitinfo, bitinfo_szi_True)
+    except NotImplementedError:
+        assert implementation == "python"
+    assert_identical(bitinfo, bitinfo_szi_False)
 
 
 @pytest.mark.parametrize("implementation", ["BitInformation.jl", "python"])
