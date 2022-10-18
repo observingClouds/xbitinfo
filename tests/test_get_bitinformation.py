@@ -118,10 +118,10 @@ def test_get_bitinformation_set_zero_insignificant(implementation):
         bitinfo_szi_True = xb.get_bitinformation(
             ds, dim=dim, set_zero_insignificant=True, implementation=implementation
         )
-        assert_different(bitinfo, bitinfo_szi_True)
+        assert_identical(bitinfo, bitinfo_szi_True)
     except NotImplementedError:
         assert implementation == "python"
-    assert_identical(bitinfo, bitinfo_szi_False)
+    assert_different(bitinfo, bitinfo_szi_False)
 
 
 @pytest.mark.parametrize("implementation", ["BitInformation.jl", "python"])
