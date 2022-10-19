@@ -120,7 +120,10 @@ def test_get_bitinformation_set_zero_insignificant(implementation):
         assert_identical(bitinfo, bitinfo_szi_True)
     except NotImplementedError:
         assert implementation == "python"
-    assert_different(bitinfo, bitinfo_szi_False)
+    if implementation == "python":
+        assert_identical(bitinfo, bitinfo_szi_False)
+    elif implementation == "BitInformation.jl":
+        assert_different(bitinfo, bitinfo_szi_False)
 
 
 @pytest.mark.parametrize("implementation", ["BitInformation.jl", "python"])

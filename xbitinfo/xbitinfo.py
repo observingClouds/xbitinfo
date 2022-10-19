@@ -124,7 +124,7 @@ def get_bitinformation(
 
         - masked_value: defaults to ``NaN`` (different to ``bitinformation.jl`` defaulting to ``"nothing"``), set ``None`` disable masking
         - mask: use ``masked_value`` instead
-        - set_zero_insignificant (``bool``): defaults to ``True``
+        - set_zero_insignificant (``bool``): defaults to ``True`` (BitInformation.jl implementation) or ``False`` (python implementation)
         - confidence (``float``): defaults to ``0.99``
 
 
