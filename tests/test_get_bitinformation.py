@@ -90,7 +90,7 @@ def test_get_bitinformation_dim_string_equals_axis_int(implementation):
     assert_identical(bitinfox, bitinfo2)
 
 
-def test_get_bitinformation_masked_value(implementation):
+def test_get_bitinformation_masked_value(implementation="BitInformation.jl"):
     """Test xb.get_bitinformation is sensitive to masked_value."""
     ds = xr.tutorial.load_dataset("rasm")
     bitinfo = xb.get_bitinformation(ds, dim="x", implementation=implementation)
