@@ -6,6 +6,7 @@ build:
     python: "mambaforge-4.10"
   commands:
     - mamba env create docs/environment.yml -n docs
+    - conda init bash
     - conda activate docs
     - conda env list
     - conda list
