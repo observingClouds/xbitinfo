@@ -4,7 +4,7 @@ build:
   os: ubuntu-20.04
   tools:
     python: "mambaforge-4.10"
-  jobs:
+  commands:
     - mamba install docs/environment.yml
     - conda env list
     - conda list
