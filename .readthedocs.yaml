@@ -10,10 +10,14 @@ build:
     - conda init bash
     - source activate docs || true
     - which python
-    - source ~/.bashrc || true
+    - ~/.bashrc || true
     - source activate docs || true
     - which python
     - source activate /home/docs/.asdf/installs/python/mambaforge-4.10.3-10/envs/docs || true
+    - which python
+    - conda info
+    - echo $PATH
+    - export PATH=$PATH:/home/docs/.asdf/installs/python/mambaforge-4.10.3-10/envs/docs/bin
     - which python
     - conda env list
     - which python
