@@ -8,6 +8,13 @@ build:
     - bash -l
     - mamba env create docs/environment.yml -n docs
     - conda init bash
+    - source activate docs || true
+    - which python
+    - source ~/.bashrc || true
+    - source activate docs || true
+    - which python
+    - source activate /home/docs/.asdf/installs/python/mambaforge-4.10.3-10/envs/docs || true
+    - which python
     - conda env list
     - which python
     - conda activate docs
