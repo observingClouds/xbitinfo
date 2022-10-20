@@ -96,7 +96,7 @@ def get_bitinformation(
     axis=None,
     label=None,
     overwrite=False,
-    implementation="BitInformation.jl",
+    implementation="julia",
     **kwargs,
 ):
     """Wrap `BitInformation.jl.bitinformation() <https://github.com/milankl/BitInformation.jl/blob/main/src/mutual_information.jl>`__.
@@ -117,14 +117,14 @@ def get_bitinformation(
       If ``False``, try using serialized bitinfo based on label; if true or label does not exist, run bitinformation
     implementation : str
       Bitinformation algorithm implementation. Valid options are
-        - BitInformation.jl, the original implementation in julia by Milan Kloewer
-        - python, a copy of the core functionality of BitInformation.jl in python
+        - julia, the original implementation of julia in julia by Milan Kloewer
+        - python, a copy of the core functionality of julia in python
     kwargs
       to be passed to bitinformation:
 
-        - masked_value: defaults to ``NaN`` (different to ``bitinformation.jl`` defaulting to ``"nothing"``), set ``None`` disable masking
+        - masked_value: defaults to ``NaN`` (different to ``julia`` defaulting to ``"nothing"``), set ``None`` disable masking
         - mask: use ``masked_value`` instead
-        - set_zero_insignificant (``bool``): defaults to ``True`` (BitInformation.jl implementation) or ``False`` (python implementation)
+        - set_zero_insignificant (``bool``): defaults to ``True`` (julia implementation) or ``False`` (python implementation)
         - confidence (``float``): defaults to ``0.99``
 
 
@@ -216,7 +216,7 @@ def get_bitinformation(
         pbar = tqdm(ds.data_vars)
         for var in pbar:
             pbar.set_description("Processing %s" % var)
-            if implementation == "BitInformation.jl":
+            if implementation == "julia":
                 info_per_bit_var = _jl_get_bitinformation(ds, var, axis, dim, kwargs)
                 if info_per_bit_var is None:
                     continue
@@ -298,7 +298,7 @@ def _get_bitinformation_along_dims(
     dim=None,
     label=None,
     overwrite=False,
-    implementation="BitInformation.jl",
+    implementation="julia",
     **kwargs,
 ):
     """Helper function for :py:func:`xbitinfo.xbitinfo.get_bitinformation` to handle multi-dimensional analysis for each dim specified.

@@ -63,7 +63,7 @@ def bitinfo_assert_different(bitinfo1, bitinfo2):
     assert (bitinfo1 != bitinfo2).any()
 
 
-@pytest.mark.parametrize("implementation", ["BitInformation.jl", "python"])
+@pytest.mark.parametrize("implementation", ["julia", "python"])
 def test_get_bitinformation_returns_dataset(implementation):
     """Test xb.get_bitinformation returns xr.Dataset."""
     ds = xr.tutorial.load_dataset("rasm")
@@ -72,7 +72,7 @@ def test_get_bitinformation_returns_dataset(implementation):
     )
 
 
-@pytest.mark.parametrize("implementation", ["BitInformation.jl", "python"])
+@pytest.mark.parametrize("implementation", ["julia", "python"])
 def test_get_bitinformation_dim(implementation):
     """Test xb.get_bitinformation is sensitive to dim."""
     ds = xr.tutorial.load_dataset("rasm")
@@ -81,7 +81,7 @@ def test_get_bitinformation_dim(implementation):
     assert_different(bitinfo0, bitinfo2)
 
 
-@pytest.mark.parametrize("implementation", ["BitInformation.jl", "python"])
+@pytest.mark.parametrize("implementation", ["julia", "python"])
 def test_get_bitinformation_dim_string_equals_axis_int(implementation):
     """Test xb.get_bitinformation undestands xarray dimension names the same way as axis as integers."""
     ds = xr.tutorial.load_dataset("rasm")
@@ -90,7 +90,7 @@ def test_get_bitinformation_dim_string_equals_axis_int(implementation):
     assert_identical(bitinfox, bitinfo2)
 
 
-def test_get_bitinformation_masked_value(implementation="BitInformation.jl"):
+def test_get_bitinformation_masked_value(implementation="julia"):
     """Test xb.get_bitinformation is sensitive to masked_value."""
     ds = xr.tutorial.load_dataset("rasm")
     bitinfo = xb.get_bitinformation(ds, dim="x", implementation=implementation)
@@ -104,7 +104,7 @@ def test_get_bitinformation_masked_value(implementation="BitInformation.jl"):
     assert_different(bitinfo, bitinfo_no_mask)
 
 
-@pytest.mark.parametrize("implementation", ["BitInformation.jl", "python"])
+@pytest.mark.parametrize("implementation", ["julia", "python"])
 def test_get_bitinformation_set_zero_insignificant(implementation):
     """Test xb.get_bitinformation is sensitive to set_zero_insignificant."""
     ds = xr.tutorial.load_dataset("air_temperature")
@@ -122,11 +122,11 @@ def test_get_bitinformation_set_zero_insignificant(implementation):
         assert implementation == "python"
     if implementation == "python":
         assert_identical(bitinfo, bitinfo_szi_False)
-    elif implementation == "BitInformation.jl":
+    elif implementation == "julia":
         assert_different(bitinfo, bitinfo_szi_False)
 
 
-@pytest.mark.parametrize("implementation", ["BitInformation.jl", "python"])
+@pytest.mark.parametrize("implementation", ["julia", "python"])
 def test_get_bitinformation_confidence(implementation):
     """Test xb.get_bitinformation is sensitive to confidence."""
     ds = xr.tutorial.load_dataset("air_temperature")
@@ -145,7 +145,7 @@ def test_get_bitinformation_confidence(implementation):
         assert implementation == "python"
 
 
-@pytest.mark.parametrize("implementation", ["BitInformation.jl", "python"])
+@pytest.mark.parametrize("implementation", ["julia", "python"])
 def test_get_bitinformation_label(rasm, implementation):
     """Test xb.get_bitinformation serializes when label given."""
     ds = rasm
@@ -160,7 +160,7 @@ def test_get_bitinformation_label(rasm, implementation):
     os.remove("./tmp_testdir/rasm.json")
 
 
-@pytest.mark.parametrize("implementation", ["BitInformation.jl", "python"])
+@pytest.mark.parametrize("implementation", ["julia", "python"])
 @pytest.mark.parametrize("dtype", ["float64", "float32", "float16"])
 def test_get_bitinformation_dtype(rasm, dtype, implementation):
     """Test xb.get_bitinformation returns correct number of bits depending on dtype."""
@@ -172,7 +172,7 @@ def test_get_bitinformation_dtype(rasm, dtype, implementation):
     )
 
 
-@pytest.mark.parametrize("implementation", ["BitInformation.jl", "python"])
+@pytest.mark.parametrize("implementation", ["julia", "python"])
 def test_get_bitinformation_multidim(rasm, implementation):
     """Test xb.get_bitinformation runs on all dimensions by default"""
     ds = rasm
@@ -187,7 +187,7 @@ def test_get_bitinformation_multidim(rasm, implementation):
     assert any(bi_y != bi_x)
 
 
-@pytest.mark.parametrize("implementation", ["BitInformation.jl", "python"])
+@pytest.mark.parametrize("implementation", ["julia", "python"])
 def test_get_bitinformation_different_variables_dims(rasm, implementation):
     """Test xb.get_bitinformation runs with variables of different dimensionality"""
     ds = rasm
@@ -200,7 +200,7 @@ def test_get_bitinformation_different_variables_dims(rasm, implementation):
     assert_different(bi_Tair_mean_x, bi_Tair_x)
 
 
-@pytest.mark.parametrize("implementation", ["BitInformation.jl", "python"])
+@pytest.mark.parametrize("implementation", ["julia", "python"])
 def test_get_bitinformation_different_dtypes(rasm, implementation):
     ds = rasm
     ds["Tair32"] = ds.Tair.astype("float32")
@@ -211,7 +211,7 @@ def test_get_bitinformation_different_dtypes(rasm, implementation):
         assert bitdim in bi.coords
 
 
-@pytest.mark.parametrize("implementation", ["BitInformation.jl", "python"])
+@pytest.mark.parametrize("implementation", ["julia", "python"])
 def test_get_bitinformation_dim_list(rasm, implementation):
     bi = xb.get_bitinformation(rasm, dim=["x", "y"], implementation=implementation)
     assert (bi.dim == ["x", "y"]).all()
