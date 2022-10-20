@@ -5,16 +5,16 @@ build:
   tools:
     python: "mambaforge-4.10"
   jobs:
-    post_install:
+    - mamba install docs/environment.yml
     - conda env list
     - conda list
     - which python
     - which conda
+    - mamba install xbitinfo -y
     - python -m pip install -e .
     - python -c "import xbitinfo as xb; xb.install()"
     - julia -e "using Pkg; Pkg.status()"
-conda:
-  environment: docs/environment.yml
+    - python -c "import xbitinfo as xb"
 
 sphinx:
   fail_on_warning: false
