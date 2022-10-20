@@ -17,14 +17,10 @@ build:
     - which python
     - conda info
     - echo $PATH
-    - export PATH=$PATH:/home/docs/.asdf/installs/python/mambaforge-4.10.3-10/envs/docs/bin
+    - export PATH=/home/docs/.asdf/installs/python/mambaforge-4.10.3-10/envs/docs/bin:$PATH
     - which python
-    - conda env list
-    - which python
-    - conda activate docs
     - conda env list
     - conda list
-    - which python
     - which conda
     - julia -e "using Pkg; Pkg.status()"
     - python -c "import xbitinfo as xb"
