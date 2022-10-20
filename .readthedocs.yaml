@@ -6,14 +6,11 @@ build:
     python: "mambaforge-4.10"
   commands:
     - mamba env create docs/environment.yml -n docs
-    - source activate docs
+    - conda activate docs
     - conda env list
     - conda list
     - which python
     - which conda
-    - mamba install xbitinfo -y
-    - python -m pip install -e .
-    - python -c "import xbitinfo as xb; xb.install()"
     - julia -e "using Pkg; Pkg.status()"
     - python -c "import xbitinfo as xb"
 
