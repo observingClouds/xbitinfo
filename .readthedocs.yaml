@@ -4,7 +4,8 @@ build:
   os: ubuntu-20.04
   tools:
     python: "mambaforge-4.10"
-  commands:
+  jobs:
+    post_install:
     - mamba env create docs/environment.yml -n docs
     - which python
     - conda activate docs
