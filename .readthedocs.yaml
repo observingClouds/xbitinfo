@@ -6,8 +6,11 @@ build:
     python: "mambaforge-4.10"
   jobs:
     post_install:
+    - conda list
+    - which python
     - mamba env update docs/environment.yml --name 150
     - which python
+    - mamba install "sphinx-book-theme>=0.1.7"
     - conda info
     - conda env list
     - conda list
