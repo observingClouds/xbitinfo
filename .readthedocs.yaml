@@ -6,7 +6,7 @@ build:
     python: "mambaforge-4.10"
   jobs:
     post_install:
-    - mamba env update docs/environment.yml
+    - mamba env update docs/environment.yml --name 150
     - which python
     - conda info
     - conda env list
