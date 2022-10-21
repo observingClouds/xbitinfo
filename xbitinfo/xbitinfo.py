@@ -4,16 +4,17 @@ import os
 
 import numpy as np
 import xarray as xr
+from dask import array as da
 from julia.api import Julia
 from tqdm.auto import tqdm
 
 from . import __version__
+from . import _py_bitinfo as pb
 from .julia_helpers import install
 
 already_ran = False
 if not already_ran:
     already_ran = install(quiet=True)
-
 
 jl = Julia(compiled_modules=False, debug=False)
 from julia import Main  # noqa: E402
@@ -89,7 +90,15 @@ def dict_to_dataset(info_per_bit):
     return dsb
 
 
-def get_bitinformation(ds, dim=None, axis=None, label=None, overwrite=False, **kwargs):
+def get_bitinformation(
+    ds,
+    dim=None,
+    axis=None,
+    label=None,
+    overwrite=False,
+    implementation="julia",
+    **kwargs,
+):
     """Wrap `BitInformation.jl.bitinformation() <https://github.com/milankl/BitInformation.jl/blob/main/src/mutual_information.jl>`__.
 
     Parameters
@@ -106,12 +115,16 @@ def get_bitinformation(ds, dim=None, axis=None, label=None, overwrite=False, **k
       Label of the json to serialize bitinfo. When string, serialize results to disk into file ``{{label}}.json`` to be reused later. Defaults to ``None``.
     overwrite : bool
       If ``False``, try using serialized bitinfo based on label; if true or label does not exist, run bitinformation
+    implementation : str
+      Bitinformation algorithm implementation. Valid options are
+        - julia, the original implementation of julia in julia by Milan Kloewer
+        - python, a copy of the core functionality of julia in python
     kwargs
       to be passed to bitinformation:
 
-        - masked_value: defaults to ``NaN`` (different to ``bitinformation.jl`` defaulting to ``"nothing"``), set ``None`` disable masking
+        - masked_value: defaults to ``NaN`` (different to ``julia`` defaulting to ``"nothing"``), set ``None`` disable masking
         - mask: use ``masked_value`` instead
-        - set_zero_insignificant (``bool``): defaults to ``True``
+        - set_zero_insignificant (``bool``): defaults to ``True`` (julia implementation) or ``False`` (python implementation)
         - confidence (``float``): defaults to ``0.99``
 
 
@@ -157,12 +170,22 @@ def get_bitinformation(ds, dim=None, axis=None, label=None, overwrite=False, **k
     if dim is None and axis is None:
         # gather bitinformation on all axis
         return _get_bitinformation_along_dims(
-            ds, dim=dim, label=label, overwrite=overwrite, **kwargs
+            ds,
+            dim=dim,
+            label=label,
+            overwrite=overwrite,
+            implementation=implementation,
+            **kwargs,
         )
     if isinstance(dim, list) and axis is None:
         # gather bitinformation on dims specified
         return _get_bitinformation_along_dims(
-            ds, dim=dim, label=label, overwrite=overwrite, **kwargs
+            ds,
+            dim=dim,
+            label=label,
+            overwrite=overwrite,
+            implementation=implementation,
+            **kwargs,
         )
     else:
         # gather bitinformation along one axis
@@ -193,31 +216,22 @@ def get_bitinformation(ds, dim=None, axis=None, label=None, overwrite=False, **k
         pbar = tqdm(ds.data_vars)
         for var in pbar:
             pbar.set_description("Processing %s" % var)
-            X = ds[var].values
-            Main.X = X
-            if axis is not None:
-                # in julia convention axis + 1
-                axis_jl = axis + 1
-                dim = ds[var].dims[axis]
-            if isinstance(dim, str):
-                try:
-                    # in julia convention axis + 1
-                    axis_jl = ds[var].get_axis_num(dim) + 1
-                except ValueError:
-                    logging.info(
-                        f"Variable [var] does not have dimension {dim}. Skipping."
-                    )
+            if implementation == "julia":
+                info_per_bit_var = _jl_get_bitinformation(ds, var, axis, dim, kwargs)
+                if info_per_bit_var is None:
                     continue
-            assert isinstance(axis_jl, int)
-            Main.dim = axis_jl
-            kwargs_str = _get_bitinformation_kwargs_handler(ds[var], kwargs)
-            logging.debug(f"get_bitinformation(X, dim={dim}, {kwargs_str})")
-            info_per_bit[var] = {}
-            info_per_bit[var]["bitinfo"] = jl.eval(
-                f"get_bitinformation(X, dim={axis_jl}, {kwargs_str})"
-            )
-            info_per_bit[var]["dim"] = dim
-            info_per_bit[var]["axis"] = axis_jl - 1
+                else:
+                    info_per_bit[var] = info_per_bit_var
+            elif implementation == "python":
+                info_per_bit_var = _py_get_bitinformation(ds, var, axis, dim, kwargs)
+                if info_per_bit_var is None:
+                    continue
+                else:
+                    info_per_bit[var] = info_per_bit_var
+            else:
+                raise ValueError(
+                    f"Implementation of bitinformation algorithm {implementation} is unknown. Please choose a different one."
+                )
         if label is not None:
             with open(label + ".json", "w") as f:
                 logging.debug(f"Save bitinformation to {label + '.json'}")
@@ -225,7 +239,68 @@ def get_bitinformation(ds, dim=None, axis=None, label=None, overwrite=False, **k
     return dict_to_dataset(info_per_bit)
 
 
-def _get_bitinformation_along_dims(ds, dim=None, label=None, overwrite=False, **kwargs):
+def _jl_get_bitinformation(ds, var, axis, dim, kwargs={}):
+    X = ds[var].values
+    Main.X = X
+    if axis is not None:
+        # in julia convention axis + 1
+        axis_jl = axis + 1
+        dim = ds[var].dims[axis]
+    if isinstance(dim, str):
+        try:
+            # in julia convention axis + 1
+            axis_jl = ds[var].get_axis_num(dim) + 1
+        except ValueError:
+            logging.info(f"Variable {var} does not have dimension {dim}. Skipping.")
+            return
+    assert isinstance(axis_jl, int)
+    Main.dim = axis_jl
+    kwargs_str = _get_bitinformation_kwargs_handler(ds[var], kwargs)
+    logging.debug(f"get_bitinformation(X, dim={dim}, {kwargs_str})")
+    info_per_bit = {}
+    info_per_bit["bitinfo"] = jl.eval(
+        f"get_bitinformation(X, dim={axis_jl}, {kwargs_str})"
+    )
+    info_per_bit["dim"] = dim
+    info_per_bit["axis"] = axis_jl - 1
+    return info_per_bit
+
+
+def _py_get_bitinformation(ds, var, axis, dim, kwargs={}):
+    if "set_zero_insignificant" in kwargs.keys():
+        if kwargs["set_zero_insignificant"]:
+            raise NotImplementedError(
+                "set_zero_insignificant is not implemented in the python implementation"
+            )
+    else:
+        assert (
+            kwargs == {}
+        ), "This implementation only supports the plain bitinfo implementation"
+    X = da.array(ds[var]).astype(np.uint)
+    if axis is not None:
+        dim = ds[var].dims[axis]
+    if isinstance(dim, str):
+        try:
+            axis = ds[var].get_axis_num(dim)
+        except ValueError:
+            logging.info(f"Variable {var} does not have dimension {dim}. Skipping.")
+            return
+    info_per_bit = {}
+    logging.info("Calling python implementation now")
+    info_per_bit["bitinfo"] = pb.bitinformation(X, axis=axis).compute()
+    info_per_bit["dim"] = dim
+    info_per_bit["axis"] = axis
+    return info_per_bit
+
+
+def _get_bitinformation_along_dims(
+    ds,
+    dim=None,
+    label=None,
+    overwrite=False,
+    implementation="julia",
+    **kwargs,
+):
     """Helper function for :py:func:`xbitinfo.xbitinfo.get_bitinformation` to handle multi-dimensional analysis for each dim specified.
 
     Simple wrapper around :py:func:`xbitinfo.xbitinfo.get_bitinformation`, which calls :py:func:`xbitinfo.xbitinfo.get_bitinformation`
