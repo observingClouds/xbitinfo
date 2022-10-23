@@ -103,7 +103,7 @@ def get_bitinformation(  # noqa: C901
     overwrite=False,
     implementation="julia",
     **kwargs,
-):  # noqa: C901
+):
     """Wrap `BitInformation.jl.bitinformation() <https://github.com/milankl/BitInformation.jl/blob/main/src/mutual_information.jl>`__.
 
     Parameters
@@ -172,6 +172,10 @@ def get_bitinformation(  # noqa: C901
         xbitinfo_version:           ...
         BitInformation.jl_version:  ...
     """
+    if implementation == "julia" and not julia_installed:
+        raise ImportError(
+                        'Please install julia or use implementation="python".'
+                    )
     if dim is None and axis is None:
         # gather bitinformation on all axis
         return _get_bitinformation_along_dims(
@@ -222,10 +226,6 @@ def get_bitinformation(  # noqa: C901
         for var in pbar:
             pbar.set_description("Processing %s" % var)
             if implementation == "julia":
-                if not julia_installed:
-                    raise ImportError(
-                        'Please install julia or use implementation="python".'
-                    )
                 info_per_bit_var = _jl_get_bitinformation(ds, var, axis, dim, kwargs)
                 if info_per_bit_var is None:
                     continue
