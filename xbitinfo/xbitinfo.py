@@ -669,7 +669,10 @@ class JsonCustomEncoder(json.JSONEncoder):
 
 def get_julia_package_version(package):
     """Get version information of julia package"""
-    version = jl.eval(
-        f'Pkg.TOML.parsefile(joinpath(pkgdir({package}), "Project.toml"))["version"]'
-    )
+    if julia_installed:
+        version = jl.eval(
+            f'Pkg.TOML.parsefile(joinpath(pkgdir({package}), "Project.toml"))["version"]'
+        )
+    else:
+        version = "implementation='python'"
     return version
