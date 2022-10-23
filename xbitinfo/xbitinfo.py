@@ -5,7 +5,11 @@ import os
 import numpy as np
 import xarray as xr
 from dask import array as da
-from julia.api import Julia
+try:
+    from julia.api import Julia
+    julia_installed = True
+except ImportError:
+    julia_installed = False
 from tqdm.auto import tqdm
 
 from . import __version__
@@ -16,16 +20,17 @@ already_ran = False
 if not already_ran:
     already_ran = install(quiet=True)
 
-jl = Julia(compiled_modules=False, debug=False)
-from julia import Main  # noqa: E402
+if julia_installed:
+    jl = Julia(compiled_modules=False, debug=False)
+    from julia import Main  # noqa: E402
 
-path_to_julia_functions = os.path.join(
-    os.path.dirname(__file__), "bitinformation_wrapper.jl"
-)
-Main.path = path_to_julia_functions
-jl.using("BitInformation")
-jl.using("Pkg")
-jl.eval("include(Main.path)")
+    path_to_julia_functions = os.path.join(
+        os.path.dirname(__file__), "bitinformation_wrapper.jl"
+    )
+    Main.path = path_to_julia_functions
+    jl.using("BitInformation")
+    jl.using("Pkg")
+    jl.eval("include(Main.path)")
 
 
 NMBITS = {64: 12, 32: 9, 16: 6}  # number of non mantissa bits for given dtype
@@ -167,6 +172,8 @@ def get_bitinformation(
         xbitinfo_version:           ...
         BitInformation.jl_version:  ...
     """
+    if not julia_installed and implementation == "julia":
+        raise ImportError("Please install julia or use implementation='python'.")
     if dim is None and axis is None:
         # gather bitinformation on all axis
         return _get_bitinformation_along_dims(
@@ -448,6 +455,8 @@ def _cdf_from_info_per_bit(info_per_bit, bitdim):
 
 def _jl_bitround(X, keepbits):
     """Wrap `BitInformation.jl.round <https://github.com/milankl/BitInformation.jl/blob/main/src/round_nearest.jl>`__. Used in :py:func:`xbitinfo.bitround.jl_bitround`."""
+    if not julia_installed:
+        raise ImportError("Please install julia or use xr_bitround")
     Main.X = X
     Main.keepbits = keepbits
     return jl.eval("round!(X, keepbits)")
