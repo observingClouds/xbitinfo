@@ -175,7 +175,7 @@ def get_bitinformation(
         BitInformation.jl_version:  ...
     """
     if not julia_installed and implementation == "julia":
-        raise ImportError("Please install julia or use implementation='python'.")
+        raise ImportError('Please install julia or use implementation="python".')
     if dim is None and axis is None:
         # gather bitinformation on all axis
         return _get_bitinformation_along_dims(
