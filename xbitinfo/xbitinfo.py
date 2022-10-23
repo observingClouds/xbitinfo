@@ -173,9 +173,7 @@ def get_bitinformation(  # noqa: C901
         BitInformation.jl_version:  ...
     """
     if implementation == "julia" and not julia_installed:
-        raise ImportError(
-                        'Please install julia or use implementation="python".'
-                    )
+        raise ImportError('Please install julia or use implementation="python".')
     if dim is None and axis is None:
         # gather bitinformation on all axis
         return _get_bitinformation_along_dims(
