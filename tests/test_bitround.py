@@ -7,6 +7,7 @@ import xbitinfo as xb
 
 from . import requires_julia
 
+
 @pytest.mark.parametrize("dtype", ["float16", "float32", "float64"])
 @pytest.mark.parametrize("implementation", ["xarray", "julia"])
 @pytest.mark.parametrize("input_type", ["Dataset", "DataArray"])
