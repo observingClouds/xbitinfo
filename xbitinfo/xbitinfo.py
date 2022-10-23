@@ -19,18 +19,19 @@ from . import _py_bitinfo as pb
 from .julia_helpers import install
 
 already_ran = False
-if not already_ran and julia_installed:
-    already_ran = install(quiet=True)
-    jl = Julia(compiled_modules=False, debug=False)
-    from julia import Main  # noqa: E402
+if not already_ran:
+    if julia_installed:
+        already_ran = install(quiet=True)
+        jl = Julia(compiled_modules=False, debug=False)
+        from julia import Main  # noqa: E402
 
-    path_to_julia_functions = os.path.join(
-        os.path.dirname(__file__), "bitinformation_wrapper.jl"
-    )
-    Main.path = path_to_julia_functions
-    jl.using("BitInformation")
-    jl.using("Pkg")
-    jl.eval("include(Main.path)")
+        path_to_julia_functions = os.path.join(
+            os.path.dirname(__file__), "bitinformation_wrapper.jl"
+        )
+        Main.path = path_to_julia_functions
+        jl.using("BitInformation")
+        jl.using("Pkg")
+        jl.eval("include(Main.path)")
 
 
 NMBITS = {64: 12, 32: 9, 16: 6}  # number of non mantissa bits for given dtype
