@@ -1,4 +1,8 @@
 """Unit test package for xbitinfo."""
+import importlib
+from distutils import version
+
+import pytest
 
 
 def _importorskip(modname, minversion=None):
@@ -12,6 +16,13 @@ def _importorskip(modname, minversion=None):
         has = False
     func = pytest.mark.skipif(not has, reason=f"requires {modname}")
     return has, func
+
+
+def LooseVersion(vstring):
+    # Our development version is something like '0.10.9+aac7bfc'
+    # This function just ignored the git commit id.
+    vstring = vstring.split("+")[0]
+    return version.LooseVersion(vstring)
 
 
 has_julia, requires_julia = _importorskip("julia")
