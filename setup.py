@@ -20,6 +20,7 @@ extras_require = {
     "viz": ["matplotlib", "cmcrameri"],
     "prefect": ["prefect>=1.0.0,<2.0"],
     "io": ["netcdf4", "zarr"],
+    "julia": ["julia"],
 }
 extras_require["complete"] = sorted({v for req in extras_require.values() for v in req})
 extras_require["test"] = test_requirements
