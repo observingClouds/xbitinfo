@@ -95,7 +95,7 @@ def dict_to_dataset(info_per_bit):
     return dsb
 
 
-def get_bitinformation(
+def get_bitinformation(  # flake8: noqa: C901
     ds,
     dim=None,
     axis=None,
@@ -172,8 +172,6 @@ def get_bitinformation(
         xbitinfo_version:           ...
         BitInformation.jl_version:  ...
     """
-    if not julia_installed and implementation == "julia":
-        raise ImportError('Please install julia or use implementation="python".')
     if dim is None and axis is None:
         # gather bitinformation on all axis
         return _get_bitinformation_along_dims(
@@ -224,6 +222,8 @@ def get_bitinformation(
         for var in pbar:
             pbar.set_description("Processing %s" % var)
             if implementation == "julia":
+                if not julia_installed:
+                    raise ImportError('Please install julia or use implementation="python".')
                 info_per_bit_var = _jl_get_bitinformation(ds, var, axis, dim, kwargs)
                 if info_per_bit_var is None:
                     continue
