@@ -19,10 +19,8 @@ from . import _py_bitinfo as pb
 from .julia_helpers import install
 
 already_ran = False
-if not already_ran:
+if not already_ran and julia_installed:
     already_ran = install(quiet=True)
-
-if julia_installed:
     jl = Julia(compiled_modules=False, debug=False)
     from julia import Main  # noqa: E402
 
