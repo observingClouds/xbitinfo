@@ -5,6 +5,7 @@ from xarray.testing import assert_allclose, assert_equal
 
 import xbitinfo as xb
 
+from . import requires_julia
 
 @pytest.mark.parametrize("dtype", ["float16", "float32", "float64"])
 @pytest.mark.parametrize("implementation", ["xarray", "julia"])
@@ -60,6 +61,7 @@ def test_bitround_dask(air_temperature, implementation, dask):
         assert ds_bitrounded.compute()
 
 
+@requires_julia
 @pytest.mark.parametrize(
     "dtype,keepbits",
     [("float16", range(1, 9)), ("float32", range(1, 23)), ("float64", range(1, 52))],
