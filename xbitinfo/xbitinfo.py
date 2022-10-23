@@ -5,8 +5,10 @@ import os
 import numpy as np
 import xarray as xr
 from dask import array as da
+
 try:
     from julia.api import Julia
+
     julia_installed = True
 except ImportError:
     julia_installed = False
