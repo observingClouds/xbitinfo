@@ -174,7 +174,7 @@ def get_bitinformation(
         xbitinfo_version:           ...
         BitInformation.jl_version:  ...
     """
-    if not julia_installed and implementation == "julia": # flake8: noqa: C901
+    if not julia_installed and implementation == "julia":  # flake8: noqa: C901
         raise ImportError('Please install julia or use implementation="python".')
     if dim is None and axis is None:
         # gather bitinformation on all axis
