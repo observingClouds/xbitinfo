@@ -17,10 +17,7 @@ def install(julia_project=None, quiet=False):  # pragma: no cover
 
     Also updates the local Julia registry.
     """
-    try:
-        import julia
-    except ImportError:
-        return True
+    import julia
 
     julia.install(quiet=quiet)
 
