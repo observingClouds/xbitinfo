@@ -95,7 +95,7 @@ def dict_to_dataset(info_per_bit):
     return dsb
 
 
-def get_bitinformation(  # flake8: noqa: C901
+def get_bitinformation(  # noqa: C901
     ds,
     dim=None,
     axis=None,
@@ -103,7 +103,7 @@ def get_bitinformation(  # flake8: noqa: C901
     overwrite=False,
     implementation="julia",
     **kwargs,
-):  # flake8: noqa: C901
+):  # noqa: C901
     """Wrap `BitInformation.jl.bitinformation() <https://github.com/milankl/BitInformation.jl/blob/main/src/mutual_information.jl>`__.
 
     Parameters
