@@ -223,7 +223,9 @@ def get_bitinformation(  # flake8: noqa: C901
             pbar.set_description("Processing %s" % var)
             if implementation == "julia":
                 if not julia_installed:
-                    raise ImportError('Please install julia or use implementation="python".')
+                    raise ImportError(
+                        'Please install julia or use implementation="python".'
+                    )
                 info_per_bit_var = _jl_get_bitinformation(ds, var, axis, dim, kwargs)
                 if info_per_bit_var is None:
                     continue
