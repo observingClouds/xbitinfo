@@ -68,7 +68,10 @@ def dict_to_dataset(info_per_bit):
             dims=[dim_name],
             coords={dim_name: get_bit_coords(dtype_size), "dim": dim},
             name=v,
-            attrs={"bitinfo_long_name": f"{v} bitwise information", "bitinfo_units": "1"},
+            attrs={
+                "bitinfo_long_name": f"{v} bitwise information",
+                "bitinfo_units": "1",
+            },
         ).astype("float64")
     # add metadata
     dsb.attrs = {
@@ -237,7 +240,7 @@ def get_bitinformation(
                 logging.debug(f"Save bitinformation to {label + '.json'}")
                 json.dump(info_per_bit, f, cls=JsonCustomEncoder)
     info_per_bit = dict_to_dataset(info_per_bit)
-    for var in info_per_bit.data_vars: # keep attrs from input
+    for var in info_per_bit.data_vars:  # keep attrs from input
         info_per_bit[var].attrs.update(ds[var].attrs)
     return info_per_bit
 
