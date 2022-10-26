@@ -70,7 +70,7 @@ def dict_to_dataset(info_per_bit):
             name=v,
             attrs={
                 "bitinfo_long_name": f"{v} bitwise information",
-                "bitinfo_units": "1",
+                "bitinfo_units": 1,
             },
         ).astype("float64")
     # add metadata
