@@ -7,6 +7,7 @@ CHANGELOG
 
 * Fix julia package installations for PyPi and enable installation via pip and conda (:issue:`18`, :pr:`132`, :pr:`131`) `Filipe Fernandes`_, `Mark Kittisopikul`_.
 * Fix compression example for zarr-files (:issue:`119`, :pr:`121`) `Hauke Schulz`_.
+* Keep ``attrs`` from input :py:func:`xbitinfo.xbitinfo.get_bitinformation`. (:issue:`154`, :pr:`158`) `Aaron Spring`_.
 
 0.0.2 (2022-07-11)
 ------------------
