@@ -215,7 +215,7 @@ def get_bitinformation(
         info_per_bit = {}
         pbar = tqdm(ds.data_vars)
         for var in pbar:
-            pbar.set_description("Processing %s" % var)
+            pbar.set_description(f"Processing var: {var} for dim: {dim}")
             if implementation == "julia":
                 info_per_bit_var = _jl_get_bitinformation(ds, var, axis, dim, kwargs)
                 if info_per_bit_var is None:
