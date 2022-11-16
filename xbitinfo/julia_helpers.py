@@ -22,6 +22,7 @@ def install(julia_project=None, quiet=False):  # pragma: no cover
     julia.install(quiet=quiet)
 
     julia_project, is_shared = _get_julia_project(julia_project)
+    print(julia_project, is_shared)
 
     Main = init_julia()
     Main.eval("using Pkg")
