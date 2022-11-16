@@ -3,14 +3,15 @@ version: 2
 build:
   os: ubuntu-20.04
   tools:
-    python: "miniconda3-4.7" # "mambaforge-4.10"
+    python: "mambaforge-4.10"
   jobs:
     post_install:
     - python -m pip install -e .
     - python -c "import xbitinfo as xb; xb.install()"
     - julia -e "using Pkg; Pkg.status()"
-    - julia -e 'using Pkg; Pkg.add(Pkg.PackageSpec(name="BitInformation", url="https://github.com/milankl/BitInformation.jl", rev="v0.6.0"))'
-    - julia -e 'using Pkg; Pkg.add("BitInformation")'
+    - julia -e "using Pkg; Pkg.add(Pkg.PackageSpec(name="BitInformation", url="https://github.com/milankl/BitInformation.jl", rev="v0.6.0"))"
+    - julia -e "using Pkg; Pkg.add("BitInformation")"
+    - python -c "import xbitinfo as xb; xb.install()"
     # - mamba install xbitinfo -y
     - julia -e "using Pkg; Pkg.status()"
     - conda env list
