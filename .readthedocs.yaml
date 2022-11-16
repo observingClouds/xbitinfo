@@ -7,7 +7,7 @@ build:
   jobs:
     post_install:
     - python -m pip install -e .
-    - python -c "import xbitinfo as xb; xb.install(julia_project=138)"
+    - python -c "import xbitinfo as xb; xb.install(julia_project="138")"
     - julia -e "using Pkg; Pkg.status()"
      - julia -e "using Pkg; Pkg.add(Pkg.PackageSpec(name="BitInformation", url="https://github.com/milankl/BitInformation.jl", rev="v0.6.0"))"
      - julia -e 'using Pkg; Pkg.add("BitInformation")'
