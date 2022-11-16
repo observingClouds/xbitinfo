@@ -17,6 +17,10 @@ build:
     - conda list
     - which python
     - which conda
+    - python -m pip install -e .
+    - python -c "import xbitinfo as xb; xb.install()"
+    - julia -e "using Pkg; Pkg.status()"
+    
 
 conda:
   environment: docs/environment.yml
