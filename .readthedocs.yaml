@@ -9,7 +9,7 @@ build:
     - python -m pip install -e .
     - python -c "import xbitinfo as xb; xb.install()"
     - julia -e "using Pkg; Pkg.status()"
-    - julia -e "using Pkg; Pkg.add("BitInformation")"
+    - julia -e "using Pkg; Pkg.add('BitInformation')"
     - python -c "import xbitinfo as xb; xb.install()"
     # - mamba install xbitinfo -y
     - julia -e "using Pkg; Pkg.status()"
