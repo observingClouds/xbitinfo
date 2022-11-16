@@ -171,8 +171,8 @@ intersphinx_mapping = {
 # nbsphinx_kernel_name = "bitinfo-docs"  # doesnt work
 nbsphinx_allow_errors = False
 nbsphinx_timeout = 600
-nbsphinx_execute = "auto"  # "never" "always"
-jupyter_execute_notebooks = "auto"
+nbsphinx_execute = "always"  # "never" "always"
+jupyter_execute_notebooks = "always"
 
 
 # Napoleon configurations
