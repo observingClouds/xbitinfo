@@ -8,8 +8,7 @@ build:
     post_install:
     - python -m pip install -e .
     - python -c "import xbitinfo as xb; xb.install()"
-    - julia -e "using Pkg; Pkg.status()"
-    - julia -e 'using Pkg; Pkg.add("BitInformation")'
+    - julia add_julia_packages.jl
     - python -c "import xbitinfo as xb; xb.install()"
     - julia -e "using Pkg; Pkg.status()"
     - conda env list
