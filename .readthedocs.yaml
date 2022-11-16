@@ -9,17 +9,12 @@ build:
     - python -m pip install -e .
     - python -c "import xbitinfo as xb; xb.install()"
     - julia add_julia_packages.jl
-    - python -c "import xbitinfo as xb; xb.install()"
-    - julia -e "using Pkg; Pkg.status()"
     - conda env list
     - conda list
     - which python
     - which conda
-    - mamba install xbitinfo -y
-    - python -m pip install -e .
-    - python -c "import xbitinfo as xb; xb.install()"
     - julia -e "using Pkg; Pkg.status()"
-    - python -c "import julia; julia.install(); import xbitinfo as xb; xb.install()"
+    - python -c "import xbitinfo as xb"
 
 
 conda:
