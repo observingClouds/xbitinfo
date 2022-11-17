@@ -173,8 +173,8 @@ intersphinx_mapping = {
 # nbsphinx_kernel_name = "bitinfo-docs"  # doesnt work
 nbsphinx_allow_errors = False
 nbsphinx_timeout = 600
-nbsphinx_execute = "never"  # "auto" "always"
-jupyter_execute_notebooks = "off"
+nbsphinx_execute = "auto"  # "auto" "always"
+jupyter_execute_notebooks = "auto"
 
 # Napoleon configurations
 napoleon_google_docstring = False
