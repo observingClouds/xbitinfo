@@ -6,7 +6,9 @@ build:
     python: "mambaforge-4.10"
   jobs:
     post_install:
-    - python -m pip install -e .
+    #- python -m pip install -e .
+    - julia -e "using Pkg; Pkg.status()"
+    - python -c "import xbitinfo as xb"
     - python -c "import xbitinfo as xb; xb.install()"
     - julia add_julia_packages.jl
     - conda env list
