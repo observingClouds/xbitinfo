@@ -172,7 +172,7 @@ intersphinx_mapping = {
 nbsphinx_allow_errors = False
 nbsphinx_timeout = 600
 nbsphinx_execute = "auto"  # "never" "always"
-jupyter_execute_notebooks = "auto"
+nb_execution_mode = "auto"
 
 
 # Napoleon configurations
