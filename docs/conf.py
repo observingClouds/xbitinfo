@@ -175,6 +175,7 @@ nbsphinx_allow_errors = False
 nbsphinx_timeout = 1200
 nbsphinx_execute = "auto"  # "auto" "always"
 jupyter_execute_notebooks = "auto"
+nb_execution_timeout = 120
 
 # Napoleon configurations
 napoleon_google_docstring = False
