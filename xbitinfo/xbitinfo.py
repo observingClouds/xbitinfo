@@ -93,7 +93,7 @@ def dict_to_dataset(info_per_bit):
     return dsb
 
 
-def get_bitinformation(
+def get_bitinformation( # noqa: C901
     ds,
     dim=None,
     axis=None,
