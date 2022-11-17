@@ -171,10 +171,11 @@ intersphinx_mapping = {
 # Should only be uncommented when testing page development while notebooks
 # are breaking.
 # nbsphinx_kernel_name = "bitinfo-docs"  # doesnt work
-nbsphinx_allow_errors = False
-nbsphinx_timeout = 600
-nbsphinx_execute = "never"  # "auto" "always"
-jupyter_execute_notebooks = "off"
+nb_execution_timeout = 120
+nb_execution_mode = "auto"
+nb_execution_allow_errors = False
+nb_execution_raise_on_error = True
+nb_execution_show_tb = True
 
 # Napoleon configurations
 napoleon_google_docstring = False
