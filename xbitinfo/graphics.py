@@ -173,6 +173,8 @@ def plot_bitinformation(bitinfo, cmap="turku"):
     assert bitinfo.coords["dim"].shape <= (
         1,
     ), "Only bitinfo along one dimension is supported at the moment. Please select dimension before plotting."
+    
+    assert "bit32" in bitinfo.dims, "currently only works properly for float32 data, looking forward to your PR closing https://github.com/observingClouds/xbitinfo/issues/168"
 
     nvars = len(bitinfo)
     varnames = bitinfo.keys()
