@@ -170,7 +170,7 @@ intersphinx_mapping = {
 # are breaking.
 # nbsphinx_kernel_name = "bitinfo-docs"  # doesnt work
 nbsphinx_allow_errors = False
-nbsphinx_timeout = 600
+nbsphinx_timeout = 1200
 nbsphinx_execute = "auto"  # "never" "always"
 nb_execution_mode = "auto"
 
