@@ -219,6 +219,7 @@ def test_get_bitinformation_dim_list(rasm, implementation):
 
 def test_get_bitinformation_keep_attrs(rasm):
     bi = xb.get_bitinformation(rasm, dim=["x", "y"]).Tair
-    assert "bitinfo_units" in bi.attrs
-    assert bi.attrs["bitinfo_units"] == 1
-    assert set(rasm.Tair.attrs.keys()).issubset(bi.attrs.keys())
+    assert "units" in bi.attrs
+    assert bi.attrs["units"] == 1
+    for a in rasm.Tair.attrs.keys():
+        assert bi.Tair.attrs["source_" + a] == rasm.Tair.attrs[a]
