@@ -222,4 +222,4 @@ def test_get_bitinformation_keep_attrs(rasm):
     assert "units" in bi.attrs
     assert bi.attrs["units"] == 1
     for a in rasm.Tair.attrs.keys():
-        assert bi.Tair.attrs["source_" + a] == rasm.Tair.attrs[a]
+        assert bi.attrs["source_" + a] == rasm.Tair.attrs[a]
