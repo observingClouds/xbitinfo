@@ -242,7 +242,7 @@ def get_bitinformation(  # noqa: C901
     info_per_bit = dict_to_dataset(info_per_bit)
     for var in info_per_bit.data_vars:  # keep attrs from input with source_ prefix
         for a in ds[var].attrs.keys():
-            info_per_bit[var].attrs["source" + a] = ds[var].attrs[a]
+            info_per_bit[var].attrs["source_" + a] = ds[var].attrs[a]
     return info_per_bit
 
 
