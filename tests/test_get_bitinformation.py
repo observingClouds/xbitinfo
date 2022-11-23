@@ -215,3 +215,11 @@ def test_get_bitinformation_different_dtypes(rasm, implementation):
 def test_get_bitinformation_dim_list(rasm, implementation):
     bi = xb.get_bitinformation(rasm, dim=["x", "y"], implementation=implementation)
     assert (bi.dim == ["x", "y"]).all()
+
+
+def test_get_bitinformation_keep_attrs(rasm):
+    bi = xb.get_bitinformation(rasm, dim=["x", "y"]).Tair
+    assert "units" in bi.attrs
+    assert bi.attrs["units"] == 1
+    for a in rasm.Tair.attrs.keys():
+        assert bi.attrs["source_" + a] == rasm.Tair.attrs[a], print(bi.attrs)
