@@ -283,7 +283,11 @@ def _py_get_bitinformation(ds, var, axis, dim, kwargs={}):
         assert (
             kwargs == {}
         ), "This implementation only supports the plain bitinfo implementation"
-    X = da.array(ds[var]).astype(np.uint)
+    itemsize = ds[var].dtype.itemsize
+    astype = f"u{itemsize}"
+    X = da.array(ds[var])
+    X = pb.signed_exponent(X)
+    X = X.astype(astype)
     if axis is not None:
         dim = ds[var].dims[axis]
     if isinstance(dim, str):
@@ -322,7 +326,13 @@ def _get_bitinformation_along_dims(
         if label is not None:
             label = "_".join([label, d])
         info_per_bit_per_dim[d] = get_bitinformation(
-            ds, dim=d, axis=None, label=label, overwrite=overwrite, **kwargs
+            ds,
+            dim=d,
+            axis=None,
+            label=label,
+            overwrite=overwrite,
+            implementation=implementation,
+            **kwargs,
         ).expand_dims("dim", axis=0)
     info_per_bit = xr.merge(info_per_bit_per_dim.values()).squeeze()
     return info_per_bit
