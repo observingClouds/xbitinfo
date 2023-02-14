@@ -1,13 +1,20 @@
-import argparse
 import json
 import logging
 import os
 
-import matplotlib.pyplot as plt
 import numpy as np
 import xarray as xr
+from dask import array as da
 from julia.api import Julia
 from tqdm.auto import tqdm
+
+from . import __version__
+from . import _py_bitinfo as pb
+from .julia_helpers import install
+
+already_ran = False
+if not already_ran:
+    already_ran = install(quiet=True)
 
 jl = Julia(compiled_modules=False, debug=False)
 from julia import Main  # noqa: E402
@@ -17,80 +24,186 @@ path_to_julia_functions = os.path.join(
 )
 Main.path = path_to_julia_functions
 jl.using("BitInformation")
+jl.using("Pkg")
 jl.eval("include(Main.path)")
 
 
 NMBITS = {64: 12, 32: 9, 16: 6}  # number of non mantissa bits for given dtype
 
 
-def get_user_input():
-    parser = argparse.ArgumentParser()
-    parser.add_argument(
-        "filename",
-        help="filename of dataset (netCDF-file) whose information "
-        "content should be retrieved",
-        type=str,
-    )
-    args = parser.parse_args()
-    return args
+def get_bit_coords(dtype_size):
+    """Get coordinates for bits assuming float dtypes."""
+    if dtype_size == 16:
+        coords = (
+            ["±"]
+            + [f"e{int(i)}" for i in range(1, 6)]
+            + [f"m{int(i-5)}" for i in range(6, 16)]
+        )
+    elif dtype_size == 32:
+        coords = (
+            ["±"]
+            + [f"e{int(i)}" for i in range(1, 9)]
+            + [f"m{int(i-8)}" for i in range(9, 32)]
+        )
+    elif dtype_size == 64:
+        coords = (
+            ["±"]
+            + [f"e{int(i)}" for i in range(1, 12)]
+            + [f"m{int(i-11)}" for i in range(12, 64)]
+        )
+    else:
+        raise ValueError(f"dtype of size {dtype_size} neither known nor implemented.")
+    return coords
 
 
-def get_bitinformation(ds, dim=None, axis=None, label=None, overwrite=False, **kwargs):
-    """Wrap BitInformation.bitinformation().
+def dict_to_dataset(info_per_bit):
+    """Convert keepbits dictionary to :py:class:`xarray.Dataset`."""
+    dsb = xr.Dataset()
+    for v in info_per_bit.keys():
+        dtype_size = len(info_per_bit[v]["bitinfo"])
+        dim = info_per_bit[v]["dim"]
+        dim_name = f"bit{dtype_size}"
+        dsb[v] = xr.DataArray(
+            info_per_bit[v]["bitinfo"],
+            dims=[dim_name],
+            coords={dim_name: get_bit_coords(dtype_size), "dim": dim},
+            name=v,
+            attrs={
+                "long_name": f"{v} bitwise information",
+                "units": 1,
+            },
+        ).astype("float64")
+    # add metadata
+    dsb.attrs = {
+        "xbitinfo_description": "bitinformation calculated by xbitinfo.get_bitinformation wrapping bitinformation.jl",
+        "python_repository": "https://github.com/observingClouds/xbitinfo",
+        "julia_repository": "https://github.com/milankl/BitInformation.jl",
+        "reference_paper": "http://www.nature.com/articles/s43588-021-00156-2",
+        "xbitinfo_version": __version__,
+        "BitInformation.jl_version": get_julia_package_version("BitInformation"),
+    }
+    for c in dsb.coords:
+        if "bit" in c:
+            dsb.coords[c].attrs = {
+                "description": "name of the bits: '±' refers to the sign bit, 'e' to the exponents bits and 'm' to the mantissa bits."
+            }
+    dsb.coords["dim"].attrs = {
+        "description": "dimension of the source dataset along which the bitwise information has been analysed."
+    }
+    return dsb
 
-    Inputs
-    ------
-    ds : xr.Dataset
-      input netcdf to analyse
+
+def get_bitinformation(  # noqa: C901
+    ds,
+    dim=None,
+    axis=None,
+    label=None,
+    overwrite=False,
+    implementation="julia",
+    **kwargs,
+):
+    """Wrap `BitInformation.jl.bitinformation() <https://github.com/milankl/BitInformation.jl/blob/main/src/mutual_information.jl>`__.
+
+    Parameters
+    ----------
+    ds : :py:class:`xarray.Dataset`
+      Input dataset to analyse
     dim : str
-      Dimension over which to apply mean. Only one of the `dim` and `axis` arguments can be supplied.
+      Dimension over which to apply mean. Only one of the ``dim`` and ``axis`` arguments can be supplied.
+      If no ``dim`` or ``axis`` is given (default), the bitinformation is retrieved along all dimensions.
     axis : int
-      Axis over which to apply mean. Only one of the `dim` and `axis` arguments can be supplied.
+      Axis over which to apply mean. Only one of the ``dim`` and ``axis`` arguments can be supplied.
+      If no ``dim`` or ``axis`` is given (default), the bitinformation is retrieved along all dimensions.
     label : str
-      label of the json to serialize bitinfo
+      Label of the json to serialize bitinfo. When string, serialize results to disk into file ``{{label}}.json`` to be reused later. Defaults to ``None``.
     overwrite : bool
-      if false, try using serialized bitinfo based on label; if true or label does not exist, run bitinformation
+      If ``False``, try using serialized bitinfo based on label; if true or label does not exist, run bitinformation
+    implementation : str
+      Bitinformation algorithm implementation. Valid options are
+        - julia, the original implementation of julia in julia by Milan Kloewer
+        - python, a copy of the core functionality of julia in python
     kwargs
       to be passed to bitinformation:
-      - masked_value: defaults to `NaN` (different to bitinformation.jl), set `None` disable masking
-      - mask: use `masked_value` instead
-      - set_zero_insignificant (bool): defaults to `True`
-      - confidence (float): defaults to 0.99
+
+        - masked_value: defaults to ``NaN`` (different to ``julia`` defaulting to ``"nothing"``), set ``None`` disable masking
+        - mask: use ``masked_value`` instead
+        - set_zero_insignificant (``bool``): defaults to ``True`` (julia implementation) or ``False`` (python implementation)
+        - confidence (``float``): defaults to ``0.99``
+
 
     Returns
     -------
-    info_per_bit : dict
-      Information content per bit and variable
+    info_per_bit : :py:class:`xarray.Dataset`
+      Information content per ``bit`` and ``variable`` (and ``dim``)
 
     Example
     -------
-        >>> ds = xr.tutorial.load_dataset("air_temperature")
-        >>> xb.get_bitinformation(ds, dim="lon")
-        {'air': array([0.00000000e+00, 0.00000000e+00, 0.00000000e+00, 0.00000000e+00,
-               0.00000000e+00, 3.94447851e-01, 3.94447851e-01, 3.94447851e-01,
-               3.94447851e-01, 3.94447851e-01, 3.94310542e-01, 7.36739987e-01,
-               5.62682836e-01, 3.60511555e-01, 1.52471111e-01, 4.18818055e-02,
-               3.65276146e-03, 1.19975820e-05, 4.39366160e-05, 4.18329296e-05,
-               2.54572089e-05, 1.44121797e-04, 1.34144798e-03, 1.55468479e-06,
-               5.38601212e-04, 8.09862581e-04, 1.74893445e-04, 4.97915410e-05,
-               3.88027711e-04, 0.00000000e+00, 3.95323228e-05, 6.88854435e-04])}
+    >>> ds = xr.tutorial.load_dataset("air_temperature")
+    >>> xb.get_bitinformation(ds, dim="lon")  # doctest: +ELLIPSIS
+    <xarray.Dataset>
+    Dimensions:  (bit32: 32)
+    Coordinates:
+      * bit32    (bit32) <U3 '±' 'e1' 'e2' 'e3' 'e4' ... 'm20' 'm21' 'm22' 'm23'
+        dim      <U3 'lon'
+    Data variables:
+        air      (bit32) float64 0.0 0.0 0.0 0.0 ... 0.0 3.953e-05 0.0006889
+    Attributes:
+        xbitinfo_description:       bitinformation calculated by xbitinfo.get_bit...
+        python_repository:          https://github.com/observingClouds/xbitinfo
+        julia_repository:           https://github.com/milankl/BitInformation.jl
+        reference_paper:            http://www.nature.com/articles/s43588-021-001...
+        xbitinfo_version:           ...
+        BitInformation.jl_version:  ...
+    >>> xb.get_bitinformation(ds)
+    <xarray.Dataset>
+    Dimensions:  (bit32: 32, dim: 3)
+    Coordinates:
+      * bit32    (bit32) <U3 '±' 'e1' 'e2' 'e3' 'e4' ... 'm20' 'm21' 'm22' 'm23'
+      * dim      (dim) <U4 'lat' 'lon' 'time'
+    Data variables:
+        air      (dim, bit32) float64 0.0 0.0 0.0 0.0 ... 0.0 6.327e-06 0.0004285
+    Attributes:
+        xbitinfo_description:       bitinformation calculated by xbitinfo.get_bit...
+        python_repository:          https://github.com/observingClouds/xbitinfo
+        julia_repository:           https://github.com/milankl/BitInformation.jl
+        reference_paper:            http://www.nature.com/articles/s43588-021-001...
+        xbitinfo_version:           ...
+        BitInformation.jl_version:  ...
     """
-    if overwrite:
-        calc = True
+    if dim is None and axis is None:
+        # gather bitinformation on all axis
+        return _get_bitinformation_along_dims(
+            ds,
+            dim=dim,
+            label=label,
+            overwrite=overwrite,
+            implementation=implementation,
+            **kwargs,
+        )
+    if isinstance(dim, list) and axis is None:
+        # gather bitinformation on dims specified
+        return _get_bitinformation_along_dims(
+            ds,
+            dim=dim,
+            label=label,
+            overwrite=overwrite,
+            implementation=implementation,
+            **kwargs,
+        )
     else:
-        calc = False
-        if label is None:
-            calc = True
-        else:
-            info_per_bit = load_bitinformation(label)
-            if info_per_bit is None:
-                calc = True
-    if calc:
+        # gather bitinformation along one axis
+        if overwrite is False and label is not None:
+            try:
+                info_per_bit = load_bitinformation(label)
+                return info_per_bit
+            except FileNotFoundError:
+                logging.info(
+                    f"No bitinformation could be found for {label}. Recalculating..."
+                )
+
         # check keywords
-        if (axis is None and dim is None) or (axis is not None and dim is not None):
-            raise ValueError(
-                "Please provide either `axis` or `dim` but not both or none."
-            )
+        if axis is not None and dim is not None:
+            raise ValueError("Please provide either `axis` or `dim` but not both.")
         if axis:
             if not isinstance(axis, int):
                 raise ValueError(f"Please provide `axis` as `int`, found {type(axis)}.")
@@ -105,37 +218,129 @@ def get_bitinformation(ds, dim=None, axis=None, label=None, overwrite=False, **k
         info_per_bit = {}
         pbar = tqdm(ds.data_vars)
         for var in pbar:
-            pbar.set_description("Processing %s" % var)
-            X = ds[var].values
-            Main.X = X
-            if axis is not None:
-                # in julia convention axis + 1
-                dim = axis + 1
-            if isinstance(dim, str):
-                # in julia convention axis + 1
-                dim = ds[var].get_axis_num(dim) + 1
-            assert isinstance(dim, int)
-            Main.dim = dim
-            if "masked_value" not in kwargs:
-                kwargs[
-                    "masked_value"
-                ] = f"convert({str(ds[var].dtype).capitalize()},NaN)"
-            elif kwargs["masked_value"] is None:
-                kwargs["masked_value"] = "nothing"
-            if "set_zero_insignificant" not in kwargs:
-                kwargs["set_zero_insignificant"] = True
-            kwargs_str = ", ".join([f"{k}={v}" for k, v in kwargs.items()])
-            # convert python to julia bool
-            kwargs_str = kwargs_str.replace("True", "true").replace("False", "false")
-            logging.debug(f"get_bitinformation(X, dim={dim}, {kwargs_str})")
-            info_per_bit[var] = jl.eval(
-                f"get_bitinformation(X, dim={dim}, {kwargs_str})"
-            )
+            pbar.set_description(f"Processing var: {var} for dim: {dim}")
+            if implementation == "julia":
+                info_per_bit_var = _jl_get_bitinformation(ds, var, axis, dim, kwargs)
+                if info_per_bit_var is None:
+                    continue
+                else:
+                    info_per_bit[var] = info_per_bit_var
+            elif implementation == "python":
+                info_per_bit_var = _py_get_bitinformation(ds, var, axis, dim, kwargs)
+                if info_per_bit_var is None:
+                    continue
+                else:
+                    info_per_bit[var] = info_per_bit_var
+            else:
+                raise ValueError(
+                    f"Implementation of bitinformation algorithm {implementation} is unknown. Please choose a different one."
+                )
         if label is not None:
             with open(label + ".json", "w") as f:
-                logging.debug(f"Save bitinformation to {label+'.json'}")
+                logging.debug(f"Save bitinformation to {label + '.json'}")
                 json.dump(info_per_bit, f, cls=JsonCustomEncoder)
+    info_per_bit = dict_to_dataset(info_per_bit)
+    for var in info_per_bit.data_vars:  # keep attrs from input with source_ prefix
+        for a in ds[var].attrs.keys():
+            info_per_bit[var].attrs["source_" + a] = ds[var].attrs[a]
     return info_per_bit
+
+
+def _jl_get_bitinformation(ds, var, axis, dim, kwargs={}):
+    X = ds[var].values
+    Main.X = X
+    if axis is not None:
+        # in julia convention axis + 1
+        axis_jl = axis + 1
+        dim = ds[var].dims[axis]
+    if isinstance(dim, str):
+        try:
+            # in julia convention axis + 1
+            axis_jl = ds[var].get_axis_num(dim) + 1
+        except ValueError:
+            logging.info(f"Variable {var} does not have dimension {dim}. Skipping.")
+            return
+    assert isinstance(axis_jl, int)
+    Main.dim = axis_jl
+    kwargs_str = _get_bitinformation_kwargs_handler(ds[var], kwargs)
+    logging.debug(f"get_bitinformation(X, dim={dim}, {kwargs_str})")
+    info_per_bit = {}
+    info_per_bit["bitinfo"] = jl.eval(
+        f"get_bitinformation(X, dim={axis_jl}, {kwargs_str})"
+    )
+    info_per_bit["dim"] = dim
+    info_per_bit["axis"] = axis_jl - 1
+    return info_per_bit
+
+
+def _py_get_bitinformation(ds, var, axis, dim, kwargs={}):
+    if "set_zero_insignificant" in kwargs.keys():
+        if kwargs["set_zero_insignificant"]:
+            raise NotImplementedError(
+                "set_zero_insignificant is not implemented in the python implementation"
+            )
+    else:
+        assert (
+            kwargs == {}
+        ), "This implementation only supports the plain bitinfo implementation"
+    X = da.array(ds[var]).astype(np.uint)
+    if axis is not None:
+        dim = ds[var].dims[axis]
+    if isinstance(dim, str):
+        try:
+            axis = ds[var].get_axis_num(dim)
+        except ValueError:
+            logging.info(f"Variable {var} does not have dimension {dim}. Skipping.")
+            return
+    info_per_bit = {}
+    logging.info("Calling python implementation now")
+    info_per_bit["bitinfo"] = pb.bitinformation(X, axis=axis).compute()
+    info_per_bit["dim"] = dim
+    info_per_bit["axis"] = axis
+    return info_per_bit
+
+
+def _get_bitinformation_along_dims(
+    ds,
+    dim=None,
+    label=None,
+    overwrite=False,
+    implementation="julia",
+    **kwargs,
+):
+    """Helper function for :py:func:`xbitinfo.xbitinfo.get_bitinformation` to handle multi-dimensional analysis for each dim specified.
+
+    Simple wrapper around :py:func:`xbitinfo.xbitinfo.get_bitinformation`, which calls :py:func:`xbitinfo.xbitinfo.get_bitinformation`
+    for each dimension found in the provided :py:func:`xarray.Dataset`. The retrieved bitinformation
+    is gathered in a joint :py:func:`xarray.Dataset` and is returned.
+    """
+    info_per_bit_per_dim = {}
+    if dim is None:
+        dim = ds.dims
+    for d in dim:
+        logging.info(f"Get bitinformation along dimension {d}")
+        if label is not None:
+            label = "_".join([label, d])
+        info_per_bit_per_dim[d] = get_bitinformation(
+            ds, dim=d, axis=None, label=label, overwrite=overwrite, **kwargs
+        ).expand_dims("dim", axis=0)
+    info_per_bit = xr.merge(info_per_bit_per_dim.values()).squeeze()
+    return info_per_bit
+
+
+def _get_bitinformation_kwargs_handler(da, kwargs):
+    """Helper function to preprocess kwargs args of :py:func:`xbitinfo.xbitinfo.get_bitinformation`."""
+    kwargs_var = kwargs.copy()
+    if "masked_value" not in kwargs_var:
+        kwargs_var["masked_value"] = f"convert({str(da.dtype).capitalize()},NaN)"
+    elif kwargs_var["masked_value"] is None:
+        kwargs_var["masked_value"] = "nothing"
+    if "set_zero_insignificant" not in kwargs_var:
+        kwargs_var["set_zero_insignificant"] = True
+    kwargs_str = ", ".join([f"{k}={v}" for k, v in kwargs_var.items()])
+    # convert python to julia bool
+    kwargs_str = kwargs_str.replace("True", "true").replace("False", "false")
+    return kwargs_str
 
 
 def load_bitinformation(label):
@@ -145,21 +350,20 @@ def load_bitinformation(label):
         with open(label_file) as f:
             logging.debug(f"Load bitinformation from {label+'.json'}")
             info_per_bit = json.load(f)
-        return info_per_bit
+        return dict_to_dataset(info_per_bit)
     else:
-        return None
+        raise FileNotFoundError(f"No bitinformation could be found at {label+'.json'}")
 
 
 def get_keepbits(info_per_bit, inflevel=0.99):
-    """Get the number of mantissa bits to keep. To be used in xr_bitround and jl_bitround.
+    """Get the number of mantissa bits to keep. To be used in :py:func:`xbitinfo.bitround.xr_bitround` and :py:func:`xbitinfo.bitround.jl_bitround`.
 
-    Inputs
-    ------
-    info_per_bit : dict
-      Information content of each bit for each variable in ds. This is the output from get_bitinformation.
-    inflevel : float or dict
-      Level of information that shall be preserved. Of type `float` if the
-      preserved information content should be equal across variables, otherwise of type `dict`.
+    Parameters
+    ----------
+    info_per_bit : :py:class:`xarray.Dataset`
+      Information content of each bit. This is the output from :py:func:`xbitinfo.xbitinfo.get_bitinformation`.
+    inflevel : float or list
+      Level of information that shall be preserved.
 
     Returns
     -------
@@ -171,91 +375,86 @@ def get_keepbits(info_per_bit, inflevel=0.99):
     >>> ds = xr.tutorial.load_dataset("air_temperature")
     >>> info_per_bit = xb.get_bitinformation(ds, dim="lon")
     >>> xb.get_keepbits(info_per_bit)
-    {'air': 7}
+    <xarray.Dataset>
+    Dimensions:   (inflevel: 1)
+    Coordinates:
+        dim       <U3 'lon'
+      * inflevel  (inflevel) float64 0.99
+    Data variables:
+        air       (inflevel) int64 7
     >>> xb.get_keepbits(info_per_bit, inflevel=0.99999999)
-    {'air': 14}
+    <xarray.Dataset>
+    Dimensions:   (inflevel: 1)
+    Coordinates:
+        dim       <U3 'lon'
+      * inflevel  (inflevel) float64 1.0
+    Data variables:
+        air       (inflevel) int64 14
     >>> xb.get_keepbits(info_per_bit, inflevel=1.0)
-    {'air': 23}
+    <xarray.Dataset>
+    Dimensions:   (inflevel: 1)
+    Coordinates:
+        dim       <U3 'lon'
+      * inflevel  (inflevel) float64 1.0
+    Data variables:
+        air       (inflevel) int64 23
+    >>> info_per_bit = xb.get_bitinformation(ds)
+    >>> xb.get_keepbits(info_per_bit)
+    <xarray.Dataset>
+    Dimensions:   (dim: 3, inflevel: 1)
+    Coordinates:
+      * dim       (dim) <U4 'lat' 'lon' 'time'
+      * inflevel  (inflevel) float64 0.99
+    Data variables:
+        air       (dim, inflevel) int64 5 7 6
     """
-    keepmantissabits = {}
-    if isinstance(inflevel, (int, float)):
-        if inflevel < 0 or inflevel > 1.0:
-            raise ValueError("Please provide `inflevel` from interval [0.,1.]")
-    for v, ic in info_per_bit.items():
-        if inflevel == 1.0:
-            keepmantissabits[v] = len(ic) - NMBITS[len(ic)]
-        else:
-            # set below threshold to zero
-            # use something a bit bigger than maximum of the last 4 bits
-            threshold = 1.5 * np.max(ic[-4:])
-            ic_over_threshold = np.where(ic < threshold, 0, ic)
-            ic_over_threshold_cum = np.nancumsum(ic_over_threshold)  # CDF
-            # normed CDF
-            ic_over_threshold_cum_normed = (
-                ic_over_threshold_cum / ic_over_threshold_cum[-1]
+    if not isinstance(inflevel, list):
+        inflevel = [inflevel]
+    keepmantissabits = []
+    inflevel = xr.DataArray(inflevel, dims="inflevel", coords={"inflevel": inflevel})
+    if (inflevel < 0).any() or (inflevel > 1.0).any():
+        raise ValueError("Please provide `inflevel` from interval [0.,1.]")
+    for bitdim in ["bit16", "bit32", "bit64"]:
+        # get only variables of bitdim
+        bit_vars = [v for v in info_per_bit.data_vars if bitdim in info_per_bit[v].dims]
+        if bit_vars != []:
+            cdf = _cdf_from_info_per_bit(info_per_bit[bit_vars], bitdim)
+            bitdim_non_mantissa_bits = NMBITS[int(bitdim[3:])]
+            keepmantissabits_bitdim = (
+                (cdf > inflevel).argmax(bitdim) + 1 - bitdim_non_mantissa_bits
             )
-            # return mantissabits to keep therefore subtract sign and exponent bits
-            il = inflevel[v] if isinstance(inflevel, dict) else inflevel
-            keepmantissabits[v] = (
-                np.argmax(ic_over_threshold_cum_normed > il) + 1 - NMBITS[len(ic)]
-            )
+            # keep all mantissa bits for 100% information
+            if 1.0 in inflevel:
+                bitdim_all_mantissa_bits = int(bitdim[3:]) - bitdim_non_mantissa_bits
+                keepall = xr.ones_like(keepmantissabits_bitdim.sel(inflevel=1.0)) * (
+                    bitdim_all_mantissa_bits
+                )
+                keepmantissabits_bitdim = xr.concat(
+                    [keepmantissabits_bitdim.drop_sel(inflevel=1.0), keepall],
+                    "inflevel",
+                )
+            keepmantissabits.append(keepmantissabits_bitdim)
+    keepmantissabits = xr.merge(keepmantissabits)
+    if inflevel.inflevel.size > 1:  # restore original ordering
+        keepmantissabits = keepmantissabits.sel(inflevel=inflevel.inflevel)
     return keepmantissabits
 
 
-def _get_keepbits(ds, info_per_bit, inflevel=0.99):
-    """Get the amount of mantissa bits to keep for a given information content.
-
-    Inputs
-    ------
-    ds : xr.Dataset
-      Dataset for which the information content has been retrieved
-    info_per_bit : dict
-      Information content of each bit for each variable in ds. This is the output from get_bitinformation.
-    inflevel : float or dict
-      Level of information that shall be preserved. Of type `float` if the
-      preserved information content should be equal across variables, otherwise of type `dict`.
-
-    Returns
-    -------
-    keepbits : dict
-      Number of mantissa bits to keep per variable
-
-    Example
-    -------
-    >>> ds = xr.tutorial.load_dataset("air_temperature")
-    >>> info_per_bit = xb.get_bitinformation(ds, dim="lon")
-    >>> xb._get_keepbits(ds, info_per_bit)
-    {'air': 7}
-    >>> xb._get_keepbits(ds, info_per_bit, inflevel=0.99999999)
-    {'air': 14}
-    >>> xb._get_keepbits(ds, info_per_bit, inflevel=1.0)
-    {'air': -8}
-    """
-
-    def get_inflevel(var, inflevel):
-        """Helper function to load inflevel depending on input type."""
-        if isinstance(inflevel, dict):
-            return inflevel[var]
-        else:
-            return inflevel
-
-    keepbits = {}
-    config = {}
-    for var in ds.data_vars:
-        config[var] = {
-            "inflevel": get_inflevel(var, inflevel),
-            "bitinfo": info_per_bit[var],
-            "maskinfo": int(ds[var].notnull().sum()),
-        }
-        Main.config = config[var]
-        keepbits[var] = jl.eval("get_keepbits(config)")
-        # keep mantissa bits
-        keepbits[var] = keepbits[var] - NMBITS[len(info_per_bit[var])]
-    return keepbits
+def _cdf_from_info_per_bit(info_per_bit, bitdim):
+    """Convert info_per_bit to cumulative distribution function on dimension bitdim."""
+    # set below rounding error from last digit to zero
+    info_per_bit_cleaned = info_per_bit.where(
+        info_per_bit > info_per_bit.isel({bitdim: slice(-4, None)}).max(bitdim) * 1.5
+    )
+    # make cumulative distribution function
+    cdf = info_per_bit_cleaned.cumsum(bitdim) / info_per_bit_cleaned.cumsum(
+        bitdim
+    ).isel({bitdim: -1})
+    return cdf
 
 
 def _jl_bitround(X, keepbits):
-    """Wrap BitInformation.round. Used in xb.jl_bitround."""
+    """Wrap `BitInformation.jl.round <https://github.com/milankl/BitInformation.jl/blob/main/src/round_nearest.jl>`__. Used in :py:func:`xbitinfo.bitround.jl_bitround`."""
     Main.X = X
     Main.keepbits = keepbits
     return jl.eval("round!(X, keepbits)")
@@ -263,43 +462,43 @@ def _jl_bitround(X, keepbits):
 
 def get_prefect_flow(paths=[]):
     """
-    Create prefect.Flow for xbitinfo bitrounding paths.
+    Create `prefect.Flow <https://docs.prefect.io/core/concepts/flows.html#overview>`__ for paths to be:
 
-    1. Analyse bitwise real information content
-    2. Retrieve keepbits
-    3. Apply bitrounding with `xr_bitround`
-    4. Save as compressed netcdf with `to_compressed_netcdf`
+    1. Analyse bitwise real information content with :py:func:`xbitinfo.xbitinfo.get_bitinformation`
+    2. Retrieve keepbits with :py:func:`xbitinfo.xbitinfo.get_keepbits`
+    3. Apply bitrounding with :py:func:`xbitinfo.bitround.xr_bitround`
+    4. Save as compressed netcdf with :py:class:`xbitinfo.save_compressed.ToCompressed_Netcdf`
 
-    Many parameters can be changed when running the flow `flow.run(parameters=dict(chunk="auto"))`:
-    - paths: list of Paths
+    Many parameters can be changed when running the flow ``flow.run(parameters=dict(chunk="auto"))``:
+    - paths: list of paths
         Paths to be bitrounded
     - analyse_paths: str or int
-        Which paths to be passed to `xb.get_bitinformation`. choose from ["first_last", "all", int], where int is interpreted as stride, i.e. paths[::stride]. Defaults to "first".
+        Which paths to be passed to :py:func:`xbitinfo.xbitinfo.get_bitinformation`. Choose from ``["first_last", "all", int]``, where int is interpreted as stride, i.e. paths[::stride]. Defaults to ``"first"``.
     - enforce_dtype : str or None
-        Enforce dype for all variables. Currently `get_bitinformation` fails for different dtypes in variables. Do nothing if None. Defaults to None.
-    - label : see get_bitinformation
-    - dim/axis : see get_bitinformation
-    - inflevel : see get_keepbits
+        Enforce dtype for all variables. Currently, :py:func:`xbitinfo.xbitinfo.get_bitinformation` fails for different dtypes in variables. Do nothing if ``None``. Defaults to ``None``.
+    - label : see :py:func:`xbitinfo.xbitinfo.get_bitinformation`
+    - dim/axis : see :py:func:`xbitinfo.xbitinfo.get_bitinformation`
+    - inflevel : see :py:func:`xbitinfo.xbitinfo.get_keepbits`
     - non_negative_keepbits : bool
-        Set negative keepbits from `get_keepbits` to 0. Required when using `xr_bitround`. Defaults to True.
-    - chunks : see https://xarray.pydata.org/en/stable/generated/xarray.open_mfdataset.html. Note that with `chunks=None`, `dask` is not used for I/O and the flow is still parallelized when using `DaskExecutor`.
+        Set negative keepbits from :py:func:`xbitinfo.xbitinfo.get_keepbits` to ``0``. Required when using :py:func:`xbitinfo.bitround.xr_bitround`. Defaults to True.
+    - chunks : see :py:meth:`xarray.open_mfdataset`. Note that with ``chunks=None``, ``dask`` is not used for I/O and the flow is still parallelized when using ``DaskExecutor``.
     - bitround_in_julia : bool
-        Use `jl_bitround` instead of `xr_bitround`. Both should yield identical results. Defaults to False.
+        Use :py:func:`xbitinfo.bitround.jl_bitround` instead of :py:func:`xbitinfo.bitround.xr_bitround`. Both should yield identical results. Defaults to ``False``.
     - overwrite : bool
-        Whether to overwrite bitrounded netcdf files. False (default) skips existing files.
-    - complevel : see to_compressed_netcdf, defaults to 7.
+        Whether to overwrite bitrounded netcdf files. ``False`` (default) skips existing files.
+    - complevel : see to_compressed_netcdf, defaults to ``7``.
     - rename : list
-        Replace mapping for paths towards new_path of bitrounded file, i.e. replace=[".nc", "_bitrounded_compressed.nc"]
+        Replace mapping for paths towards new_path of bitrounded file, i.e. ``replace=[".nc", "_bitrounded_compressed.nc"]``
 
-    Inputs
+    Parameters
     ------
     paths : list
-      list of Paths of files to be processed by `get_bitinformation`, `get_keepbits`, `xr_bitround` and `to_compressed_netcdf`.
+      List of paths of files to be processed by :py:func:`xbitinfo.xbitinfo.get_bitinformation`, :py:func:`xbitinfo.xbitinfo.get_keepbits`, :py:func:`xbitinfo.bitround.xr_bitround` and ``to_compressed_netcdf``.
 
     Returns
     -------
     prefect.Flow
-      see https://docs.prefect.io/core/concepts/flows.html#overview
+      See https://docs.prefect.io/core/concepts/flows.html#overview
 
     Example
     -------
@@ -414,7 +613,7 @@ def get_prefect_flow(paths=[]):
         ds_bitround.to_compressed_netcdf(new_path, complevel=complevel)
         return
 
-    with Flow("xbitinfo") as flow:
+    with Flow("xbitinfo_pipeline") as flow:
         if paths == []:
             raise ValueError("Please provide paths of files to bitround, found [].")
         paths = Parameter("paths", default=paths)
@@ -466,10 +665,9 @@ class JsonCustomEncoder(json.JSONEncoder):
         return json.JSONEncoder.default(self, obj)
 
 
-if __name__ == "__main__":
-    args = get_user_input()
-    ds = xr.open_mfdataset(args.filename)
-    info_per_bit = get_bitinformation(ds, axis=0)
-    print(info_per_bit)
-    keepbits = get_keepbits(info_per_bit)
-    print(keepbits)
+def get_julia_package_version(package):
+    """Get version information of julia package"""
+    version = jl.eval(
+        f'Pkg.TOML.parsefile(joinpath(pkgdir({package}), "Project.toml"))["version"]'
+    )
+    return version

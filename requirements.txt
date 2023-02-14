@@ -1,7 +1,5 @@
-xarray
 dask
+xarray
 julia
-matplotlib
 tqdm
-prefect
-numcodecs @ git+https://github.com/rabernat/numcodecs@bitround
+numcodecs>=0.10.0

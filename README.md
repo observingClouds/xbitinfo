@@ -1,8 +1,11 @@
-# xbitinfo
+<h1 align="center">
+<img src="/docs/_static/xbitinfo_logo.svg" width="300">
+</h1><br>
 
-[![Binder](https://mybinder.org/badge_logo.svg)](https://mybinder.org/v2/gh/observingClouds/xbitinfo/main) [![CI](https://github.com/observingClouds/xbitinfo/actions/workflows/ci.yaml/badge.svg?branch=main)](https://github.com/observingClouds/xbitinfo/actions/workflows/ci.yaml) [![pre-commit.ci status](https://results.pre-commit.ci/badge/github/observingClouds/xbitinfo/main.svg)](https://results.pre-commit.ci/latest/github/observingClouds/xbitinfo/main)
+# xbitinfo: Retrieve information content and compress accordingly
 
-Retrieve information content and compress accordingly.
+[![Binder](https://mybinder.org/badge_logo.svg)](https://mybinder.org/v2/gh/observingClouds/xbitinfo/main?labpath=docs%2Fquick-start.ipynb) [![Open In SageMaker Studio Lab](https://studiolab.sagemaker.aws/studiolab.svg)](https://studiolab.sagemaker.aws/import/github/https://github.com/observingClouds/xbitinfo/blob/main/docs/quick-start.ipynb) [![CI](https://github.com/observingClouds/xbitinfo/actions/workflows/ci.yaml/badge.svg?branch=main)](https://github.com/observingClouds/xbitinfo/actions/workflows/ci.yaml) [![pre-commit.ci status](https://results.pre-commit.ci/badge/github/observingClouds/xbitinfo/main.svg)](https://results.pre-commit.ci/latest/github/observingClouds/xbitinfo/main) [![Documentation Status](https://readthedocs.org/projects/xbitinfo/badge/?version=latest)](https://xbitinfo.readthedocs.io/en/latest/?badge=latest) [![pypi](https://img.shields.io/pypi/v/xbitinfo.svg)](https://pypi.python.org/pypi/xbitinfo) ![Conda (channel only)](https://img.shields.io/conda/vn/conda-forge/xbitinfo)
+
 
 This is an [`xarray`](xarray.pydata.org/)-wrapper around [BitInformation.jl](https://github.com/milankl/BitInformation.jl) to retrieve and apply bitrounding from within python.
 The package intends to present an easy pipeline to compress (climate) datasets based on the real information content.
@@ -23,8 +26,10 @@ Klöwer, M., Razinger, M., Dominguez, J. J., Düben, P. D., & Palmer, T. N. (202
 [BitInformation.jl](https://github.com/milankl/BitInformation.jl)
 
 ## How to install
-
-`pip install git+https://github.com/observingClouds/xbitinfo.git`
+### Preferred installation
+`conda install -c conda-forge xbitinfo`
+### Alternative installation
+`pip install xbitinfo` # ensure to install julia manually
 
 ## How to use
 
@@ -38,9 +43,8 @@ ds_bitrounded = xb.xr_bitround(ds, keepbits)  # bitrounding keeping only keepbit
 ds_bitrounded.to_compressed_netcdf(outpath)  # save to netcdf with compression
 ```
 
-see [quick-start.ipynb](https://nbviewer.org/github/observingClouds/xbitinfo/blob/main/examples/quick-start.ipynb)
 
 ## Credits
 
-- [Milan Klöver](https://github.com/milankl) for [BitInformation.jl](https://github.com/milankl/BitInformation.jl)
+- [Milan Klöwer](https://github.com/milankl) for [BitInformation.jl](https://github.com/milankl/BitInformation.jl)
 - [`Cookiecutter`](https://github.com/audreyr/cookiecutter) and [`audreyr/cookiecutter-pypackage`](https://github.com/audreyr/cookiecutter-pypackage)

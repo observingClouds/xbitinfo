@@ -1,4 +1,3 @@
-import matplotlib.pyplot as plt
 import numpy as np
 import xarray as xr
 
@@ -6,7 +5,7 @@ from .xbitinfo import NMBITS, get_keepbits
 
 
 def add_bitinfo_labels(
-    ds,
+    da,
     info_per_bit,
     inflevels,
     ax=None,
@@ -25,30 +24,30 @@ def add_bitinfo_labels(
     Klöwer, M., Razinger, M., Dominguez, J. J., Düben, P. D., & Palmer, T. N. (2021).
     Compressing atmospheric data into its real information content. Nature Computational Science, 1(11), 713–724. doi: 10/gnm4jj
 
-    Inputs
-    ------
-    ds : xr.DataArray
-      Plotted dataset
+    Parameters
+    ----------
+    da : :py:func:`xarray.DataArray`
+      Plotted data
     info_per_bit : dict
-      Information content of each bit for each variable in ds. This is the output from get_bitinformation.
+      Information content of each bit for each variable in ``da``. This is the output from :py:func:`xbitinfo.xbitinfo.get_bitinformation`.
     inflevels : list of floats
       Level of information that shall be preserved.
     ax : plt.Axes or None
-      axes. If None, get current axis.
+      Axes. If ``None``, get current axis.
     x_dim_name : str
-      name of the x dimension. Defaults to "lon".
+      Name of the x dimension. Defaults to ``"lon"``.
     y_dim_name : str
-      name of the y dimension. Defaults to "lat".
+      Name of the y dimension. Defaults to ``"lat"``.
     lon_coord_name : str
-      name of the longitude coordinate. Only matters when plotting with multi-dimensional coordinates (i.e. curvilinear grids) with `cartopy` (when `transform=ccrs.Geodetic()` must be also set via `kwargs`). Defaults to x_dim_name.
+      Name of the longitude coordinate. Only matters when plotting with multi-dimensional coordinates (i.e. curvilinear grids) with ``cartopy`` (when ``transform=ccrs.Geodetic()`` must be also set via ``kwargs``). Defaults to ``x_dim_name``.
     lat_coord_name : str
-      name of the latitude coordinate. Only matters when plotting with multi-dimensional coordinates (i.e. curvilinear grids) with `cartopy` (when `transform=ccrs.Geodetic()` must be also set via `kwargs`). Defaults to y_dim_name.
+      Name of the latitude coordinate. Only matters when plotting with multi-dimensional coordinates (i.e. curvilinear grids) with ``cartopy`` (when ``transform=ccrs.Geodetic()`` must be also set via ``kwargs``). Defaults to ``y_dim_name``.
     label_latitude :  float or str
-      Latitude for the label. Defaults to "center", which uses the mean lat_coord_name.
+      Latitude for the label. Defaults to ``"center"``, which uses the mean ``lat_coord_name``.
     label_latitude_offset : float
-      distance between `keepbits = int` and `x%` label. Defaults to 8.
+      Distance between ``keepbits = int`` and ``x%`` label. Defaults to ``8``.
     kwargs : dict
-      kwargs to be passed to `ax.text` and `ax.plot`. Use `transform=ccrs.Geodetic()` when using `cartopy`
+      Kwargs to be passed to ``ax.text`` and ``ax.plot``. Use ``transform=ccrs.Geodetic()`` when using ``cartopy``
 
     Returns
     -------
@@ -92,28 +91,30 @@ def add_bitinfo_labels(
     ... )  # doctest: +SKIP
 
     """
+    import matplotlib.pyplot as plt
+
     if lon_coord_name == "guess":
         lon_coord_name = x_dim_name
     if lat_coord_name == "guess":
         lat_coord_name = y_dim_name
     if label_latitude == "center":
-        label_latitude = ds[lat_coord_name].mean()
-    stride = ds[x_dim_name].size // len(inflevels)
+        label_latitude = da[lat_coord_name].mean()
+    stride = da[x_dim_name].size // len(inflevels)
     if ax is None:
         ax = plt.gca()
 
     for i, inf in enumerate(inflevels):
         # draw latitude line
-        lons = ds.isel({x_dim_name: stride * i})[lon_coord_name]
-        lats = ds.isel({x_dim_name: stride * i})[lat_coord_name]
+        lons = da.isel({x_dim_name: stride * i})[lon_coord_name]
+        lats = da.isel({x_dim_name: stride * i})[lat_coord_name]
         lons, lats = xr.broadcast(lons, lats)
         ax.plot(lons, lats, color="k", linewidth=1, **kwargs)
         # write inflevel
         t = ax.text(
-            ds.isel(
+            da.isel(
                 {
                     x_dim_name: int(stride * (i + 0.5)),
-                    y_dim_name: ds[y_dim_name].size // 2,
+                    y_dim_name: da[y_dim_name].size // 2,
                 }
             )[lon_coord_name].values,
             label_latitude - label_latitude_offset,
@@ -126,14 +127,14 @@ def add_bitinfo_labels(
 
         # write keepbits
         t_keepbits = ax.text(
-            ds.isel(
+            da.isel(
                 {
                     x_dim_name: int(stride * (i + 0.5)),
-                    y_dim_name: ds[y_dim_name].size // 2,
+                    y_dim_name: da[y_dim_name].size // 2,
                 }
             )[lon_coord_name].values,
             label_latitude + label_latitude_offset,
-            f"keepbits = {get_keepbits(info_per_bit, inf)[ds.name]}",
+            f"keepbits = {get_keepbits(info_per_bit, inf)[da.name]}",
             horizontalalignment="center",
             color="k",
             **kwargs,
@@ -141,13 +142,19 @@ def add_bitinfo_labels(
         t_keepbits.set_bbox(dict(facecolor="white", alpha=0.9, edgecolor="white"))
 
 
-def plot_bitinformation(bitinfo):
-    """Plot bitwise information content.
+def plot_bitinformation(bitinfo, cmap="turku"):
+    """Plot bitwise information content as in Klöwer et al. 2021 Figure 2.
 
-    Inputs
-    ------
-    bitinfo : dict
-      Dictionary containing the bitwise information content for each variable
+    Klöwer, M., Razinger, M., Dominguez, J. J., Düben, P. D., & Palmer, T. N. (2021).
+    Compressing atmospheric data into its real information content.
+    Nature Computational Science, 1(11), 713–724. doi: 10/gnm4jj
+
+    Parameters
+    ----------
+    bitinfo : :py:func:`xarray.Dataset`
+      Containing the bitwise information content for each variable
+    cmap : str or plt.cm
+      Colormap. Defaults to ``"turku"``.
 
     Returns
     -------
@@ -156,12 +163,20 @@ def plot_bitinformation(bitinfo):
     Example
     -------
     >>> ds = xr.tutorial.load_dataset("air_temperature")
-    >>> into_per_bit = xb.get_bitinformation(ds, dim="lon")
-    >>> xb.plot_bitinformation(into_per_bit)
+    >>> info_per_bit = xb.get_bitinformation(ds, dim="lon")
+    >>> xb.plot_bitinformation(info_per_bit)
     <Figure size 1200x400 with 3 Axes>
 
     """
-    import cmcrameri.cm as cmc
+    import matplotlib.pyplot as plt
+
+    assert bitinfo.coords["dim"].shape <= (
+        1,
+    ), "Only bitinfo along one dimension is supported at the moment. Please select dimension before plotting."
+
+    assert (
+        "bit32" in bitinfo.dims
+    ), "currently only works properly for float32 data, looking forward to your PR closing https://github.com/observingClouds/xbitinfo/issues/168"
 
     nvars = len(bitinfo)
     varnames = bitinfo.keys()
@@ -174,7 +189,7 @@ def plot_bitinformation(bitinfo):
     infbits100 = np.zeros(nvars)
     ICnan[:, :] = np.nan
     for v, var in enumerate(varnames):
-        ic = bitinfo[var]
+        ic = bitinfo[var].squeeze(drop=True)
         ICnan[v, : len(ic)] = ic
         # infbits are all bits, infbits_dict were mantissa bits
         infbits[v] = infbits_dict[var] + NMBITS[len(ic)]
@@ -198,7 +213,10 @@ def plot_bitinformation(bitinfo):
     ax1right.invert_yaxis()
     ax1right.set_box_aspect(1 / 32 * nvars)
 
-    cmap = cmc.turku_r
+    if cmap == "turku":
+        import cmcrameri.cm as cmc
+
+        cmap = cmc.turku_r
     pcm = ax1.pcolormesh(ICnan, vmin=0, vmax=1, cmap=cmap)
     cbar = plt.colorbar(pcm, cax=cax, orientation="horizontal")
     cbar.set_label("information content [bit]")
@@ -316,19 +334,19 @@ def plot_distribution(ds, nbins=1000, cmap="viridis", offset=0.01, close_zero=1e
     Compressing atmospheric data into its real information content.
     Nature Computational Science, 1(11), 713–724. doi: 10/gnm4jj
 
-    Inputs
-    ------
-    bitinfo : xr.Dataset
-      raw input values for distributions
+    Parameters
+    ----------
+    bitinfo : :py:class:`xarray.Dataset`
+      Raw input values for distributions
     nbints : int
-      number of bins for histograms across all variable range. Defaults to 1000.
+      Number of bins for histograms across all variable range. Defaults to ``1000``.
     cmap : str
-      which matplotlib colormap to use. Defaults to "viridis".
+      Which matplotlib colormap to use. Defaults to ``"viridis"``.
     offset : float
-      offset on the yaxis between variables 0 lines. Defaults to 0.01.
+      Offset on the yaxis between variables 0 lines. Defaults to ``0.01``.
     close_zero : float
-      threshold where to stop close to 0, when distributions ranges from negative to positive.
-      Increase this value when seeing an unexpected dip around 0 in the distribution. Defaults to 0.01.
+      Threshold where to stop close to 0, when distributions ranges from negative to positive.
+      Increase this value when seeing an unexpected dip around 0 in the distribution. Defaults to ``0.01``.
 
     Returns
     -------
@@ -338,9 +356,11 @@ def plot_distribution(ds, nbins=1000, cmap="viridis", offset=0.01, close_zero=1e
     -------
     >>> ds = xr.tutorial.load_dataset("eraint_uvz")
     >>> xb.plot_distribution(ds)
-    <AxesSubplot:title={'center':'Statistical distributions'}, xlabel='value', ylabel='Probability density'>
+    <Axes: title={'center': 'Statistical distributions'}, xlabel='value', ylabel='Probability density'>
 
     """
+    import matplotlib.pyplot as plt
+
     if not isinstance(ds, xr.Dataset):
         raise ValueError(
             f"plot_distribution(ds), requires xr.Dataset, found {type(ds)}"
