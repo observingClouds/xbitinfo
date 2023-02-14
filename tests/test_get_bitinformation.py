@@ -223,3 +223,38 @@ def test_get_bitinformation_keep_attrs(rasm):
     assert bi.attrs["units"] == 1
     for a in rasm.Tair.attrs.keys():
         assert bi.attrs["source_" + a] == rasm.Tair.attrs[a], print(bi.attrs)
+
+
+@pytest.mark.parametrize(
+    "ds,dim,axis",
+    [
+        (pytest.lazy_fixture("ugrid_demo"), None, -1),
+        (pytest.lazy_fixture("icon_grid_demo"), "ncells", None),
+        (pytest.lazy_fixture("air_temperature"), "lon", None),
+        (pytest.lazy_fixture("rasm"), "x", None),
+        (pytest.lazy_fixture("ROMS_example"), "eta_rho", None),
+        (pytest.lazy_fixture("era52mt"), "time", None),
+        (pytest.lazy_fixture("eraint_uvz"), "longitude", None),
+    ],
+)
+def test_implementations_agree(ds, dim, axis):
+    """Test whether the python and julia implementation retrieve the same results"""
+    bi_python = xb.get_bitinformation(
+        ds,
+        dim=dim,
+        axis=axis,
+        implementation="python",
+        set_zero_insignificant=False,
+        overwrite=True,
+        masked_value=None,
+    )
+    bi_julia = xb.get_bitinformation(
+        ds,
+        dim=dim,
+        axis=axis,
+        implementation="julia",
+        set_zero_insignificant=False,
+        overwrite=True,
+        masked_value=None,
+    )
+    bitinfo_assert_allclose(bi_python, bi_julia, rtol=1e-4)
