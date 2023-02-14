@@ -50,12 +50,12 @@ def bitinfo_assert_equal(bitinfo1, bitinfo2):
         assert_equal(bitinfo1[v], bitinfo2[v])
 
 
-def bitinfo_assert_allclose(bitinfo1, bitinfo2):
+def bitinfo_assert_allclose(bitinfo1, bitinfo2, **kwargs):
     assert list(bitinfo1.keys()) == list(bitinfo2.keys()), print(
         f"lhs = {bitinfo1.keys()} vs rhs = {bitinfo2.keys()}"
     )
     for v in bitinfo1.keys():
-        assert_allclose(bitinfo1[v], bitinfo2[v])
+        assert_allclose(bitinfo1[v], bitinfo2[v], **kwargs)
 
 
 def bitinfo_assert_different(bitinfo1, bitinfo2):
