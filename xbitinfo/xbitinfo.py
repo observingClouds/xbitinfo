@@ -283,7 +283,11 @@ def _py_get_bitinformation(ds, var, axis, dim, kwargs={}):
         assert (
             kwargs == {}
         ), "This implementation only supports the plain bitinfo implementation"
-    X = da.array(ds[var]).astype(np.uint)
+    itemsize = ds[var].dtype.itemsize
+    astype = f"u{itemsize}"
+    X = da.array(ds[var])
+    X = pb.signed_exponent(X)
+    X = X.astype(astype)
     if axis is not None:
         dim = ds[var].dims[axis]
     if isinstance(dim, str):
