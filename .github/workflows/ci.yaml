@@ -41,7 +41,7 @@ jobs:
         with:
           auto-update-conda: false
           channels: conda-forge
-          mamba-version: '*'
+          miniforge-variant: Mambaforge
           activate-environment: bitinfo
           python-version: 3.8
       - name: Set up conda environment
@@ -68,7 +68,7 @@ jobs:
       - uses: conda-incubator/setup-miniconda@v2
         with:
           channels: conda-forge
-          mamba-version: "*"
+          miniforge-variant: Mambaforge
           activate-environment: bitinfo
           auto-update-conda: false
           python-version: 3.8
@@ -101,7 +101,7 @@ jobs:
         with:
           auto-update-conda: false
           channels: conda-forge
-          mamba-version: '*'
+          miniforge-variant: Mambaforge
           activate-environment: bitinfo
           python-version: 3.8
       - name: Set up conda environment
