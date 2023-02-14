@@ -2,6 +2,11 @@
 CHANGELOG
 =========
 
+X.X.X (unreleased)
+------------------
+
+* Drop python 3.8 support and add python 3.11 (:pr:`175`) `Hauke Schulz`_.
+
 0.0.3 (2022-07-11)
 ------------------
 
