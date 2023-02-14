@@ -34,16 +34,16 @@ extras_require["docs"] = extras_require["complete"] + [
 setup(
     author="Hauke Schulz",
     author_email="hauke.schulz@mpimet.mpg.de",
-    python_requires=">=3.8",
+    python_requires=">=3.9",
     classifiers=[
         "Development Status :: 2 - Pre-Alpha",
         "Intended Audience :: Developers",
         "License :: OSI Approved :: MIT License",
         "Natural Language :: English",
         "Programming Language :: Python :: 3",
-        "Programming Language :: Python :: 3.8",
         "Programming Language :: Python :: 3.9",
         "Programming Language :: Python :: 3.10",
+        "Programming Language :: Python :: 3.11",
     ],
     description="Retrieve information content and compress accordingly.",
     install_requires=requirements,
