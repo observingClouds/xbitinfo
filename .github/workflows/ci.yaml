@@ -41,9 +41,9 @@ jobs:
         with:
           auto-update-conda: false
           channels: conda-forge
-          mamba-version: '*'
+          miniforge-variant: Mambaforge
           activate-environment: bitinfo
-          python-version: 3.8
+          python-version: "3.11"
       - name: Set up conda environment
         run: |
           mamba env update -f environment.yml
@@ -68,10 +68,10 @@ jobs:
       - uses: conda-incubator/setup-miniconda@v2
         with:
           channels: conda-forge
-          mamba-version: "*"
+          miniforge-variant: Mambaforge
           activate-environment: bitinfo
           auto-update-conda: false
-          python-version: 3.8
+          python-version: "3.11"
       - name: Install conda dependencies
         run: |
           mamba env update -f environment.yml
@@ -101,9 +101,9 @@ jobs:
         with:
           auto-update-conda: false
           channels: conda-forge
-          mamba-version: '*'
+          miniforge-variant: Mambaforge
           activate-environment: bitinfo
-          python-version: 3.8
+          python-version: "3.11"
       - name: Set up conda environment
         run: |
           mamba env update -f environment.yml
@@ -135,7 +135,7 @@ jobs:
     - name: Setup python
       uses: actions/setup-python@v3
       with:
-        python-version: 3.8
+        python-version: "3.11"
     - name: "Set up Julia"
       uses: julia-actions/setup-julia@v1.6.0
       with:

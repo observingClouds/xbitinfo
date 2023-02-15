@@ -46,5 +46,5 @@ ds_bitrounded.to_compressed_netcdf(outpath)  # save to netcdf with compression
 
 ## Credits
 
-- [Milan Klöver](https://github.com/milankl) for [BitInformation.jl](https://github.com/milankl/BitInformation.jl)
+- [Milan Klöwer](https://github.com/milankl) for [BitInformation.jl](https://github.com/milankl/BitInformation.jl)
 - [`Cookiecutter`](https://github.com/audreyr/cookiecutter) and [`audreyr/cookiecutter-pypackage`](https://github.com/audreyr/cookiecutter-pypackage)

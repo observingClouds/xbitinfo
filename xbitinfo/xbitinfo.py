@@ -73,7 +73,10 @@ def dict_to_dataset(info_per_bit):
             dims=[dim_name],
             coords={dim_name: get_bit_coords(dtype_size), "dim": dim},
             name=v,
-            attrs={"long_name": f"{v} bitwise information", "units": "1"},
+            attrs={
+                "long_name": f"{v} bitwise information",
+                "units": 1,
+            },
         ).astype("float64")
     # add metadata
     dsb.attrs = {
@@ -222,7 +225,7 @@ def get_bitinformation(  # noqa: C901
         info_per_bit = {}
         pbar = tqdm(ds.data_vars)
         for var in pbar:
-            pbar.set_description("Processing %s" % var)
+            pbar.set_description(f"Processing var: {var} for dim: {dim}")
             if implementation == "julia":
                 info_per_bit_var = _jl_get_bitinformation(ds, var, axis, dim, kwargs)
                 if info_per_bit_var is None:
@@ -243,7 +246,11 @@ def get_bitinformation(  # noqa: C901
             with open(label + ".json", "w") as f:
                 logging.debug(f"Save bitinformation to {label + '.json'}")
                 json.dump(info_per_bit, f, cls=JsonCustomEncoder)
-    return dict_to_dataset(info_per_bit)
+    info_per_bit = dict_to_dataset(info_per_bit)
+    for var in info_per_bit.data_vars:  # keep attrs from input with source_ prefix
+        for a in ds[var].attrs.keys():
+            info_per_bit[var].attrs["source_" + a] = ds[var].attrs[a]
+    return info_per_bit
 
 
 def _jl_get_bitinformation(ds, var, axis, dim, kwargs={}):
@@ -283,7 +290,11 @@ def _py_get_bitinformation(ds, var, axis, dim, kwargs={}):
         assert (
             kwargs == {}
         ), "This implementation only supports the plain bitinfo implementation"
-    X = da.array(ds[var]).astype(np.uint)
+    itemsize = ds[var].dtype.itemsize
+    astype = f"u{itemsize}"
+    X = da.array(ds[var])
+    X = pb.signed_exponent(X)
+    X = X.astype(astype)
     if axis is not None:
         dim = ds[var].dims[axis]
     if isinstance(dim, str):
@@ -322,7 +333,13 @@ def _get_bitinformation_along_dims(
         if label is not None:
             label = "_".join([label, d])
         info_per_bit_per_dim[d] = get_bitinformation(
-            ds, dim=d, axis=None, label=label, overwrite=overwrite, **kwargs
+            ds,
+            dim=d,
+            axis=None,
+            label=label,
+            overwrite=overwrite,
+            implementation=implementation,
+            **kwargs,
         ).expand_dims("dim", axis=0)
     info_per_bit = xr.merge(info_per_bit_per_dim.values()).squeeze()
     return info_per_bit

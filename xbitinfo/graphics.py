@@ -174,6 +174,10 @@ def plot_bitinformation(bitinfo, cmap="turku"):
         1,
     ), "Only bitinfo along one dimension is supported at the moment. Please select dimension before plotting."
 
+    assert (
+        "bit32" in bitinfo.dims
+    ), "currently only works properly for float32 data, looking forward to your PR closing https://github.com/observingClouds/xbitinfo/issues/168"
+
     nvars = len(bitinfo)
     varnames = bitinfo.keys()
 
@@ -352,7 +356,7 @@ def plot_distribution(ds, nbins=1000, cmap="viridis", offset=0.01, close_zero=1e
     -------
     >>> ds = xr.tutorial.load_dataset("eraint_uvz")
     >>> xb.plot_distribution(ds)
-    <AxesSubplot: title={'center': 'Statistical distributions'}, xlabel='value', ylabel='Probability density'>
+    <Axes: title={'center': 'Statistical distributions'}, xlabel='value', ylabel='Probability density'>
 
     """
     import matplotlib.pyplot as plt
