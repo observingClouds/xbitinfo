@@ -1,5 +1,4 @@
 dask
 xarray
-julia
 tqdm
 numcodecs>=0.10.0
