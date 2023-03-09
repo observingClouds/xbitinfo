@@ -136,10 +136,10 @@ def jl_bitround(da, keepbits):
 
 
 def bitround_along_dim(
-    ds, info_per_bit, dim, inflevels=[1.0, 0.9999, 0.99, 0.975, 0.95]
+    ds, info_per_bit, dim, keepbits=[1.0, 0.9999, 0.99, 0.975, 0.95]
 ):
     """
-    Apply bitrounding on slices along dim based on inflevels.
+    Apply bitrounding on slices along dim based on keepbits.
     Helper function to generate data for Fig. 3 in Klöwer et al. 2021.
 
     Klöwer, M., Razinger, M., Dominguez, J. J., Düben, P. D., & Palmer, T. N. (2021).
@@ -154,13 +154,13 @@ def bitround_along_dim(
       Information content of each bit for each variable in ds. This is the output from get_bitinformation.
     dim : str
       Name of dimension for slicing
-    inflevels : list of floats
+    keepbits : list of floats
       Level of information that shall be preserved. Defaults to ``[1.0, 0.9999, 0.99, 0.975, 0.95]``.
 
     Returns
     -------
     ds : :py:class:`xarray.Dataset`, :py:class:`xarray.DataArray`
-      Bitrounded on slices along ``dim`` based on ``inflevels``
+      Bitrounded on slices along ``dim`` based on ``keepbits``
 
     Example
     -------
@@ -172,13 +172,13 @@ def bitround_along_dim(
     >>> (ds - ds_bitrounded_along_lon)["air"].isel(time=0).plot()  # doctest: +ELLIPSIS
     <matplotlib.collections.QuadMesh object at ...>
     """
-    stride = ds[dim].size // len(inflevels)
+    stride = ds[dim].size // len(keepbits)
     new_ds = []
-    for i, inf in enumerate(inflevels):  # last slice might be a bit larger
+    for i, inf in enumerate(keepbits):  # last slice might be a bit larger
         ds_slice = ds.isel(
             {
                 dim: slice(
-                    stride * i, stride * (i + 1) if i != len(inflevels) - 1 else None
+                    stride * i, stride * (i + 1) if i != len(keepbits) - 1 else None
                 )
             }
         )

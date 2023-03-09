@@ -8,7 +8,7 @@ from .xbitinfo import NMBITS, get_keepbits
 def add_bitinfo_labels(
     da,
     info_per_bit,
-    inflevels,
+    keepbits,
     ax=None,
     x_dim_name="lon",
     y_dim_name="lat",
@@ -31,7 +31,7 @@ def add_bitinfo_labels(
       Plotted data
     info_per_bit : dict
       Information content of each bit for each variable in ``da``. This is the output from :py:func:`xbitinfo.xbitinfo.get_bitinformation`.
-    inflevels : list of floats
+    keepbits : list of floats
       Level of information that shall be preserved.
     ax : plt.Axes or None
       Axes. If ``None``, get current axis.
@@ -58,14 +58,14 @@ def add_bitinfo_labels(
     Plotting a single-dimension coordinate dataset:
     >>> ds = xr.tutorial.load_dataset("air_temperature")
     >>> info_per_bit = xb.get_bitinformation(ds, dim="lon")
-    >>> inflevels = [1.0, 0.9999, 0.99, 0.975, 0.95]
+    >>> keepbits = [1.0, 0.9999, 0.99, 0.975, 0.95]
     >>> ds_bitrounded_along_lon = xb.bitround.bitround_along_dim(
-    ...     ds, info_per_bit, dim="lon", inflevels=inflevels
+    ...     ds, info_per_bit, dim="lon", keepbits=keepbits
     ... )
     >>> diff = (ds - ds_bitrounded_along_lon)["air"].isel(time=0)
     >>> diff.plot()  # doctest: +ELLIPSIS
     <matplotlib.collections.QuadMesh object at ...>
-    >>> add_bitinfo_labels(diff, info_per_bit, inflevels)  # doctest: +ELLIPSIS
+    >>> add_bitinfo_labels(diff, info_per_bit, keepbits)  # doctest: +ELLIPSIS
 
     Plotting a multi-dimensional coordinate dataset
     >>> v = "Tair"
@@ -73,7 +73,7 @@ def add_bitinfo_labels(
     >>> dim = "y"
     >>> info_per_bit = xb.get_bitinformation(ds, dim=dim)
     >>> ds_bitrounded_along_lon = xb.bitround.bitround_along_dim(
-    ...     ds, info_per_bit, dim=dim, inflevels=inflevels
+    ...     ds, info_per_bit, dim=dim, keepbits=keepbits
     ... )
     >>> import cartopy.crs as ccrs  # doctest: +SKIP
     >>> fig, axis = plt.subplots(  # doctest: +SKIP
@@ -100,11 +100,11 @@ def add_bitinfo_labels(
         lat_coord_name = y_dim_name
     if label_latitude == "center":
         label_latitude = da[lat_coord_name].mean()
-    stride = da[x_dim_name].size // len(inflevels)
+    stride = da[x_dim_name].size // len(keepbits)
     if ax is None:
         ax = plt.gca()
 
-    for i, inf in enumerate(inflevels):
+    for i, inf in enumerate(keepbits):
         # draw latitude line
         lons = da.isel({x_dim_name: stride * i})[lon_coord_name]
         lats = da.isel({x_dim_name: stride * i})[lat_coord_name]
