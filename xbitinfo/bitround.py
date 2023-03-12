@@ -1,79 +1,79 @@
 import xarray as xr
 from numcodecs.bitround import BitRound
 
-from .xbitinfo import _jl_bitround, get_keepbits
+from .xbitinfo import _jl_bitround, get_inflevels
 
 
-def _np_bitround(data, keepbits):
+def _np_bitround(data, inflevels):
     """Bitround for Arrays."""
-    codec = BitRound(keepbits=keepbits)
+    codec = BitRound(inflevels=inflevels)
     data = data.copy()  # otherwise overwrites the input
     encoded = codec.encode(data)
     return codec.decode(encoded)
 
 
-def _keepbits_interface(da, keepbits):
-    """Common interface to allowed keepbits types
+def _inflevels_interface(da, inflevels):
+    """Common interface to allowed inflevels types
 
     Parameters
     ----------
     da : :py:class:`xarray.DataArray`
       Input data to bitround
-    keepbits : int, dict of {str: int}, :py:class:`xarray.DataArray` or :py:class:`xarray.Dataset`
+    inflevels : int, dict of {str: int}, :py:class:`xarray.DataArray` or :py:class:`xarray.Dataset`
       How many bits to keep as int
 
     Returns
     -------
     keep : int
-      Number of keepbits for variable given in ``da``
+      Number of inflevels for variable given in ``da``
     """
     assert isinstance(da, xr.DataArray)
-    if isinstance(keepbits, int):
-        keep = keepbits
-    elif isinstance(keepbits, dict):
+    if isinstance(inflevels, int):
+        keep = inflevels
+    elif isinstance(inflevels, dict):
         v = da.name
-        if v in keepbits.keys():
-            keep = keepbits[v]
+        if v in inflevels.keys():
+            keep = inflevels[v]
         else:
-            raise ValueError(f"name {v} not for in keepbits: {keepbits.keys()}")
-    elif isinstance(keepbits, xr.Dataset):
-        assert keepbits.coords["inflevel"].shape <= (
+            raise ValueError(f"name {v} not for in inflevels: {inflevels.keys()}")
+    elif isinstance(inflevels, xr.Dataset):
+        assert inflevels.coords["inflevel"].shape <= (
             1,
         ), "Information content is only allowed for one 'inflevel' here. Please make a selection."
-        if "dim" in keepbits.coords:
-            assert keepbits.coords["dim"].shape <= (
+        if "dim" in inflevels.coords:
+            assert inflevels.coords["dim"].shape <= (
                 1,
-            ), "Information content is only allowed along one dimension here. Please select one `dim`. To find the maximum keepbits, simply use `keepbits.max(dim='dim')`"
+            ), "Information content is only allowed along one dimension here. Please select one `dim`. To find the maximum inflevels, simply use `inflevels.max(dim='dim')`"
         v = da.name
-        if v in keepbits.keys():
-            keep = int(keepbits[v])
+        if v in inflevels.keys():
+            keep = int(inflevels[v])
         else:
-            raise ValueError(f"name {v} not for in keepbits: {keepbits.keys()}")
-    elif isinstance(keepbits, xr.DataArray):
-        assert keepbits.coords["inflevel"].shape <= (
+            raise ValueError(f"name {v} not for in inflevels: {inflevels.keys()}")
+    elif isinstance(inflevels, xr.DataArray):
+        assert inflevels.coords["inflevel"].shape <= (
             1,
         ), "Information content is only allowed for one 'inflevel' here. Please make a selection."
-        assert keepbits.coords["dim"].shape <= (
+        assert inflevels.coords["dim"].shape <= (
             1,
-        ), "Information content is only allowed along one dimension here. Please select one `dim`. To find the maximum keepbits, simply use `keepbits.max(dim='dim')`"
+        ), "Information content is only allowed along one dimension here. Please select one `dim`. To find the maximum inflevels, simply use `inflevels.max(dim='dim')`"
         v = da.name
-        if v == keepbits.name:
-            keep = int(keepbits)
+        if v == inflevels.name:
+            keep = int(inflevels)
         else:
-            raise KeyError(f"no keepbits found for variable {v}")
+            raise KeyError(f"no inflevels found for variable {v}")
     else:
-        raise TypeError(f"type {type(keepbits)} is not a valid type for keepbits.")
+        raise TypeError(f"type {type(inflevels)} is not a valid type for inflevels.")
     return keep
 
 
-def xr_bitround(da, keepbits):
-    """Apply bitrounding based on keepbits from :py:func:`xbitinfo.xbitinfo.get_keepbits` for :py:class:`xarray.Dataset` or :py:class:`xarray.DataArray` wrapping ``numcodecs.bitround``
+def xr_bitround(da, inflevels):
+    """Apply bitrounding based on inflevels from :py:func:`xbitinfo.xbitinfo.get_inflevels` for :py:class:`xarray.Dataset` or :py:class:`xarray.DataArray` wrapping ``numcodecs.bitround``
 
     Parameters
     ----------
     da : :py:class:`xarray.DataArray` or :py:class:`xarray.Dataset`
       Input data to bitround
-    keepbits : int, dict of {str: int}, :py:class:`xarray.DataArray` or :py:class:`xarray.Dataset`
+    inflevels : int, dict of {str: int}, :py:class:`xarray.DataArray` or :py:class:`xarray.Dataset`
       How many bits to keep as int. Fails if dict or :py:class:`xarray.Dataset` and key or variable not present.
 
     Returns
@@ -84,31 +84,31 @@ def xr_bitround(da, keepbits):
     -------
     >>> ds = xr.tutorial.load_dataset("air_temperature")
     >>> info_per_bit = xb.get_bitinformation(ds, dim="lon")
-    >>> keepbits = xb.get_keepbits(info_per_bit, 0.99)
-    >>> ds_bitrounded = xb.xr_bitround(ds, keepbits)
+    >>> inflevels = xb.get_inflevels(info_per_bit, 0.99)
+    >>> ds_bitrounded = xb.xr_bitround(ds, inflevels)
     """
     if isinstance(da, xr.Dataset):
         da_bitrounded = da.copy()
         for v in da.data_vars:
-            da_bitrounded[v] = xr_bitround(da[v], keepbits)
+            da_bitrounded[v] = xr_bitround(da[v], inflevels)
         return da_bitrounded
 
     assert isinstance(da, xr.DataArray)
-    keep = _keepbits_interface(da, keepbits)
+    keep = _inflevels_interface(da, inflevels)
 
     da = xr.apply_ufunc(_np_bitround, da, keep, dask="parallelized", keep_attrs=True)
     da.attrs["_QuantizeBitRoundNumberOfSignificantDigits"] = keep
     return da
 
 
-def jl_bitround(da, keepbits):
-    """Apply bitrounding based on keepbits from :py:func:`xbitinfo.xbitinfo.get_keepbits` for :py:class:`xarray.Dataset` or :py:class:`xarray.DataArray` wrapping `BitInformation.jl.round <https://github.com/milankl/BitInformation.jl/blob/main/src/round_nearest.jl>`__.
+def jl_bitround(da, inflevels):
+    """Apply bitrounding based on inflevels from :py:func:`xbitinfo.xbitinfo.get_inflevels` for :py:class:`xarray.Dataset` or :py:class:`xarray.DataArray` wrapping `BitInformation.jl.round <https://github.com/milankl/BitInformation.jl/blob/main/src/round_nearest.jl>`__.
 
     Parameters
     ----------
     da : :py:class:`xarray.DataArray` or :py:class:`xarray.Dataset`
       Input data to bitround
-    keepbits : int, dict of {str: int}, :py:class:`xarray.DataArray` or :py:class:`xarray.Dataset`
+    inflevels : int, dict of {str: int}, :py:class:`xarray.DataArray` or :py:class:`xarray.Dataset`
       How many bits to keep as int. Fails if dict or :py:class:`xarray.Dataset` and key or variable not present.
 
     Returns
@@ -119,27 +119,27 @@ def jl_bitround(da, keepbits):
     -------
     >>> ds = xr.tutorial.load_dataset("air_temperature")
     >>> info_per_bit = xb.get_bitinformation(ds, dim="lon")
-    >>> keepbits = xb.get_keepbits(info_per_bit, 0.99)
-    >>> ds_bitrounded = xb.jl_bitround(ds, keepbits)
+    >>> inflevels = xb.get_inflevels(info_per_bit, 0.99)
+    >>> ds_bitrounded = xb.jl_bitround(ds, inflevels)
     """
     if isinstance(da, xr.Dataset):
         da_bitrounded = da.copy()
         for v in da.data_vars:
-            da_bitrounded[v] = jl_bitround(da[v], keepbits)
+            da_bitrounded[v] = jl_bitround(da[v], inflevels)
         return da_bitrounded
 
     assert isinstance(da, xr.DataArray)
-    keep = _keepbits_interface(da, keepbits)
+    keep = _inflevels_interface(da, inflevels)
     da = xr.apply_ufunc(_jl_bitround, da, keep, dask="forbidden", keep_attrs=True)
     da.attrs["_QuantizeBitRoundNumberOfSignificantDigits"] = keep
     return da
 
 
 def bitround_along_dim(
-    ds, info_per_bit, dim, keepbits=[1.0, 0.9999, 0.99, 0.975, 0.95]
+    ds, info_per_bit, dim, inflevels, keepbits=[1.0, 0.9999, 0.99, 0.975, 0.95]
 ):
     """
-    Apply bitrounding on slices along dim based on keepbits.
+    Apply bitrounding on slices along dim based on inflevels.
     Helper function to generate data for Fig. 3 in Klöwer et al. 2021.
 
     Klöwer, M., Razinger, M., Dominguez, J. J., Düben, P. D., & Palmer, T. N. (2021).
@@ -154,13 +154,13 @@ def bitround_along_dim(
       Information content of each bit for each variable in ds. This is the output from get_bitinformation.
     dim : str
       Name of dimension for slicing
-    keepbits : list of floats
+    inflevels : list of floats
       Level of information that shall be preserved. Defaults to ``[1.0, 0.9999, 0.99, 0.975, 0.95]``.
 
     Returns
     -------
     ds : :py:class:`xarray.Dataset`, :py:class:`xarray.DataArray`
-      Bitrounded on slices along ``dim`` based on ``keepbits``
+      Bitrounded on slices along ``dim`` based on ``inflevels``
 
     Example
     -------
@@ -172,19 +172,19 @@ def bitround_along_dim(
     >>> (ds - ds_bitrounded_along_lon)["air"].isel(time=0).plot()  # doctest: +ELLIPSIS
     <matplotlib.collections.QuadMesh object at ...>
     """
-    stride = ds[dim].size // len(keepbits)
+    stride = ds[dim].size // len(inflevels)
     new_ds = []
-    for i, inf in enumerate(keepbits):  # last slice might be a bit larger
+    for i, inf in enumerate(inflevels):  # last slice might be a bit larger
         ds_slice = ds.isel(
             {
                 dim: slice(
-                    stride * i, stride * (i + 1) if i != len(keepbits) - 1 else None
+                    stride * i, stride * (i + 1) if i != len(inflevels) - 1 else None
                 )
             }
         )
-        keepbits_slice = get_keepbits(info_per_bit, inf)
+        inflevels_slice = get_inflevels(info_per_bit, inf)
         if inf != 1:
-            ds_slice_bitrounded = xr_bitround(ds_slice, keepbits_slice)
+            ds_slice_bitrounded = xr_bitround(ds_slice, inflevels_slice)
         else:
             ds_slice_bitrounded = ds_slice
         new_ds.append(ds_slice_bitrounded)

@@ -2,13 +2,14 @@ import matplotlib.cm as cm
 import numpy as np
 import xarray as xr
 
-from .xbitinfo import NMBITS, get_keepbits
+from .xbitinfo import NMBITS, get_inflevels
 
 
 def add_bitinfo_labels(
     da,
     info_per_bit,
     keepbits,
+    inflevels,
     ax=None,
     x_dim_name="lon",
     y_dim_name="lat",
@@ -20,7 +21,7 @@ def add_bitinfo_labels(
 ):
     """
     Helper function for visualization of Figure 3 in Klöwer et al. 2021.
-    Adds latitudinal lines and labels with keepbits and information content for each slice.
+    Adds latitudinal lines and labels with inflevels and information content for each slice.
 
     Klöwer, M., Razinger, M., Dominguez, J. J., Düben, P. D., & Palmer, T. N. (2021).
     Compressing atmospheric data into its real information content. Nature Computational Science, 1(11), 713–724. doi: 10/gnm4jj
@@ -31,7 +32,7 @@ def add_bitinfo_labels(
       Plotted data
     info_per_bit : dict
       Information content of each bit for each variable in ``da``. This is the output from :py:func:`xbitinfo.xbitinfo.get_bitinformation`.
-    keepbits : list of floats
+    inflevels : list of floats
       Level of information that shall be preserved.
     ax : plt.Axes or None
       Axes. If ``None``, get current axis.
@@ -46,7 +47,7 @@ def add_bitinfo_labels(
     label_latitude :  float or str
       Latitude for the label. Defaults to ``"center"``, which uses the mean ``lat_coord_name``.
     label_latitude_offset : float
-      Distance between ``keepbits = int`` and ``x%`` label. Defaults to ``8``.
+      Distance between ``inflevels = int`` and ``x%`` label. Defaults to ``8``.
     kwargs : dict
       Kwargs to be passed to ``ax.text`` and ``ax.plot``. Use ``transform=ccrs.Geodetic()`` when using ``cartopy``
 
@@ -58,14 +59,14 @@ def add_bitinfo_labels(
     Plotting a single-dimension coordinate dataset:
     >>> ds = xr.tutorial.load_dataset("air_temperature")
     >>> info_per_bit = xb.get_bitinformation(ds, dim="lon")
-    >>> keepbits = [1.0, 0.9999, 0.99, 0.975, 0.95]
+    >>> inflevels = [1.0, 0.9999, 0.99, 0.975, 0.95]
     >>> ds_bitrounded_along_lon = xb.bitround.bitround_along_dim(
-    ...     ds, info_per_bit, dim="lon", keepbits=keepbits
+    ...     ds, info_per_bit, dim="lon", inflevels=inflevels
     ... )
     >>> diff = (ds - ds_bitrounded_along_lon)["air"].isel(time=0)
     >>> diff.plot()  # doctest: +ELLIPSIS
     <matplotlib.collections.QuadMesh object at ...>
-    >>> add_bitinfo_labels(diff, info_per_bit, keepbits)  # doctest: +ELLIPSIS
+    >>> add_bitinfo_labels(diff, info_per_bit, inflevels)  # doctest: +ELLIPSIS
 
     Plotting a multi-dimensional coordinate dataset
     >>> v = "Tair"
@@ -73,7 +74,7 @@ def add_bitinfo_labels(
     >>> dim = "y"
     >>> info_per_bit = xb.get_bitinformation(ds, dim=dim)
     >>> ds_bitrounded_along_lon = xb.bitround.bitround_along_dim(
-    ...     ds, info_per_bit, dim=dim, keepbits=keepbits
+    ...     ds, info_per_bit, dim=dim, inflevels=inflevels
     ... )
     >>> import cartopy.crs as ccrs  # doctest: +SKIP
     >>> fig, axis = plt.subplots(  # doctest: +SKIP
@@ -100,11 +101,11 @@ def add_bitinfo_labels(
         lat_coord_name = y_dim_name
     if label_latitude == "center":
         label_latitude = da[lat_coord_name].mean()
-    stride = da[x_dim_name].size // len(keepbits)
+    stride = da[x_dim_name].size // len(inflevels)
     if ax is None:
         ax = plt.gca()
 
-    for i, inf in enumerate(keepbits):
+    for i, inf in enumerate(inflevels):
         # draw latitude line
         lons = da.isel({x_dim_name: stride * i})[lon_coord_name]
         lats = da.isel({x_dim_name: stride * i})[lat_coord_name]
@@ -126,8 +127,8 @@ def add_bitinfo_labels(
         )
         t.set_bbox(dict(facecolor="white", alpha=0.9, edgecolor="white"))
 
-        # write keepbits
-        t_keepbits = ax.text(
+        # write inflevels
+        t_inflevels = ax.text(
             da.isel(
                 {
                     x_dim_name: int(stride * (i + 0.5)),
@@ -135,12 +136,12 @@ def add_bitinfo_labels(
                 }
             )[lon_coord_name].values,
             label_latitude + label_latitude_offset,
-            f"keepbits = {get_keepbits(info_per_bit, inf)[da.name]}",
+            f"inflevels = {get_inflevels(info_per_bit, inf)[da.name]}",
             horizontalalignment="center",
             color="k",
             **kwargs,
         )
-        t_keepbits.set_bbox(dict(facecolor="white", alpha=0.9, edgecolor="white"))
+        t_inflevels.set_bbox(dict(facecolor="white", alpha=0.9, edgecolor="white"))
 
 
 def plot_bitinformation(bitinfo, cmap="turku"):
@@ -182,8 +183,8 @@ def plot_bitinformation(bitinfo, cmap="turku"):
     nvars = len(bitinfo)
     varnames = bitinfo.keys()
 
-    infbits_dict = get_keepbits(bitinfo, 0.99)
-    infbits100_dict = get_keepbits(bitinfo, 0.999999999)
+    infbits_dict = get_inflevels(bitinfo, 0.99)
+    infbits100_dict = get_inflevels(bitinfo, 0.999999999)
 
     ICnan = np.zeros((nvars, 64))
     infbits = np.zeros(nvars)
