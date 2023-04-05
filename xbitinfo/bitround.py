@@ -176,14 +176,15 @@ def bitround_along_dim(
     """
     new_ds = []
     if inflevels is not None and keepbits is not None:
-        raise ValueError('Either inflevel or keepbits should be None')
+        raise ValueError("Either inflevel or keepbits should be None")
     elif inflevels is not None:
         stride = ds[dim].size // len(inflevels)
         for i, inf in enumerate(inflevels):  # last slice might be a bit larger
             ds_slice = ds.isel(
                 {
                     dim: slice(
-                        stride * i, stride * (i + 1) if i != len(inflevels) - 1 else None
+                        stride * i,
+                        stride * (i + 1) if i != len(inflevels) - 1 else None,
                     )
                 }
             )
