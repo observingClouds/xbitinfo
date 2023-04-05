@@ -136,7 +136,7 @@ def jl_bitround(da, keepbits):
 
 
 def bitround_along_dim(
-    ds, info_per_bit, dim, inflevels=[1.0, 0.9999, 0.99, 0.975, 0.95] keepbits = None
+    ds, info_per_bit, dim, inflevels=[1.0, 0.9999, 0.99, 0.975, 0.95],keepbits = None
 ):
     """
     Apply bitrounding on slices along dim based on inflevels.
