@@ -193,8 +193,8 @@ def bitround_along_dim(
             else:
                 ds_slice_bitrounded = ds_slice
             new_ds.append(ds_slice_bitrounded)
-     elif keepbits is not None:
+    elif keepbits is not None:
         new_ds = [xr_bitround(ds, keepbits)]
-     else:
+    else:
         raise ValueError("Either inflevel or keepbits should NOT be None")
     return xr.concat(new_ds, dim)
