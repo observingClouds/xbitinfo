@@ -168,7 +168,7 @@ def bitround_along_dim(
     ------
     ValueError
         If both `inflevels` and `keepbits` are specified, or if neither is specified.
-  
+
     Example
     -------
     >>> ds = xr.tutorial.load_dataset("air_temperature")
@@ -182,9 +182,14 @@ def bitround_along_dim(
      # Test keepbits parameter
     >>> ds = xr.tutorial.load_dataset("air_temperature")
     >>> info_per_bit = xb.get_bitinformation(ds, dim="lon")
-    >>> ds_bitrounded_along_lon = xb.bitround.bitround_along_dim(ds, info_per_bit, dim="lon", keepbits=4)
-    >>> assert np.allclose(ds_bitrounded_along_lon["air"].values, np.around(ds["air"].values, decimals=4))
-    
+    >>> ds_bitrounded_along_lon = xb.bitround.bitround_along_dim(
+    ...     ds, info_per_bit, dim="lon", keepbits=4
+    ... )
+    >>> assert np.allclose(
+    ...     ds_bitrounded_along_lon["air"].values,
+    ...     np.around(ds["air"].values, decimals=4),
+    ... )
+
     """
     new_ds = []
     if inflevels is not None and keepbits is not None:
