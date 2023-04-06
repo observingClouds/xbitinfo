@@ -179,7 +179,7 @@ def bitround_along_dim(
     >>> (ds - ds_bitrounded_along_lon)["air"].isel(time=0).plot()  # doctest: +ELLIPSIS
     <matplotlib.collections.QuadMesh object at ...>
 
-     # Test keepbits parameter
+    # Test keepbits parameter
     >>> ds = xr.tutorial.load_dataset("air_temperature")
     >>> info_per_bit = xb.get_bitinformation(ds, dim="lon")
     >>> ds_bitrounded_along_lon = xb.bitround.bitround_along_dim(
@@ -189,7 +189,14 @@ def bitround_along_dim(
     ...     ds_bitrounded_along_lon["air"].values,
     ...     np.around(ds["air"].values, decimals=4),
     ... )
-
+    
+    # Test inflevels parameter
+    >>> ds_bitrounded_along_lon = xb.bitround.bitround_along_dim(
+    ...     ds, info_per_bit, dim="lon", inflevels=[0.99, 0.95]
+    ... )
+    >>> (ds - ds_bitrounded_along_lon)["air"].isel(time=0).plot()  # doctest: +ELLIPSIS
+    <matplotlib.collections.QuadMesh object at ...>
+    
     """
     new_ds = []
     if inflevels is not None and keepbits is not None:
