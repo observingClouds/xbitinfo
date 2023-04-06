@@ -190,7 +190,7 @@ def bitround_along_dim(
     ...     ds_bitrounded_along_lon["air"].values,
     ...     np.around(ds["air"].values, decimals=4),
     ... )
-    
+
     """
     new_ds = []
     if inflevels is not None and keepbits is not None:
