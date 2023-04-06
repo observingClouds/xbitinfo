@@ -192,7 +192,7 @@ def bitround_along_dim(
 
     # Test inflevels parameter
     >>> ds_bitrounded_along_lon = xb.bitround.bitround_along_dim(
-    ...     ds, info_per_bit, dim="lon", inflevels=[0.99, 0.95] ,keepbits=None
+    ...     ds, info_per_bit, dim="lon", inflevels=[0.99, 0.95], keepbits=None
     ... )
     >>> (ds - ds_bitrounded_along_lon)["air"].isel(time=0).plot()  # doctest: +ELLIPSIS
     <matplotlib.collections.QuadMesh object at ...>
