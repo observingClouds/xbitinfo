@@ -179,11 +179,13 @@ def bitround_along_dim(
     >>> (ds - ds_bitrounded_along_lon)["air"].isel(time=0).plot()  # doctest: +ELLIPSIS
     <matplotlib.collections.QuadMesh object at ...>
 
-    # Test keepbits parameter 
-    >>> ds = xr.tutorial.load_dataset("air_temperature")     
-    >>> info_per_bit = xb.get_bitinformation(ds, dim="lon")    
-    >>> ds_bitrounded_along_lon = xb.bitround.bitround_along_dim(ds, info_per_bit, dim="lon",inflevels=None, keepbits=4)     
-    >>> (ds - ds_bitrounded_along_lon)["air"].isel(time=0).plot()  # doctest: +ELLIPSIS    
+    # Test keepbits parameter
+    >>> ds = xr.tutorial.load_dataset("air_temperature")
+    >>> info_per_bit = xb.get_bitinformation(ds, dim="lon")
+    >>> ds_bitrounded_along_lon = xb.bitround.bitround_along_dim(
+    ...     ds, info_per_bit, dim="lon", inflevels=None, keepbits=4
+    ... )
+    >>> (ds - ds_bitrounded_along_lon)["air"].isel(time=0).plot()  # doctest: +ELLIPSIS
     <matplotlib.collections.QuadMesh object at ...>
 
     """
