@@ -90,5 +90,18 @@ def test_bitround_along_dim_keepbits():
     )
     assert ds_bitrounded.air.dtype == "float64"
     assert ds_bitrounded.air.shape == ds.air.shape
-    assert abs((ds.air.isel(lat=slice(0, 2)) - ds_bitrounded.air.isel(lat=slice(0, 2))).sum()) < 1e-1
-    assert not np.isclose((ds.air.isel(lat=slice(2, None)) - ds_bitrounded.air.isel(lat=slice(2, None))).sum(), 0.0, rtol=1e-2)
+    assert (
+        abs(
+            (
+                ds.air.isel(lat=slice(0, 2)) - ds_bitrounded.air.isel(lat=slice(0, 2))
+            ).sum()
+        )
+        < 1e-1
+    )
+    assert not np.isclose(
+        (
+            ds.air.isel(lat=slice(2, None)) - ds_bitrounded.air.isel(lat=slice(2, None))
+        ).sum(),
+        0.0,
+        rtol=1e-2,
+    )
