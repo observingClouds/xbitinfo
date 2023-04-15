@@ -4,7 +4,8 @@ from dask import is_dask_collection
 from xarray.testing import assert_allclose, assert_equal
 
 import xbitinfo as xb
-
+from xbitinfo import bitround as bi
+import numpy as np
 from . import requires_julia
 
 
@@ -74,3 +75,16 @@ def test_bitround_xarray_julia_equal(air_temperature, dtype, keepbits):
         ds_xr_bitrounded = xb.xr_bitround(ds, keep)
         ds_jl_bitrounded = xb.jl_bitround(ds, keep)
         assert_equal(ds_jl_bitrounded, ds_xr_bitrounded)
+
+def test_bitround_along_dim_keepbits():
+    ds = xr.Dataset({'air': (('lat', 'lon', 'time'), np.random.rand(3, 3, 3))},
+                    coords={'lat': np.arange(3), 'lon': np.arange(3), 'time': np.arange(3)})
+
+    info_per_bit = {'air': np.array([0.5, 0.25, 0.125])}
+    ds_bitrounded = bi.bitround_along_dim(ds, info_per_bit, dim='lat', inflevels=None, keepbits=3)
+    assert ds_bitrounded.air.dtype == 'float64'
+    assert ds_bitrounded.air.shape == ds.air.shape
+    assert abs((ds.air.isel(lat=slice(0, 2)) - ds_bitrounded.air.isel(lat=slice(0, 2))).sum()) < 1e-1
+    assert not np.isclose((ds.air.isel(lat=slice(2, None)) - ds_bitrounded.air.isel(lat=slice(2, None))).sum(), 0.0, rtol=1e-2)
+
+
