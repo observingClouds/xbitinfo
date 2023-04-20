@@ -78,9 +78,9 @@ def test_bitround_xarray_julia_equal(air_temperature, dtype, keepbits):
         assert_equal(ds_jl_bitrounded, ds_xr_bitrounded)
 
 
-def test_bitround_along_dim():
+def test_bitround_along_dim(air_temperature):
     # test for inflevels
-    ds = xr.tutorial.load_dataset("air_temperature")
+    ds = air_temperature
     info_per_bit = xb.get_bitinformation(ds, dim="lon")
     ds_bitrounded_along_lon = bi.bitround_along_dim(
         ds, info_per_bit, dim="lon", inflevels=[1.0, 0.9999, 0.99, 0.975]
