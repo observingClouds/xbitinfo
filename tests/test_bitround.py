@@ -79,11 +79,11 @@ def test_bitround_xarray_julia_equal(air_temperature, dtype, keepbits):
 
 
 def test_bitround_along_dim():
-    #test for inflevels
+    # test for inflevels
     ds = xr.tutorial.load_dataset("air_temperature")
     info_per_bit = xb.get_bitinformation(ds, dim="lon")
     ds_bitrounded_along_lon = bi.bitround_along_dim(
-        ds, info_per_bit, dim="lon", inflevels = [1.0, 0.9999, 0.99, 0.975]
+        ds, info_per_bit, dim="lon", inflevels=[1.0, 0.9999, 0.99, 0.975]
     )
 
     assert ds_bitrounded_along_lon.air.dtype == "float32"
@@ -93,12 +93,12 @@ def test_bitround_along_dim():
     assert ds.air.values.dtype == ds_bitrounded_along_lon.air.values.dtype
 
     assert (ds - ds_bitrounded_along_lon).air.mean() < 0.001
-  
-    #test for keepbits
+
+    # test for keepbits
     ds = xr.tutorial.load_dataset("air_temperature")
     info_per_bit = xb.get_bitinformation(ds, dim="lon")
     ds_bitrounded_along_lon = bi.bitround_along_dim(
-        ds, info_per_bit, dim="lon", inflevels = None , keepbits = 2
+        ds, info_per_bit, dim="lon", inflevels=None, keepbits=2
     )
 
     assert ds_bitrounded_along_lon.air.dtype == "float32"
@@ -111,10 +111,14 @@ def test_bitround_along_dim():
 
     # Test error when both keepbits and inflevels are provided
     with pytest.raises(ValueError):
-        bi.bitround_along_dim(ds, info_per_bit, dim="lat", keepbits=2, inflevels=[1.0, 0.9999, 0.99 , 0.975])
+        bi.bitround_along_dim(
+            ds,
+            info_per_bit,
+            dim="lat",
+            keepbits=2,
+            inflevels=[1.0, 0.9999, 0.99, 0.975],
+        )
 
     # Test error when neither keepbits nor inflevels are provided
     with pytest.raises(ValueError):
-        bi.bitround_along_dim(ds, info_per_bit, dim="lat", inflevels = None)
-
-   
+        bi.bitround_along_dim(ds, info_per_bit, dim="lat", inflevels=None)
