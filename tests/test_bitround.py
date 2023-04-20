@@ -95,8 +95,6 @@ def test_bitround_along_dim():
     assert (ds - ds_bitrounded_along_lon).air.mean() < 0.001
 
     # test for keepbits
-    ds = xr.tutorial.load_dataset("air_temperature")
-    info_per_bit = xb.get_bitinformation(ds, dim="lon")
     ds_bitrounded_along_lon = bi.bitround_along_dim(
         ds, info_per_bit, dim="lon", inflevels=None, keepbits=2
     )
