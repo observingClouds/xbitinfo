@@ -113,7 +113,7 @@ jobs:
         run: conda list
       - name: install xbitinfo
         run: |
-          pip install .
+          pip install . --upgrade pip
       - name: Test notebooks
         run: |
           python -m ipykernel install --user --name bitinfo
