@@ -65,7 +65,9 @@ def add_bitinfo_labels(
     >>> diff = (ds - ds_bitrounded_along_lon)["air"].isel(time=0)
     >>> diff.plot()  # doctest: +ELLIPSIS
     <matplotlib.collections.QuadMesh object at ...>
-    >>> add_bitinfo_labels(diff, info_per_bit, inflevels, keepbits)  # doctest: +ELLIPSIS
+    >>> add_bitinfo_labels(
+    ...     diff, info_per_bit, inflevels, keepbits
+    ... )  # doctest: +ELLIPSIS
 
     Plotting a multi-dimensional coordinate dataset
     >>> v = "Tair"
