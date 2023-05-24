@@ -67,7 +67,7 @@ def add_bitinfo_labels(
     >>> diff.plot()  # doctest: +ELLIPSIS
     <matplotlib.collections.QuadMesh object at ...>
     >>> add_bitinfo_labels(
-    ...     diff, info_per_bit, inflevels, keepbits
+    ...     diff, info_per_bit, keepbits
     ... )  # doctest: +ELLIPSIS
 
     Plotting a multi-dimensional coordinate dataset
