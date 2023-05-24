@@ -2,7 +2,7 @@ import matplotlib.cm as cm
 import numpy as np
 import xarray as xr
 
-from .xbitinfo import NMBITS, get_keepbits, _cdf_from_info_per_bit
+from .xbitinfo import NMBITS, _cdf_from_info_per_bit, get_keepbits
 
 
 def add_bitinfo_labels(
@@ -103,7 +103,7 @@ def add_bitinfo_labels(
     stride = da[x_dim_name].size // len(keepbits)
     if ax is None:
         ax = plt.gca()
-    
+
     dimension_dict = info_per_bit.dims
     dimension_list = list(dimension_dict.keys())
     dimension = dimension_list[0]
@@ -117,11 +117,11 @@ def add_bitinfo_labels(
         lons, lats = xr.broadcast(lons, lats)
         ax.plot(lons, lats, color="k", linewidth=1, **kwargs)
 
-        if(dimension=="bit16"):
+        if dimension == "bit16":
             mantissa_index = keep + 5
-        if(dimension=="bit32"):
+        if dimension == "bit32":
             mantissa_index = keep + 8
-        if(dimension=="bit64"):
+        if dimension == "bit64":
             mantissa_index = keep + 11
 
         inf = CDF_DataArray[mantissa_index]
