@@ -2,13 +2,13 @@ import matplotlib.cm as cm
 import numpy as np
 import xarray as xr
 
-from .xbitinfo import NMBITS, get_keepbits
+from .xbitinfo import NMBITS, get_keepbits, _cdf_from_info_per_bit
 
 
 def add_bitinfo_labels(
     da,
     info_per_bit,
-    inflevels,
+    keepbits,
     ax=None,
     x_dim_name="lon",
     y_dim_name="lat",
@@ -100,16 +100,32 @@ def add_bitinfo_labels(
         lat_coord_name = y_dim_name
     if label_latitude == "center":
         label_latitude = da[lat_coord_name].mean()
-    stride = da[x_dim_name].size // len(inflevels)
+    stride = da[x_dim_name].size // len(keepbits)
     if ax is None:
         ax = plt.gca()
+    
+    dimension_dict = info_per_bit.dims
+    dimension_list = list(dimension_dict.keys())
+    dimension = dimension_list[0]
+    CDF = _cdf_from_info_per_bit(info_per_bit, dimension)
+    CDF_DataArray = CDF[da.name]
 
-    for i, inf in enumerate(inflevels):
+    for i, keep in enumerate(keepbits):
         # draw latitude line
         lons = da.isel({x_dim_name: stride * i})[lon_coord_name]
         lats = da.isel({x_dim_name: stride * i})[lat_coord_name]
         lons, lats = xr.broadcast(lons, lats)
         ax.plot(lons, lats, color="k", linewidth=1, **kwargs)
+
+        if(dimension=="bit16"):
+            mantissa_index = keep + 5
+        if(dimension=="bit32"):
+            mantissa_index = keep + 8
+        if(dimension=="bit64"):
+            mantissa_index = keep + 11
+
+        inf = CDF_DataArray[mantissa_index]
+
         # write inflevel
         t = ax.text(
             da.isel(
@@ -119,7 +135,7 @@ def add_bitinfo_labels(
                 }
             )[lon_coord_name].values,
             label_latitude - label_latitude_offset,
-            str(round(inf * 100, 2)) + "%",
+            str(round(inf.values * 100, 2)) + "%",
             horizontalalignment="center",
             color="k",
             **kwargs,
@@ -135,7 +151,7 @@ def add_bitinfo_labels(
                 }
             )[lon_coord_name].values,
             label_latitude + label_latitude_offset,
-            f"keepbits = {get_keepbits(info_per_bit, inf)[da.name]}",
+            f"keepbits = {keep}",
             horizontalalignment="center",
             color="k",
             **kwargs,
