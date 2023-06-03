@@ -15,8 +15,8 @@ def test_add_bitinfo_labels():
         ds, info_per_bit, dim="lon", inflevels=inflevels
     )
     diff = (ds - ds_bitrounded_along_lon)["air"].isel(time=0)
-    diff.plot()
     ax = plt.gca()
+    diff.plot()
 
     add_bitinfo_labels(diff, info_per_bit, inflevels, keepbits)
 
@@ -35,7 +35,7 @@ def test_add_bitinfo_labels():
         inf_text = expected_inflevels[i]
         keepbits_text = f"keepbits = {keep}"
         assert ax.texts[i * 2].get_text() == inf_text
-        assert ax.texts[i * 2 + 1].get_text() == keepbits_text
+        assert ax.texts[(i * 2) + 1].get_text() == keepbits_text
 
     # Cleanup the plot
     plt.close()
