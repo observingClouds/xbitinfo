@@ -8,7 +8,7 @@ from .xbitinfo import NMBITS, _cdf_from_info_per_bit, get_keepbits
 def add_bitinfo_labels(
     da,
     info_per_bit,
-    inflevels=None,
+    inflevels = [1.0, 0.9999, 0.99, 0.975, 0.95],
     keepbits=None,
     ax=None,
     x_dim_name="lon",
@@ -60,7 +60,7 @@ def add_bitinfo_labels(
     >>> ds = xr.tutorial.load_dataset("air_temperature")
     >>> info_per_bit = xb.get_bitinformation(ds, dim="lon")
     >>> inflevels = [1.0, 0.9999, 0.99, 0.975, 0.95]
-    >>> keepbits = [6, 4, 3, 8, 5]
+    >>> keepbits = None
     >>> ds_bitrounded_along_lon = xb.bitround.bitround_along_dim(
     ...     ds, info_per_bit, dim="lon", inflevels=inflevels
     ... )
