@@ -30,7 +30,7 @@ def test_add_bitinfo_labels():
     assert len(ax.lines) == len(keepbits)
 
     # Check if the labels have the correct content
-    if inflevels is none: 
+    if inflevels is none:
         expected_inflevels = ["98.89%", "86.75%", "73.44%", "99.97%", "95.28%"]
         for i, keep in enumerate(keepbits):
             inf_text = expected_inflevels[i]
@@ -41,7 +41,7 @@ def test_add_bitinfo_labels():
     if keepbits is none:
         expected_keepbits = ["23", "14", "7", "6", "5"]
         for i, inf in enumerate(inflevels):
-            inf_text = str(round(inf * 100, 2)) + "%"       
+            inf_text = str(round(inf * 100, 2)) + "%"
             keepbits_text = expected_keepbits[i]
             assert ax.texts[i * 2].get_text() == inf_text
             assert ax.texts[(i * 2) + 1].get_text() == keepbits_text

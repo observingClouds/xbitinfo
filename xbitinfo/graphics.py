@@ -8,7 +8,7 @@ from .xbitinfo import NMBITS, _cdf_from_info_per_bit, get_keepbits
 def add_bitinfo_labels(
     da,
     info_per_bit,
-    inflevels = [1.0, 0.9999, 0.99, 0.975, 0.95],
+    inflevels=[1.0, 0.9999, 0.99, 0.975, 0.95],
     keepbits=None,
     ax=None,
     x_dim_name="lon",
