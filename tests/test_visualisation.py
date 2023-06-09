@@ -35,7 +35,7 @@ def test_add_bitinfo_labels():
         for i, keep in enumerate(keepbits):
             inf_text = expected_inflevels[i]
             keepbits_text = f"keepbits = {keep}"
-            assert ax.texts[i ].get_text() == inf_text
+            assert ax.texts[i].get_text() == inf_text
             assert ax.texts[i + 5].get_text() == keepbits_text
 
     if keepbits is None:
