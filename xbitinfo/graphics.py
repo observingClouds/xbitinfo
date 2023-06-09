@@ -137,7 +137,7 @@ def add_bitinfo_labels(
     ):
         keepbits_data = []
         for ds in keepbits:
-            data_var = ds["air"].values
+            data_var = ds[da.name].values
             for value in data_var:
                 keepbits_data.append(value)
         keepbits = keepbits_data
