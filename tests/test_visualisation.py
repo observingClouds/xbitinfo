@@ -39,7 +39,7 @@ def test_add_bitinfo_labels():
             assert ax.texts[i + 5].get_text() == keepbits_text
 
     if keepbits is None:
-        expected_keepbits = ["23", "14", "7", "6", "5"]
+        expected_keepbits = ["keepbits = 23", "keepbits = 14", "keepbits = 7", "keepbits = 6", "keepbits = 5"]
         for i, inf in enumerate(inflevels):
             inf_text = str(round(inf * 100, 2)) + "%"
             keepbits_text = expected_keepbits[i]
