@@ -139,7 +139,7 @@ def add_bitinfo_labels(
                 keepbits_data.append(value)
         keepbits = keepbits_data
 
-    stride = da[x_dim_name].size // len(keepbits)
+    stride = da[x_dim_name].size // len(inflevels.)
 
     for i, inf in enumerate(inflevels):
         # draw latitude line
