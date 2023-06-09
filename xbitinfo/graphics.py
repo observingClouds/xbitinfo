@@ -129,12 +129,14 @@ def add_bitinfo_labels(
 
             inflevels.append(CDF_DataArray[mantissa_index])
 
-    if keepbits is None:
-        keepbits = [get_keepbits(info_per_bit, ilev) for ilev in inflevels]
-
-    if isinstance(keepbits, xr.Dataset):
-        keepbits = keepbits.values
-
+    if isinstance(keepbits, list) and all(isinstance(ds, xr.Dataset) for ds in keepbits):
+        keepbits_data = []
+        for ds in keepbits:
+            data_var = ds["air"].values
+            for value in data_var:
+                keepbits_data.append(value)
+        keepbits = keepbits_data
+    
     stride = da[x_dim_name].size // len(keepbits)
 
     for i, inf in enumerate(inflevels):
