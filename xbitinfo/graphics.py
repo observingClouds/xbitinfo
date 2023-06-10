@@ -127,7 +127,7 @@ def add_bitinfo_labels(
             if dimension == "bit64":
                 mantissa_index = keep + 11
 
-            inflevels.append(CDF_DataArray[mantissa_index])
+            inflevels.append(CDF_DataArray[mantissa_index].values)
 
     if keepbits is None:
         keepbits = [get_keepbits(info_per_bit, ilev) for ilev in inflevels]
