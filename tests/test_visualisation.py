@@ -10,7 +10,7 @@ def test_add_bitinfo_labels():
     ds = xr.tutorial.load_dataset("air_temperature")
     info_per_bit = xb.get_bitinformation(ds, dim="lon")
     inflevels = [1.0, 0.9999, 0.99, 0.975, 0.95]
-    keepbits = None
+    keepbits = [23, 14, 7, 6, 5]
     ds_bitrounded_along_lon = xb.bitround.bitround_along_dim(
         ds, info_per_bit, dim="lon", inflevels=inflevels
     )
@@ -18,7 +18,10 @@ def test_add_bitinfo_labels():
     ax = plt.gca()
     diff.plot()
 
-    add_bitinfo_labels(diff, info_per_bit, inflevels, keepbits)
+    with pytest.raises(KeyError):
+        add_bitinfo_labels(diff, info_per_bit, inflevels, keepbits)
+
+    add_bitinfo_labels(diff, info_per_bit, inflevels)
 
     # Check if a Matplotlib figure object is created
     assert plt.gcf() is not None
@@ -31,7 +34,7 @@ def test_add_bitinfo_labels():
 
     # Check if the labels have the correct content
     if inflevels is None:
-        expected_inflevels = ["98.89%", "86.75%", "73.44%", "99.97%", "95.28%"]
+        expected_inflevels = ["100.0%", "100.0%", "99.88%", "98.89%", "95.28%"]
         for i, keep in enumerate(keepbits):
             inf_text = expected_inflevels[i]
             keepbits_text = f"keepbits = {keep}"
@@ -39,13 +42,7 @@ def test_add_bitinfo_labels():
             assert ax.texts[i + 5].get_text() == keepbits_text
 
     if keepbits is None:
-        expected_keepbits = [
-            "keepbits = 23",
-            "keepbits = 14",
-            "keepbits = 7",
-            "keepbits = 6",
-            "keepbits = 5",
-        ]
+        expected_keepbits = keepbits
         for i, inf in enumerate(inflevels):
             inf_text = str(round(inf * 100, 2)) + "%"
             keepbits_text = expected_keepbits[i]
