@@ -16,7 +16,7 @@ jobs:
     outputs:
       triggered: ${{ steps.detect-trigger.outputs.trigger-found }}
     steps:
-      - uses: actions/checkout@v3.5.2
+      - uses: actions/checkout@v3.5.3.5.3
         with:
           fetch-depth: 2
       - uses: xarray-contrib/ci-trigger@v1.2
@@ -33,7 +33,7 @@ jobs:
         run:
           shell: bash -l {0}
     steps:
-      - uses: actions/checkout@v3.5.2
+      - uses: actions/checkout@v3.5.3.5.3
         with:
             fetch-depth: 0 # Fetch all history for all branches and tags.
       - name: Set up conda
@@ -64,7 +64,7 @@ jobs:
       run:
         shell: bash -l {0}
     steps:
-      - uses: actions/checkout@v3.5.2
+      - uses: actions/checkout@v3.5.3.5.3
       - uses: conda-incubator/setup-miniconda@v2.2.0
         with:
           channels: conda-forge
@@ -95,7 +95,7 @@ jobs:
       run:
         shell: bash -l {0}
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v3.5.3
       - name: Set up conda
         uses: conda-incubator/setup-miniconda@v2.2.0
         with:
@@ -129,11 +129,11 @@ jobs:
       matrix:
         os: ["ubuntu-latest", "macos-latest", "windows-latest"]
     steps:
-    - uses: actions/checkout@v3.5.2
+    - uses: actions/checkout@v3.5.3.5.3
       with:
         fetch-depth: 0 # Fetch all history for all branches and tags.
     - name: Setup python
-      uses: actions/setup-python@v4.6.0
+      uses: actions/setup-python@v4.6.1
       with:
         python-version: "3.11"
     - name: "Set up Julia"
