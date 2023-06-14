@@ -294,10 +294,10 @@ def _py_get_bitinformation(ds, var, axis, dim, kwargs={}):
     astype = f"u{itemsize}"
     X = da.array(ds[var])
 
-    # signed exponent conversion only for floats
-    if X.dtype in (np.float16,np.float32,np.float64):
+    # signed exponent conversion only for floats
+    if X.dtype in (np.float16, np.float32, np.float64):
         X = pb.signed_exponent(X)
-    
+
     X = X.astype(astype)
     if axis is not None:
         dim = ds[var].dims[axis]
