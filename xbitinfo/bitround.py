@@ -136,7 +136,7 @@ def jl_bitround(da, keepbits):
 
 
 def bitround_along_dim(
-    ds, info_per_bit, dim, inflevels=[1.0, 0.9999, 0.99, 0.975, 0.95]
+    ds, info_per_bit, dim, inflevels=[1.0, 0.9999, 0.99, 0.975, 0.95], keepbits=None
 ):
     """
     Apply bitrounding on slices along dim based on inflevels.
@@ -156,11 +156,18 @@ def bitround_along_dim(
       Name of dimension for slicing
     inflevels : list of floats
       Level of information that shall be preserved. Defaults to ``[1.0, 0.9999, 0.99, 0.975, 0.95]``.
+    keepbits : int, dict of {str: int}, :py:class:`xarray.DataArray` or :py:class:`xarray.Dataset`
+      How many bits to keep as int
 
     Returns
     -------
     ds : :py:class:`xarray.Dataset`, :py:class:`xarray.DataArray`
       Bitrounded on slices along ``dim`` based on ``inflevels``
+
+    Raises
+    ------
+    ValueError
+        If both `inflevels` and `keepbits` are specified, or if neither is specified.
 
     Example
     -------
@@ -171,21 +178,30 @@ def bitround_along_dim(
     ... )
     >>> (ds - ds_bitrounded_along_lon)["air"].isel(time=0).plot()  # doctest: +ELLIPSIS
     <matplotlib.collections.QuadMesh object at ...>
+
     """
-    stride = ds[dim].size // len(inflevels)
     new_ds = []
-    for i, inf in enumerate(inflevels):  # last slice might be a bit larger
-        ds_slice = ds.isel(
-            {
-                dim: slice(
-                    stride * i, stride * (i + 1) if i != len(inflevels) - 1 else None
-                )
-            }
-        )
-        keepbits_slice = get_keepbits(info_per_bit, inf)
-        if inf != 1:
-            ds_slice_bitrounded = xr_bitround(ds_slice, keepbits_slice)
-        else:
-            ds_slice_bitrounded = ds_slice
-        new_ds.append(ds_slice_bitrounded)
+    if inflevels is not None and keepbits is not None:
+        raise ValueError("Either inflevel or keepbits should be None")
+    elif inflevels is not None:
+        stride = ds[dim].size // len(inflevels)
+        for i, inf in enumerate(inflevels):  # last slice might be a bit larger
+            ds_slice = ds.isel(
+                {
+                    dim: slice(
+                        stride * i,
+                        stride * (i + 1) if i != len(inflevels) - 1 else None,
+                    )
+                }
+            )
+            keepbits_slice = get_keepbits(info_per_bit, inf)
+            if inf != 1:
+                ds_slice_bitrounded = xr_bitround(ds_slice, keepbits_slice)
+            else:
+                ds_slice_bitrounded = ds_slice
+            new_ds.append(ds_slice_bitrounded)
+    elif keepbits is not None:
+        new_ds = [xr_bitround(ds, keepbits)]
+    else:
+        raise ValueError("Either inflevel or keepbits should NOT be None")
     return xr.concat(new_ds, dim)
