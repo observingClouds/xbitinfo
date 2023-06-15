@@ -217,10 +217,15 @@ def plot_bitinformation(bitinfo, cmap="turku"):
         1,
     ), "Only bitinfo along one dimension is supported at the moment. Please select dimension before plotting."
 
-    assert (
-        "bit32" in bitinfo.dims
-    ), "currently only works properly for float32 data, looking forward to your PR closing https://github.com/observingClouds/xbitinfo/issues/168"
-
+    # assert (
+    #    "bit32" in bitinfo.dims
+    # ), "currently only works properly for float32 data, looking forward to your PR closing https://github.com/observingClouds/xbitinfo/issues/168"
+    if "bit32" in bitinfo.dims:
+        bits = 32
+    elif "bit16" in bitinfo.dims:
+        bits = 16
+    elif "bit64" in bitinfo.dims:
+        bits = 64
     nvars = len(bitinfo)
     varnames = bitinfo.keys()
 
@@ -247,14 +252,14 @@ def plot_bitinformation(bitinfo, cmap="turku"):
     fig_height = np.max([4, 4 + (nvars - 10) * 0.2])  # auto adjust to nvars
     fig, ax1 = plt.subplots(1, 1, figsize=(12, fig_height), sharey=True)
     ax1.invert_yaxis()
-    ax1.set_box_aspect(1 / 32 * nvars)
+    ax1.set_box_aspect(1 / bits * nvars)
     plt.tight_layout(rect=[0.06, 0.18, 0.8, 0.98])
     pos = ax1.get_position()
     cax = fig.add_axes([pos.x0, 0.12, pos.x1 - pos.x0, 0.02])
 
     ax1right = ax1.twinx()
     ax1right.invert_yaxis()
-    ax1right.set_box_aspect(1 / 32 * nvars)
+    ax1right.set_box_aspect(1 / bits * nvars)
 
     if cmap == "turku":
         import cmcrameri.cm as cmc
@@ -276,15 +281,15 @@ def plot_bitinformation(bitinfo, cmap="turku"):
 
     # grey shading
     ax1.fill_betweenx(
-        infbitsy, infbitsx, np.ones(len(infbitsx)) * 32, alpha=0.4, color="grey"
+        infbitsy, infbitsx, np.ones(len(infbitsx)) * bits, alpha=0.4, color="grey"
     )
     ax1.fill_betweenx(
-        infbitsy, infbitsx100, np.ones(len(infbitsx)) * 32, alpha=0.1, color="c"
+        infbitsy, infbitsx100, np.ones(len(infbitsx)) * bits, alpha=0.1, color="c"
     )
     ax1.fill_betweenx(
         infbitsy,
         infbitsx100,
-        np.ones(len(infbitsx)) * 32,
+        np.ones(len(infbitsx)) * bits,
         alpha=0.3,
         facecolor="none",
         edgecolor="c",
@@ -311,7 +316,7 @@ def plot_bitinformation(bitinfo, cmap="turku"):
     ax1.fill_betweenx([-1, -1], [-1, -1], [-1, -1], color="w", label="unused bits")
 
     ax1.axvline(1, color="k", lw=1, zorder=3)
-    ax1.axvline(9, color="k", lw=1, zorder=3)
+    ax1.axvline(NMBITS[bits], color="k", lw=1, zorder=3)
 
     fig.suptitle(
         "Real bitwise information content",
@@ -321,7 +326,7 @@ def plot_bitinformation(bitinfo, cmap="turku"):
         horizontalalignment="left",
     )
 
-    ax1.set_xlim(0, 32)
+    ax1.set_xlim(0, bits)
     ax1.set_ylim(nvars, 0)
     ax1right.set_ylim(nvars, 0)
 
@@ -334,7 +339,7 @@ def plot_bitinformation(bitinfo, cmap="turku"):
     ax1.text(
         infbits[0] + 0.1,
         0.8,
-        f"{int(infbits[0]-9)} mantissa bits",
+        f"{int(infbits[0]-NMBITS[bits])} mantissa bits",
         fontsize=8,
         color="saddlebrown",
     )
@@ -348,19 +353,22 @@ def plot_bitinformation(bitinfo, cmap="turku"):
         )
 
     ax1.set_xticks([1, 9])
-    ax1.set_xticks(np.hstack([np.arange(1, 8), np.arange(9, 32)]), minor=True)
+    ax1.set_xticks(
+        np.hstack([np.arange(1, NMBITS[bits] - 1), np.arange(NMBITS[bits], bits)]),
+        minor=True,
+    )
     ax1.set_xticklabels([])
     ax1.text(0, nvars + 1.2, "sign", rotation=90)
     ax1.text(2, nvars + 1.2, "exponent bits", color="darkslategrey")
     ax1.text(10, nvars + 1.2, "mantissa bits")
 
-    for i in range(1, 9):
+    for i in range(1, NMBITS[bits]):
         ax1.text(
             i + 0.5, nvars + 0.5, i, ha="center", fontsize=7, color="darkslategrey"
         )
 
-    for i in range(1, 24):
-        ax1.text(8 + i + 0.5, nvars + 0.5, i, ha="center", fontsize=7)
+    for i in range(1, bits - NMBITS[bits] + 1):
+        ax1.text(NMBITS[bits] - 1 + i + 0.5, nvars + 0.5, i, ha="center", fontsize=7)
 
     ax1.legend(bbox_to_anchor=(1.08, 0.5), loc="center left", framealpha=0.6)
 
