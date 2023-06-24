@@ -465,7 +465,7 @@ def get_keepbits(info_per_bit, inflevel=0.99):
             )
             # keep all mantissa bits for 100% information
             if 1.0 in inflevel:
-                bitdim_all_mantissa_bits = int(bitdim[3:]) - bitdim_non_mantissa_bits
+                bitdim_all_mantissa_bits = n_bits - bitdim_non_mantissa_bits
                 keepall = xr.ones_like(keepmantissabits_bitdim.sel(inflevel=1.0)) * (
                     bitdim_all_mantissa_bits
                 )
