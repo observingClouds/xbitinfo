@@ -153,12 +153,12 @@ def get_bitinformation(  # noqa: C901
     >>> ds = xr.tutorial.load_dataset("air_temperature")
     >>> xb.get_bitinformation(ds, dim="lon")  # doctest: +ELLIPSIS
     <xarray.Dataset>
-    Dimensions:  (bit32: 32)
+    Dimensions:     (bitfloat32: 32)
     Coordinates:
-      * bit32    (bit32) <U3 '±' 'e1' 'e2' 'e3' 'e4' ... 'm20' 'm21' 'm22' 'm23'
-        dim      <U3 'lon'
+      * bitfloat32  (bitfloat32) <U3 '±' 'e1' 'e2' 'e3' ... 'm20' 'm21' 'm22' 'm23'
+        dim         <U3 'lon'
     Data variables:
-        air      (bit32) float64 0.0 0.0 0.0 0.0 ... 0.0 3.953e-05 0.0006889
+        air         (bitfloat32) float64 0.0 0.0 0.0 0.0 ... 0.0 3.953e-05 0.0006889
     Attributes:
         xbitinfo_description:       bitinformation calculated by xbitinfo.get_bit...
         python_repository:          https://github.com/observingClouds/xbitinfo
@@ -168,12 +168,12 @@ def get_bitinformation(  # noqa: C901
         BitInformation.jl_version:  ...
     >>> xb.get_bitinformation(ds)
     <xarray.Dataset>
-    Dimensions:  (bit32: 32, dim: 3)
+    Dimensions:     (bitfloat32: 32, dim: 3)
     Coordinates:
-      * bit32    (bit32) <U3 '±' 'e1' 'e2' 'e3' 'e4' ... 'm20' 'm21' 'm22' 'm23'
-      * dim      (dim) <U4 'lat' 'lon' 'time'
+      * bitfloat32  (bitfloat32) <U3 '±' 'e1' 'e2' 'e3' ... 'm20' 'm21' 'm22' 'm23'
+      * dim         (dim) <U4 'lat' 'lon' 'time'
     Data variables:
-        air      (dim, bit32) float64 0.0 0.0 0.0 0.0 ... 0.0 6.327e-06 0.0004285
+        air         (dim, bitfloat32) float64 0.0 0.0 0.0 ... 6.327e-06 0.0004285
     Attributes:
         xbitinfo_description:       bitinformation calculated by xbitinfo.get_bit...
         python_repository:          https://github.com/observingClouds/xbitinfo
