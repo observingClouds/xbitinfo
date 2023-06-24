@@ -117,16 +117,12 @@ def add_bitinfo_labels(
     CDF = _cdf_from_info_per_bit(info_per_bit, dimension)
     CDF_DataArray = CDF[da.name]
 
+    data_type = np.dtype(dimension.replace("bit", ""))
+    _, _, n_exp, _ = bit_partitioning(data_type)
     if inflevels is None:
         inflevels = []
         for i, keep in enumerate(keepbits):
-            if dimension == "bit16":
-                mantissa_index = keep + 5
-            if dimension == "bit32":
-                mantissa_index = keep + 8
-            if dimension == "bit64":
-                mantissa_index = keep + 11
-
+            mantissa_index = keep + n_exp
             inflevels.append(CDF_DataArray[mantissa_index].values)
 
     if keepbits is None:
