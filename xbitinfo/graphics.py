@@ -207,7 +207,7 @@ def split_dataset_by_dims(info_per_bit):
     return var_by_dim
 
 
-def plot_bitinformation(bitinfo, cmap="turku"):
+def plot_bitinformation(bitinfo, cmap="turku", crop=None):
     """Plot bitwise information content as in Klöwer et al. 2021 Figure 2.
 
     Klöwer, M., Razinger, M., Dominguez, J. J., Düben, P. D., & Palmer, T. N. (2021).
@@ -220,6 +220,8 @@ def plot_bitinformation(bitinfo, cmap="turku"):
       Containing the bitwise information content for each variable
     cmap : str or plt.cm
       Colormap. Defaults to ``"turku"``.
+    crop : int
+      Maximum bits to show in figure.
 
     Returns
     -------
@@ -242,6 +244,10 @@ def plot_bitinformation(bitinfo, cmap="turku"):
         data_type = np.dtype(dim.replace("bit", ""))
         n_bits, n_sign, n_exp, n_mant = bit_partitioning(data_type)
         nonmantissa_bits = n_bits - n_mant
+        if crop is None:
+            bits_to_show = n_bits
+        else:
+            bits_to_show = int(np.min([crop, n_bits]))
         nvars = len(bitinfo)
         varnames = bitinfo.keys()
 
@@ -268,14 +274,14 @@ def plot_bitinformation(bitinfo, cmap="turku"):
         fig_height = np.max([4, 4 + (nvars - 10) * 0.2])  # auto adjust to nvars
         fig, ax1 = plt.subplots(1, 1, figsize=(12, fig_height), sharey=True)
         ax1.invert_yaxis()
-        ax1.set_box_aspect(1 / n_bits * nvars)
+        ax1.set_box_aspect(1 / bits_to_show * nvars)
         plt.tight_layout(rect=[0.06, 0.18, 0.8, 0.98])
         pos = ax1.get_position()
         cax = fig.add_axes([pos.x0, 0.12, pos.x1 - pos.x0, 0.02])
 
         ax1right = ax1.twinx()
         ax1right.invert_yaxis()
-        ax1right.set_box_aspect(1 / n_bits * nvars)
+        ax1right.set_box_aspect(1 / bits_to_show * nvars)
 
         if cmap == "turku":
             import cmcrameri.cm as cmc
@@ -297,15 +303,23 @@ def plot_bitinformation(bitinfo, cmap="turku"):
 
         # grey shading
         ax1.fill_betweenx(
-            infbitsy, infbitsx, np.ones(len(infbitsx)) * n_bits, alpha=0.4, color="grey"
-        )
-        ax1.fill_betweenx(
-            infbitsy, infbitsx100, np.ones(len(infbitsx)) * n_bits, alpha=0.1, color="c"
+            infbitsy,
+            infbitsx,
+            np.ones(len(infbitsx)) * bits_to_show,
+            alpha=0.4,
+            color="grey",
         )
         ax1.fill_betweenx(
             infbitsy,
             infbitsx100,
-            np.ones(len(infbitsx)) * n_bits,
+            np.ones(len(infbitsx)) * bits_to_show,
+            alpha=0.1,
+            color="c",
+        )
+        ax1.fill_betweenx(
+            infbitsy,
+            infbitsx100,
+            np.ones(len(infbitsx)) * bits_to_show,
             alpha=0.3,
             facecolor="none",
             edgecolor="c",
@@ -343,7 +357,6 @@ def plot_bitinformation(bitinfo, cmap="turku"):
             horizontalalignment="left",
         )
 
-        ax1.set_xlim(0, n_bits)
         ax1.set_ylim(nvars, 0)
         ax1right.set_ylim(nvars, 0)
 
@@ -369,14 +382,16 @@ def plot_bitinformation(bitinfo, cmap="turku"):
                 color="saddlebrown",
             )
 
-        ax1.set_xticks([n_sign, n_sign + n_exp, n_bits])
+        major_xticks = np.array([n_sign, n_sign + n_exp, n_bits], dtype="int")
+        ax1.set_xticks(major_xticks[major_xticks <= bits_to_show])
+        minor_xticks = np.hstack(
+            [
+                np.arange(n_sign, nonmantissa_bits - 1),
+                np.arange(nonmantissa_bits, n_bits - 1),
+            ]
+        )
         ax1.set_xticks(
-            np.hstack(
-                [
-                    np.arange(n_sign, nonmantissa_bits - 1),
-                    np.arange(nonmantissa_bits, n_bits - 1),
-                ]
-            ),
+            minor_xticks[minor_xticks <= bits_to_show],
             minor=True,
         )
         ax1.set_xticklabels([])
@@ -401,7 +416,7 @@ def plot_bitinformation(bitinfo, cmap="turku"):
 
         # Set xticklabels
         ## Set exponent labels
-        for e, i in enumerate(range(n_sign, n_sign + n_exp)):
+        for e, i in enumerate(range(n_sign, np.min([n_sign + n_exp, bits_to_show]))):
             ax1.text(
                 i + 0.5,
                 nvars + 0.5,
@@ -411,12 +426,13 @@ def plot_bitinformation(bitinfo, cmap="turku"):
                 color="darkslategrey",
             )
         ## Set mantissa labels
-        for m in range(1, n_mant + 1):
-            ax1.text(
-                nonmantissa_bits - 1 + m + 0.5, nvars + 0.5, m, ha="center", fontsize=7
-            )
+        for m, i in enumerate(
+            range(n_sign + n_exp, np.min([n_sign + n_exp + n_mant, bits_to_show]))
+        ):
+            ax1.text(i + 0.5, nvars + 0.5, m + 1, ha="center", fontsize=7)
 
         ax1.legend(bbox_to_anchor=(1.08, 0.5), loc="center left", framealpha=0.6)
+        ax1.set_xlim(0, bits_to_show)
 
         fig.show()
 
