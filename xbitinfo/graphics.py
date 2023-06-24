@@ -237,6 +237,9 @@ def plot_bitinformation(bitinfo, cmap="turku", crop=None):
     """
     import matplotlib.pyplot as plt
 
+    assert (
+        "dim" not in bitinfo.dims
+    ), "Found dependence of bitinformation on dimension. Please reduce data first by e.g. `bitinfo.max(dim='dim')`"
     vars_by_dim = split_dataset_by_dims(bitinfo)
     bitinfo_all = bitinfo
     for dim, vars in vars_by_dim.items():
