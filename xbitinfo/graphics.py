@@ -233,6 +233,7 @@ def plot_bitinformation(bitinfo, cmap="turku", crop=None):
     """
     import matplotlib.pyplot as plt
 
+    bitinfo = bitinfo.squeeze()
     assert (
         "dim" not in bitinfo.dims
     ), "Found dependence of bitinformation on dimension. Please reduce data first by e.g. `bitinfo.max(dim='dim')`"
