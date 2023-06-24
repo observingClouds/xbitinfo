@@ -36,28 +36,34 @@ if not already_ran and julia_installed:
 NMBITS = {64: 12, 32: 9, 16: 6}  # number of non mantissa bits for given dtype
 
 
-def get_bit_coords(dtype_size):
-    """Get coordinates for bits assuming float dtypes."""
-    if dtype_size == 16:
-        coords = (
-            ["±"]
-            + [f"e{int(i)}" for i in range(1, 6)]
-            + [f"m{int(i-5)}" for i in range(6, 16)]
-        )
-    elif dtype_size == 32:
-        coords = (
-            ["±"]
-            + [f"e{int(i)}" for i in range(1, 9)]
-            + [f"m{int(i-8)}" for i in range(9, 32)]
-        )
-    elif dtype_size == 64:
-        coords = (
-            ["±"]
-            + [f"e{int(i)}" for i in range(1, 12)]
-            + [f"m{int(i-11)}" for i in range(12, 64)]
-        )
+def get_bit_coords(dtype):
+    """Get coordinates for bits based on dtype."""
+    if dtype.kind == "f":
+        n_bits = np.finfo(dtype).bits
+        n_sign = 1
+        n_exponent = np.finfo(dtype).nexp
+        n_mantissa = np.finfo(dtype).nmant
+    elif dtype.kind == "i":
+        n_bits = np.iinfo(dtype).bits
+        n_sign = 1
+        n_exponent = 0
+        n_mantissa = n_bits - n_sign
+    elif dtype.kind == "u":
+        n_bits = np.iinfo(dtype).bits
+        n_sign = 0
+        n_exponent = 0
+        n_mantissa = n_bits - n_sign
     else:
-        raise ValueError(f"dtype of size {dtype_size} neither known nor implemented.")
+        raise ValueError(f"dtype {dtype} neither known nor implemented.")
+
+    assert (
+        n_sign + n_exponent + n_mantissa == n_bits
+    ), "The components of the datatype could not be safely inferred."
+    coords = (
+        n_sign * ["±"]
+        + [f"e{int(i)}" for i in range(1, n_exponent + 1)]
+        + [f"m{int(i)}" for i in range(1, n_mantissa + 1)]
+    )
     return coords
 
 
@@ -65,13 +71,13 @@ def dict_to_dataset(info_per_bit):
     """Convert keepbits dictionary to :py:class:`xarray.Dataset`."""
     dsb = xr.Dataset()
     for v in info_per_bit.keys():
-        dtype_size = len(info_per_bit[v]["bitinfo"])
+        dtype = info_per_bit[v]["dtype"]
         dim = info_per_bit[v]["dim"]
-        dim_name = f"bit{dtype_size}"
+        dim_name = f"bit{dtype}"
         dsb[v] = xr.DataArray(
             info_per_bit[v]["bitinfo"],
             dims=[dim_name],
-            coords={dim_name: get_bit_coords(dtype_size), "dim": dim},
+            coords={dim_name: get_bit_coords(dtype), "dim": dim},
             name=v,
             attrs={
                 "long_name": f"{v} bitwise information",
@@ -277,6 +283,7 @@ def _jl_get_bitinformation(ds, var, axis, dim, kwargs={}):
     )
     info_per_bit["dim"] = dim
     info_per_bit["axis"] = axis_jl - 1
+    info_per_bit["dtype"] = ds[var].dtype
     return info_per_bit
 
 
@@ -309,6 +316,7 @@ def _py_get_bitinformation(ds, var, axis, dim, kwargs={}):
     info_per_bit["bitinfo"] = pb.bitinformation(X, axis=axis).compute()
     info_per_bit["dim"] = dim
     info_per_bit["axis"] = axis
+    info_per_bit["dtype"] = ds[var].dtype
     return info_per_bit
 
 
