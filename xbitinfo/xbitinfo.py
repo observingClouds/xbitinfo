@@ -441,7 +441,17 @@ def get_keepbits(info_per_bit, inflevel=0.99):
     inflevel = xr.DataArray(inflevel, dims="inflevel", coords={"inflevel": inflevel})
     if (inflevel < 0).any() or (inflevel > 1.0).any():
         raise ValueError("Please provide `inflevel` from interval [0.,1.]")
-    for bitdim in ["bit16", "bit32", "bit64"]:
+    for bitdim in [
+        "bitfloat16",
+        "bitfloat32",
+        "bitfloat64",
+        "bitint16",
+        "bitint32",
+        "bitint64",
+        "bituint16",
+        "bituint32",
+        "bituint64",
+    ]:
         # get only variables of bitdim
         bit_vars = [v for v in info_per_bit.data_vars if bitdim in info_per_bit[v].dims]
         if bit_vars != []:
