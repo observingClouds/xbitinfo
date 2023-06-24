@@ -33,11 +33,7 @@ if not already_ran and julia_installed:
     jl.eval("include(Main.path)")
 
 
-NMBITS = {64: 12, 32: 9, 16: 6}  # number of non mantissa bits for given dtype
-
-
-def get_bit_coords(dtype):
-    """Get coordinates for bits based on dtype."""
+def bit_partitioning(dtype):
     if dtype.kind == "f":
         n_bits = np.finfo(dtype).bits
         n_sign = 1
@@ -55,10 +51,15 @@ def get_bit_coords(dtype):
         n_mantissa = n_bits - n_sign
     else:
         raise ValueError(f"dtype {dtype} neither known nor implemented.")
-
     assert (
         n_sign + n_exponent + n_mantissa == n_bits
     ), "The components of the datatype could not be safely inferred."
+    return n_bits, n_sign, n_exponent, n_mantissa
+
+
+def get_bit_coords(dtype):
+    """Get coordinates for bits based on dtype."""
+    n_bits, n_sign, n_exponent, n_mantissa = bit_partitioning(dtype)
     coords = (
         n_sign * ["±"]
         + [f"e{int(i)}" for i in range(1, n_exponent + 1)]
@@ -445,7 +446,10 @@ def get_keepbits(info_per_bit, inflevel=0.99):
         bit_vars = [v for v in info_per_bit.data_vars if bitdim in info_per_bit[v].dims]
         if bit_vars != []:
             cdf = _cdf_from_info_per_bit(info_per_bit[bit_vars], bitdim)
-            bitdim_non_mantissa_bits = NMBITS[int(bitdim[3:])]
+            data_type = np.dtype(bitdim.replace("bit", ""))
+            n_bits, _, _, n_mant = bit_partitioning(data_type)
+            bitdim_non_mantissa_bits = n_bits - n_mant
+
             keepmantissabits_bitdim = (
                 (cdf > inflevel).argmax(bitdim) + 1 - bitdim_non_mantissa_bits
             )
