@@ -72,7 +72,7 @@ def dict_to_dataset(info_per_bit):
     """Convert keepbits dictionary to :py:class:`xarray.Dataset`."""
     dsb = xr.Dataset()
     for v in info_per_bit.keys():
-        dtype = info_per_bit[v]["dtype"]
+        dtype = np.dtype(info_per_bit[v]["dtype"])
         dim = info_per_bit[v]["dim"]
         dim_name = f"bit{dtype}"
         dsb[v] = xr.DataArray(
@@ -284,7 +284,7 @@ def _jl_get_bitinformation(ds, var, axis, dim, kwargs={}):
     )
     info_per_bit["dim"] = dim
     info_per_bit["axis"] = axis_jl - 1
-    info_per_bit["dtype"] = ds[var].dtype
+    info_per_bit["dtype"] = str(ds[var].dtype)
     return info_per_bit
 
 
@@ -320,7 +320,7 @@ def _py_get_bitinformation(ds, var, axis, dim, kwargs={}):
     info_per_bit["bitinfo"] = pb.bitinformation(X, axis=axis).compute()
     info_per_bit["dim"] = dim
     info_per_bit["axis"] = axis
-    info_per_bit["dtype"] = ds[var].dtype
+    info_per_bit["dtype"] = str(ds[var].dtype)
     return info_per_bit
 
 
