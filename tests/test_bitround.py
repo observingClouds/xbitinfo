@@ -1,9 +1,11 @@
+import numpy as np
 import pytest
 import xarray as xr
 from dask import is_dask_collection
 from xarray.testing import assert_allclose, assert_equal
 
 import xbitinfo as xb
+from xbitinfo import bitround as bi
 
 from . import requires_julia
 
@@ -74,3 +76,47 @@ def test_bitround_xarray_julia_equal(air_temperature, dtype, keepbits):
         ds_xr_bitrounded = xb.xr_bitround(ds, keep)
         ds_jl_bitrounded = xb.jl_bitround(ds, keep)
         assert_equal(ds_jl_bitrounded, ds_xr_bitrounded)
+
+
+def test_bitround_along_dim(air_temperature):
+    # test for inflevels
+    ds = air_temperature
+    info_per_bit = xb.get_bitinformation(ds, dim="lon")
+    ds_bitrounded_along_lon = bi.bitround_along_dim(
+        ds, info_per_bit, dim="lon", inflevels=[1.0, 0.9999, 0.99, 0.975]
+    )
+
+    assert ds_bitrounded_along_lon.air.dtype == "float32"
+    assert ds_bitrounded_along_lon.lon.size == ds.lon.size
+    assert ds_bitrounded_along_lon.lat.size == ds.lat.size
+    assert ds_bitrounded_along_lon.time.size == ds.time.size
+    assert ds.air.values.dtype == ds_bitrounded_along_lon.air.values.dtype
+
+    assert (ds - ds_bitrounded_along_lon).air.mean() < 0.001
+
+    # test for keepbits
+    ds_bitrounded_along_lon = bi.bitround_along_dim(
+        ds, info_per_bit, dim="lon", inflevels=None, keepbits=2
+    )
+
+    assert ds_bitrounded_along_lon.air.dtype == "float32"
+    assert ds_bitrounded_along_lon.lon.size == ds.lon.size
+    assert ds_bitrounded_along_lon.lat.size == ds.lat.size
+    assert ds_bitrounded_along_lon.time.size == ds.time.size
+    assert ds.air.values.dtype == ds_bitrounded_along_lon.air.values.dtype
+
+    assert (ds - ds_bitrounded_along_lon).air.mean() < 0.001
+
+    # Test error when both keepbits and inflevels are provided
+    with pytest.raises(ValueError):
+        bi.bitround_along_dim(
+            ds,
+            info_per_bit,
+            dim="lat",
+            keepbits=2,
+            inflevels=[1.0, 0.9999, 0.99, 0.975],
+        )
+
+    # Test error when neither keepbits nor inflevels are provided
+    with pytest.raises(ValueError):
+        bi.bitround_along_dim(ds, info_per_bit, dim="lat", inflevels=None)

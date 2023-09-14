@@ -148,7 +148,7 @@ def mutual_information(a, b, base=2):
     p = da.ma.masked_equal(p, 0)
     pr = p.sum(axis=-1)[..., np.newaxis]
     ps = p.sum(axis=-2)[..., np.newaxis, :]
-    mutual_info = (p * np.log(p / (pr * ps))).sum(axis=(-1, -2)) / np.log(base)
+    mutual_info = (p * np.ma.log(p / (pr * ps))).sum(axis=(-1, -2)) / np.log(base)
     return mutual_info
 
 
