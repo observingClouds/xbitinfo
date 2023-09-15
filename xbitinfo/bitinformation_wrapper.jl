@@ -11,7 +11,7 @@ function get_bitinformation(X::AbstractArray{T}; kwargs...) where {T<:Base.IEEEF
 end
 
 
-function get_bitinformation(X::AbstractArray{T}; kwargs...) where {T<:Union{Int16,Int32,Int64}}
+function get_bitinformation(X::AbstractArray{T}; kwargs...) where {T<:Union{UInt16,UInt32,UInt64,Int16,Int32,Int64}}
 
     IC = bitinformation(X; kwargs...)
 
