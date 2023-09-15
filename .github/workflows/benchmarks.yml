@@ -21,7 +21,7 @@ jobs:
     steps:
       # We need the full repo to avoid this issue
       # https://github.com/actions/checkout/issues/23
-      - uses: actions/checkout@v3.5.3
+      - uses: actions/checkout@v4.0.0
         with:
           fetch-depth: 0
 
@@ -74,7 +74,7 @@ jobs:
           cp benchmarks.log .asv/results/
         working-directory: ${{ env.ASV_DIR }}
 
-      - uses: actions/upload-artifact@v3.1.2
+      - uses: actions/upload-artifact@v3.1.3
         if: always()
         with:
           name: asv-benchmark-results-${{ runner.os }}
