@@ -8,7 +8,7 @@ function get_bitinformation(X::AbstractArray{<:Base.IEEEFloat}; kwargs...)
 end
 
 # version for (un-/signed) integers
-get_bitinformation(X::AbstractArray{<:Integer}; kwargs...)I = bitinformation(X; kwargs...)
+get_bitinformation(X::AbstractArray{<:Integer}; kwargs...) = bitinformation(X; kwargs...)
 
 function get_keepbits(bitinfo_dict)
     # filter insignificant information via binomial distribution as explained in methods
