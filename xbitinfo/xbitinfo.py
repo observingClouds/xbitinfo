@@ -440,6 +440,7 @@ def get_keepbits(info_per_bit, inflevel=0.99, information_filter = False):
         bit_vars = [v for v in info_per_bit.data_vars if bitdim in info_per_bit[v].dims]
         if bit_vars != []:
             if(information_filter == True):
+                break
             
             else:
                 cdf = _cdf_from_info_per_bit(info_per_bit[bit_vars], bitdim)
