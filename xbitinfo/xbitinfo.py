@@ -376,7 +376,7 @@ def load_bitinformation(label):
         raise FileNotFoundError(f"No bitinformation could be found at {label+'.json'}")
 
 
-def get_keepbits(info_per_bit, inflevel=0.99):
+def get_keepbits(info_per_bit, inflevel=0.99, information_filter = False):
     """Get the number of mantissa bits to keep. To be used in :py:func:`xbitinfo.bitround.xr_bitround` and :py:func:`xbitinfo.bitround.jl_bitround`.
 
     Parameters
@@ -439,7 +439,10 @@ def get_keepbits(info_per_bit, inflevel=0.99):
         # get only variables of bitdim
         bit_vars = [v for v in info_per_bit.data_vars if bitdim in info_per_bit[v].dims]
         if bit_vars != []:
-            cdf = _cdf_from_info_per_bit(info_per_bit[bit_vars], bitdim)
+            if(information_filter == True):
+            
+            else:
+                cdf = _cdf_from_info_per_bit(info_per_bit[bit_vars], bitdim)
             bitdim_non_mantissa_bits = NMBITS[int(bitdim[3:])]
             keepmantissabits_bitdim = (
                 (cdf > inflevel).argmax(bitdim) + 1 - bitdim_non_mantissa_bits
