@@ -1,23 +1,14 @@
 using BitInformation
 using StatsBase
 
-function get_bitinformation(X::AbstractArray{T}; kwargs...) where {T<:Base.IEEEFloat}
-
-    BitInformation.signed_exponent!(X)
-    IC = bitinformation(X; kwargs...)
-
-    return IC
-
+# version for floats with biased to signed exponent conversion
+function get_bitinformation(X::AbstractArray{<:Base.IEEEFloat}; kwargs...)
+    BitInformation.signed_exponent!(X)  # this changes X in-place
+    return bitinformation(X; kwargs...)
 end
 
-
-function get_bitinformation(X::AbstractArray{T}; kwargs...) where {T<:Union{Int16,Int32,Int64}}
-
-    IC = bitinformation(X; kwargs...)
-
-    return IC
-
-end
+# version for (un-/signed) integers
+get_bitinformation(X::AbstractArray{<:Integer}; kwargs...) = bitinformation(X; kwargs...)
 
 function get_keepbits(bitinfo_dict)
     # filter insignificant information via binomial distribution as explained in methods
