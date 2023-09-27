@@ -376,7 +376,43 @@ def load_bitinformation(label):
         raise FileNotFoundError(f"No bitinformation could be found at {label+'.json'}")
 
 
-def get_keepbits(info_per_bit, inflevel=0.99, information_filter="Off"):
+def get_trueKeepbits(info_per_bit, bitdim, threshold, tolerance, bit_vars):
+    cdf = _cdf_from_info_per_bit(info_per_bit, bitdim)
+    dimensions = info_per_bit.dims
+    dim_size = dimensions["dim"]
+    for var_name in bit_vars:
+        for i in range(dim_size):
+            infoArray = info_per_bit[var_name].isel(dim=i)
+            # total sum of information along a dimension
+            infSum = sum(infoArray).item()
+
+            # sum of first nine bits
+            first_Ninebits_sum = sum(infoArray[:9]).item()
+
+            cdf_array = cdf[var_name].isel(dim=i)
+            gradient_array = np.diff(cdf_array.values)
+
+            for i in range(9, len(gradient_array) - 1):
+                first_Ninebits_sum = first_Ninebits_sum + infoArray[i].item()
+                if (
+                    gradient_array[i]
+                ) < tolerance and first_Ninebits_sum >= threshold * infSum:
+                    infbits = i
+                    break
+
+            for i in range(infbits + 1, len(cdf_array) - 1):
+                cdf_array[i] = 0
+
+    return cdf
+
+
+def get_keepbits(
+    info_per_bit,
+    inflevel=0.99,
+    information_filter="Off",
+    threshold=0.7,
+    tolerance=0.001,
+):
     """Get the number of mantissa bits to keep. To be used in :py:func:`xbitinfo.bitround.xr_bitround` and :py:func:`xbitinfo.bitround.jl_bitround`.
 
     Parameters
@@ -440,10 +476,12 @@ def get_keepbits(info_per_bit, inflevel=0.99, information_filter="Off"):
         bit_vars = [v for v in info_per_bit.data_vars if bitdim in info_per_bit[v].dims]
         if bit_vars != []:
             if information_filter == "On":
-                break
-
+                cdf = get_trueKeepbits(
+                    info_per_bit[bit_vars], bitdim, threshold, tolerance, bit_vars
+                )
             else:
                 cdf = _cdf_from_info_per_bit(info_per_bit[bit_vars], bitdim)
+
             bitdim_non_mantissa_bits = NMBITS[int(bitdim[3:])]
             keepmantissabits_bitdim = (
                 (cdf > inflevel).argmax(bitdim) + 1 - bitdim_non_mantissa_bits
