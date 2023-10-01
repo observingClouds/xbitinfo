@@ -13,10 +13,10 @@ jobs:
     outputs:
       triggered: '${{ steps.detect-trigger.outputs.trigger-found }}'
     steps:
-      - uses: actions/checkout@v3.5.3
+      - uses: actions/checkout@v4.1.0
         with:
           fetch-depth: 2
-      - uses: xarray-contrib/ci-trigger@v1.2
+      - uses: xarray-contrib/ci-trigger@v1.2.1
         id: detect-trigger
         with:
           keyword: '[skip-ci]'
@@ -29,7 +29,7 @@ jobs:
       run:
         shell: 'bash -l {0}'
     steps:
-      - uses: actions/checkout@v3.5.3
+      - uses: actions/checkout@v4.1.0
         with:
           fetch-depth: 0
       - name: Set up conda
@@ -59,7 +59,7 @@ jobs:
       run:
         shell: 'bash -l {0}'
     steps:
-      - uses: actions/checkout@v3.5.3
+      - uses: actions/checkout@v4.1.0
       - uses: conda-incubator/setup-miniconda@v2.2.0
         with:
           channels: conda-forge
@@ -89,7 +89,7 @@ jobs:
       run:
         shell: 'bash -l {0}'
     steps:
-      - uses: actions/checkout@v3.5.3
+      - uses: actions/checkout@v4.1.0
       - name: Set up conda
         uses: conda-incubator/setup-miniconda@v2.2.0
         with:
@@ -101,6 +101,9 @@ jobs:
       - name: Set up conda environment
         run: |
           mamba env update -f environment.yml
+      - name: Remove julia (issue #212)
+        run: |
+          conda remove julia
       - name: Conda info
         run: conda info
       - name: Conda list
@@ -127,11 +130,11 @@ jobs:
           - macos-latest
           - windows-latest
     steps:
-      - uses: actions/checkout@v3.5.3
+      - uses: actions/checkout@v4.1.0
         with:
           fetch-depth: 0
       - name: Setup python
-        uses: actions/setup-python@v4.6.1
+        uses: actions/setup-python@v4.7.0
         with:
           python-version: '3.11'
       - name: Set up Julia
