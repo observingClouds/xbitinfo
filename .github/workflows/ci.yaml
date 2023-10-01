@@ -101,6 +101,9 @@ jobs:
       - name: Set up conda environment
         run: |
           mamba env update -f environment.yml
+      - name: Remove julia (issue #212)
+        run: |
+          conda remove julia
       - name: Conda info
         run: conda info
       - name: Conda list
