@@ -58,6 +58,6 @@ repos:
             types-pkg_resources,
             types-PyYAML,
             types-pytz,
-            typing-extensions==3.10.0.0,
+            typing-extensions,
             numpy,
           ]
