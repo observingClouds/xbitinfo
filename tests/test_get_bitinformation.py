@@ -33,7 +33,7 @@ def assert_different(a, b):
     numpy.testing.assert_array_equal
     """
     __tracebackhide__ = True
-    assert isinstance(type(a),type(b))
+    assert isinstance(type(a), type(b))
     if isinstance(a, (Variable, DataArray)):
         assert not a.equals(b), formatting.diff_array_repr(a, b, "equals")
     elif isinstance(a, Dataset):
