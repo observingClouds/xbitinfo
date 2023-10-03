@@ -406,7 +406,7 @@ def get_cdf_without_artificial_information(
     Example:
     --------
     >>> ds = xr.tutorial.load_dataset("air_temperature")
-    >>> info_per_bit = xb.get_bitinformation(ds)
+    >>> info = xb.get_bitinformation(ds)
     >>> get_keepbits(
     ...     info,
     ...     inflevel=[0.99],
