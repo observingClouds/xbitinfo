@@ -376,43 +376,106 @@ def load_bitinformation(label):
         raise FileNotFoundError(f"No bitinformation could be found at {label+'.json'}")
 
 
-def get_trueKeepbits(info_per_bit, bitdim, threshold, tolerance, bit_vars):
+def get_cdf_without_artificial_information(
+    info_per_bit, bitdim, threshold, tolerance, bit_vars
+):
+    """
+    Calculate a Cumulative Distribution Function (CDF) with artificial information removal.
+
+    This function calculates a modified CDF for a given set of bit information and variable dimensions,
+    removing artificial information while preserving the desired threshold of information content.
+
+    Parameters:
+    -----------
+    info_per_bit : :py:class: 'xarray.Dataset'
+        Information content of each bit. This is the output from :py:func:`xbitinfo.xbitinfo.get_bitinformation`.
+    bitdim : str
+        The dimension representing the bit information.
+    threshold : float
+        Determines the percentage of total information above which the keepbits should lie.
+    tolerance : float
+        The tolerance is the value below which gradient starts becoming constant
+    bit_vars : list
+        List of variable names of the dataset.
+
+    Returns:
+    --------
+    xarray.Dataset
+        A modified CDF dataset with artificial information removed.
+
+    Example:
+    --------
+    >>> ds = xr.tutorial.load_dataset("air_temperature")
+    >>> info_per_bit = xb.get_bitinformation(ds)
+    >>> get_keepbits(
+    ...     info,
+    ...     inflevel=[0.99],
+    ...     information_filter="On",
+    ...     **{"threshold": 0.7, "tolerance": 0.001}
+    ... )
+    >>> get_cdf_without_artificial_information(
+    ...     info_per_bit, bitdim, threshold, tolerance, bit_vars
+    ... )
+
+    <xarray.Dataset>
+    Dimensions:  (dim: 3, bit32: 32)
+    Coordinates:
+        * dim      (dim) <U4 'lat' 'lon' 'time'
+    Dimensions without coordinates: bit32
+    Data variables:
+        air      (dim, bit32) float64 0.0 0.0 0.0 0.0 0.0 ... 0.0 0.0 0.0 0.0 0.0
+    """
+    coordinates = info_per_bit.coords
+    coordinates_array = coordinates["dim"].values
+    flag_scalar_value = False
+    if coordinates_array.ndim == 0:
+        value = coordinates_array.item()
+        flag_scalar_value = True
+        coordinates_array = np.array([value])
+
     cdf = _cdf_from_info_per_bit(info_per_bit, bitdim)
-    dimensions = info_per_bit.dims
-    dim_size = dimensions["dim"]
     for var_name in bit_vars:
-        for i in range(dim_size):
-            infoArray = info_per_bit[var_name].isel(dim=i)
+        for dimension in coordinates_array:
+            if flag_scalar_value:
+                infoArray = info_per_bit[var_name]
+            else:
+                infoArray = info_per_bit[var_name].sel(dim=dimension)
             # total sum of information along a dimension
             infSum = sum(infoArray).item()
 
-            # sum of first nine bits
-            first_Ninebits_sum = sum(infoArray[:9]).item()
+            if int(bitdim[3:]) == 16:
+                sign_and_exponent = 6
 
-            cdf_array = cdf[var_name].isel(dim=i)
+            if int(bitdim[3:]) == 32:
+                sign_and_exponent = 9
+
+            if int(bitdim[3:]) == 64:
+                sign_and_exponent = 12
+
+            # sum of sign and exponent bits
+            SignExpSum = sum(infoArray[:sign_and_exponent]).item()
+            if flag_scalar_value:
+                cdf_array = cdf[var_name]
+            else:
+                cdf_array = cdf[var_name].sel(dim=dimension)
+
             gradient_array = np.diff(cdf_array.values)
-
-            for i in range(9, len(gradient_array) - 1):
-                first_Ninebits_sum = first_Ninebits_sum + infoArray[i].item()
+            CurrentBit_Sum = SignExpSum
+            for i in range(sign_and_exponent, len(gradient_array) - 1):
+                CurrentBit_Sum = CurrentBit_Sum + infoArray[i].item()
                 if (
                     gradient_array[i]
-                ) < tolerance and first_Ninebits_sum >= threshold * infSum:
+                ) < tolerance and CurrentBit_Sum >= threshold * infSum:
                     infbits = i
                     break
 
-            for i in range(infbits + 1, len(cdf_array) - 1):
+            for i in range(infbits + 1, len(cdf_array)):
                 cdf_array[i] = 0
 
     return cdf
 
 
-def get_keepbits(
-    info_per_bit,
-    inflevel=0.99,
-    information_filter="Off",
-    threshold=0.7,
-    tolerance=0.001,
-):
+def get_keepbits(info_per_bit, inflevel=0.99, information_filter="Off", **kwargs):
     """Get the number of mantissa bits to keep. To be used in :py:func:`xbitinfo.bitround.xr_bitround` and :py:func:`xbitinfo.bitround.jl_bitround`.
 
     Parameters
@@ -476,8 +539,12 @@ def get_keepbits(
         bit_vars = [v for v in info_per_bit.data_vars if bitdim in info_per_bit[v].dims]
         if bit_vars != []:
             if information_filter == "On":
-                cdf = get_trueKeepbits(
-                    info_per_bit[bit_vars], bitdim, threshold, tolerance, bit_vars
+                cdf = get_cdf_without_artificial_information(
+                    info_per_bit[bit_vars],
+                    bitdim,
+                    kwargs["threshold"],
+                    kwargs["tolerance"],
+                    bit_vars,
                 )
             else:
                 cdf = _cdf_from_info_per_bit(info_per_bit[bit_vars], bitdim)

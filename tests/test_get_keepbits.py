@@ -3,6 +3,7 @@ import pytest
 import xarray as xr
 
 import xbitinfo as xb
+from xbitinfo.xbitinfo import get_keepbits
 
 
 @pytest.fixture
@@ -29,3 +30,42 @@ def test_get_keepbits_inflevel_dim(rasm_info_per_bit, inflevel):
     if isinstance(inflevel, (int, float)):
         inflevel = [inflevel]
     assert (keepbits.inflevel == inflevel).all()
+
+
+def test_get_keepbits_informationFilter():
+    ds = xr.tutorial.load_dataset("air_temperature")
+    info = xb.get_bitinformation(ds, dim="lat")
+    var = info["air"]
+    for i in range(var.size):
+        if i >= 19 and i <= 24:
+            var[i] = 0.05
+    keepbits_dataset = get_keepbits(
+        info,
+        inflevel=[0.90],
+        information_filter="On",
+        **{"threshold": 0.7, "tolerance": 0.001}
+    )
+    keepbits = keepbits_dataset["air"].values
+    assert keepbits == 5
+
+
+def test_get_keepbits_informationFilter_1():
+    ds = xr.tutorial.load_dataset("air_temperature")
+    info = xb.get_bitinformation(ds, dim="lat")
+    keepbitsOff_dataset = get_keepbits(
+        info,
+        inflevel=[0.99],
+        information_filter="Off",
+        **{"threshold": 0.7, "tolerance": 0.001}
+    )
+    keepbits_Off = keepbitsOff_dataset["air"].values
+
+    keepbitsOn_dataset = get_keepbits(
+        info,
+        inflevel=[0.99],
+        information_filter="On",
+        **{"threshold": 0.7, "tolerance": 0.001}
+    )
+    keepbits_On = keepbitsOn_dataset["air"].values
+
+    assert keepbits_Off == keepbits_On
