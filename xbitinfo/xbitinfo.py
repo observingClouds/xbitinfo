@@ -413,17 +413,13 @@ def get_cdf_without_artificial_information(
     ...     information_filter="On",
     ...     **{"threshold": 0.7, "tolerance": 0.001}
     ... )
-    >>> get_cdf_without_artificial_information(
-    ...     info_per_bit, bitdim, threshold, tolerance, bit_vars
-    ... )
-
     <xarray.Dataset>
-    Dimensions:  (dim: 3, bit32: 32)
+    Dimensions:   (dim: 3, inflevel: 1)
     Coordinates:
-        * dim      (dim) <U4 'lat' 'lon' 'time'
-    Dimensions without coordinates: bit32
+      * dim       (dim) <U4 'lat' 'lon' 'time'
+      * inflevel  (inflevel) float64 0.99
     Data variables:
-        air      (dim, bit32) float64 0.0 0.0 0.0 0.0 0.0 ... 0.0 0.0 0.0 0.0 0.0
+        air       (dim, inflevel) int64 5 7 6
     """
     coordinates = info_per_bit.coords
     coordinates_array = coordinates["dim"].values
