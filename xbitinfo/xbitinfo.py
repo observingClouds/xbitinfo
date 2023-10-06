@@ -385,6 +385,16 @@ def get_cdf_without_artificial_information(
     This function calculates a modified CDF for a given set of bit information and variable dimensions,
     removing artificial information while preserving the desired threshold of information content.
 
+    1.)The function's aim is to return the cdf in a way that artificial information gets removed.
+    2.)This function calculates the CDF using the provided information content per bit dataset.
+    3.)It then computes the gradient of the CDF values to identify points where the gradient becomes close to the given tolerance,
+    indicating a drop in information.
+    4.)Simultaneously, it keeps track of the minimum cumulative sum of information content which is threshold here, which signifies atleast
+    this much fraction of total information needs to be passed.
+    5.)So the bit where the intersection of the gradient reaching the tolerance and the cumulative sum exceeding the threshold. All bits beyond this
+    index are assumed to contain artificial information and are set to zero in the resulting CDF.
+
+
     Parameters:
     -----------
     info_per_bit : :py:class: 'xarray.Dataset'
@@ -392,7 +402,7 @@ def get_cdf_without_artificial_information(
     bitdim : str
         The dimension representing the bit information.
     threshold : float
-        Determines the percentage of total information above which the keepbits should lie.
+        Minimum cumulative sum of information content before artificial information filter is applied.
     tolerance : float
         The tolerance is the value below which gradient starts becoming constant
     bit_vars : list
@@ -421,21 +431,31 @@ def get_cdf_without_artificial_information(
     Data variables:
         air       (dim, inflevel) int64 5 7 6
     """
+
+    # Extract coordinates from the 'info_per_bit' dataset.
     coordinates = info_per_bit.coords
+    # Extract the 'dim' values from the coordinates and store them in 'coordinates_array'.
     coordinates_array = coordinates["dim"].values
+    # Initialize a flag to identify if 'coordinates_array' is a scalar value.
     flag_scalar_value = False
+    # Check if 'coordinates_array' is a scalar (has zero dimensions).
     if coordinates_array.ndim == 0:
+        # If it's a scalar, extract the scalar value and set the flag to True.
         value = coordinates_array.item()
         flag_scalar_value = True
+        # Convert the scalar value into a 1D numpy array so that we can iterate over it for determining dimensions.
         coordinates_array = np.array([value])
 
     cdf = _cdf_from_info_per_bit(info_per_bit, bitdim)
     for var_name in bit_vars:
         for dimension in coordinates_array:
             if flag_scalar_value:
+                # If it's a scalar, extract the information array directly.
                 infoArray = info_per_bit[var_name]
             else:
+                # If it's not a scalar, select the information array using the specified dimension.
                 infoArray = info_per_bit[var_name].sel(dim=dimension)
+
             # total sum of information along a dimension
             infSum = sum(infoArray).item()
 
@@ -456,8 +476,10 @@ def get_cdf_without_artificial_information(
                 cdf_array = cdf[var_name].sel(dim=dimension)
 
             gradient_array = np.diff(cdf_array.values)
+            # Initialize 'CurrentBit_Sum' with the value of 'SignExpSum'.
             CurrentBit_Sum = SignExpSum
             for i in range(sign_and_exponent, len(gradient_array) - 1):
+                # Update 'CurrentBit_Sum' by adding the information content of the current bit.
                 CurrentBit_Sum = CurrentBit_Sum + infoArray[i].item()
                 if (
                     gradient_array[i]
@@ -471,7 +493,7 @@ def get_cdf_without_artificial_information(
     return cdf
 
 
-def get_keepbits(info_per_bit, inflevel=0.99, information_filter="Off", **kwargs):
+def get_keepbits(info_per_bit, inflevel=0.99, information_filter="None", **kwargs):
     """Get the number of mantissa bits to keep. To be used in :py:func:`xbitinfo.bitround.xr_bitround` and :py:func:`xbitinfo.bitround.jl_bitround`.
 
     Parameters
@@ -480,6 +502,13 @@ def get_keepbits(info_per_bit, inflevel=0.99, information_filter="Off", **kwargs
       Information content of each bit. This is the output from :py:func:`xbitinfo.xbitinfo.get_bitinformation`.
     inflevel : float or list
       Level of information that shall be preserved.
+
+    Kwargs
+        threshold(` `float ``) : defaults to ``0.7``
+            Minimum cumulative sum of information content before artificial information filter is applied.
+        tolerance(` `float ``) : defaults to ``0.001``
+            The tolerance is the value below which gradient starts becoming constant
+
 
     Returns
     -------
@@ -534,7 +563,7 @@ def get_keepbits(info_per_bit, inflevel=0.99, information_filter="Off", **kwargs
         # get only variables of bitdim
         bit_vars = [v for v in info_per_bit.data_vars if bitdim in info_per_bit[v].dims]
         if bit_vars != []:
-            if information_filter == "On":
+            if information_filter == "Gradient":
                 cdf = get_cdf_without_artificial_information(
                     info_per_bit[bit_vars],
                     bitdim,
