@@ -487,9 +487,13 @@ def get_cdf_without_artificial_information(
                     infbits = i
                     break
 
-            for i in range(infbits + 1, len(cdf_array)):
-                cdf_array[i] = 0
+            for i in range(0, infbits + 1):
+                # Normalize CDF values for elements up to 'infbits'.
+                cdf_array[i] = cdf_array[i] / cdf_array[infbits]
 
+            for i in range(infbits + 1, len(cdf_array)):
+                # Set CDF values to 1 for elements beyond 'infbits'.
+                cdf_array[i] = 1
     return cdf
 
 
