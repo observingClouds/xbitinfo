@@ -96,6 +96,17 @@ Credits
 
     quick-start.ipynb
 
+**Chunking**
+
+* :doc:`chunking`
+
+.. toctree::
+    :maxdepth: 1
+    :hidden:
+    :caption: Chunking
+
+    chunking.ipynb
+
 **Help & Reference**
 
 * :doc:`api`
