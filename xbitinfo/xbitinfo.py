@@ -491,7 +491,7 @@ def get_cdf_without_artificial_information(
                 # Normalize CDF values for elements up to 'infbits'.
                 cdf_array[i] = cdf_array[i] / cdf_array[infbits]
 
-            cdf_array[infbits + 1,:] = 1
+            cdf_array[infbits + 1, :] = 1
     return cdf
 
 
