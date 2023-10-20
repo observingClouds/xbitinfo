@@ -420,7 +420,7 @@ def get_cdf_without_artificial_information(
     >>> get_keepbits(
     ...     info,
     ...     inflevel=[0.99],
-    ...     information_filter="On",
+    ...     information_filter="Gradient",
     ...     **{"threshold": 0.7, "tolerance": 0.001}
     ... )
     <xarray.Dataset>
@@ -495,7 +495,7 @@ def get_cdf_without_artificial_information(
     return cdf
 
 
-def get_keepbits(info_per_bit, inflevel=0.99, information_filter="None", **kwargs):
+def get_keepbits(info_per_bit, inflevel=0.99, information_filter=None, **kwargs):
     """Get the number of mantissa bits to keep. To be used in :py:func:`xbitinfo.bitround.xr_bitround` and :py:func:`xbitinfo.bitround.jl_bitround`.
 
     Parameters

@@ -122,7 +122,7 @@ def test_get_keepbits_informationFilter():
     Keepbits_FilterNone = xb.get_keepbits(
         info_ds,
         inflevel=[0.99],
-        information_filter="None",
+        information_filter=None,
         **{"threshold": 0.7, "tolerance": 0.001}
     )
     Keepbits_FilterNone_Value = Keepbits_FilterNone["RH2"].values
@@ -156,7 +156,7 @@ def test_get_keepbits_informationFilter_1():
     Keepbits_FilterNone = xb.get_keepbits(
         info,
         inflevel=[0.99],
-        information_filter="None",
+        information_filter=None,
         **{"threshold": 0.7, "tolerance": 0.001}
     )
     Keepbits_FilterNone_Value = Keepbits_FilterNone["air"].values
