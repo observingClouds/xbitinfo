@@ -96,6 +96,17 @@ Credits
 
     quick-start.ipynb
 
+**Gradient based Artificial Information Filter**
+
+* :doc:`Gradient based Artificial Information Filter`
+
+.. toctree::
+      :maxdepth: 1
+      :hidden:
+      :caption: Gradient based Artificial Information Filter
+
+      ArtificialInformation_Filter.ipynb
+
 **Help & Reference**
 
 * :doc:`api`
