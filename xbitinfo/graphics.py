@@ -185,7 +185,7 @@ def add_bitinfo_labels(
         t_keepbits.set_bbox(dict(facecolor="white", alpha=0.9, edgecolor="white"))
 
 
-def plot_bitinformation(bitinfo, cmap="turku"):
+def plot_bitinformation(bitinfo, information_filter=None, cmap="turku"):
     """Plot bitwise information content as in Klöwer et al. 2021 Figure 2.
 
     Klöwer, M., Razinger, M., Dominguez, J. J., Düben, P. D., & Palmer, T. N. (2021).
@@ -199,6 +199,11 @@ def plot_bitinformation(bitinfo, cmap="turku"):
     cmap : str or plt.cm
       Colormap. Defaults to ``"turku"``.
 
+    Kwargs
+        threshold(` `float ``) : defaults to ``0.7``
+            Minimum cumulative sum of information content before artificial information filter is applied.
+        tolerance(` `float ``) : defaults to ``0.001``
+            The tolerance is the value below which gradient starts becoming constant
     Returns
     -------
     fig : matplotlib figure
@@ -224,8 +229,19 @@ def plot_bitinformation(bitinfo, cmap="turku"):
     nvars = len(bitinfo)
     varnames = bitinfo.keys()
 
-    infbits_dict = get_keepbits(bitinfo, 0.99)
-    infbits100_dict = get_keepbits(bitinfo, 0.999999999)
+    if information_filter == "Gradient":
+        infbits_dict = get_keepbits(
+            bitinfo, 0.99, information_filter, **{"threshold": 0.7, "tolerance": 0.001}
+        )
+        infbits100_dict = get_keepbits(
+            bitinfo,
+            0.999999999,
+            information_filter,
+            **{"threshold": 0.7, "tolerance": 0.001},
+        )
+    else:
+        infbits_dict = get_keepbits(bitinfo, 0.99)
+        infbits100_dict = get_keepbits(bitinfo, 0.999999999)
 
     ICnan = np.zeros((nvars, 64))
     infbits = np.zeros(nvars)
