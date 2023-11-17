@@ -21,8 +21,8 @@ dependencies:
   - sphinx-book-theme>=0.1.7
   - myst-nb
   - numcodecs>=0.10.0
-  - intake
-  - metpy
   - pip
   - pip:
     - -e ../.
+    - intake
+    - metpy
