@@ -31,6 +31,8 @@ dependencies:
   - pytest-lazy-fixture
   - intake
   - metpy
+  - requests
+  - aiohttp
   - pip
   - pip:
     - -e .
