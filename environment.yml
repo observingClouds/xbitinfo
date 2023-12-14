@@ -29,6 +29,8 @@ dependencies:
   - myst-nb
   - numcodecs>=0.10.0
   - pytest-lazy-fixture
+  - intake
+  - metpy
   - pip
   - pip:
     - -e .
