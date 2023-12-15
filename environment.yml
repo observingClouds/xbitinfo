@@ -32,6 +32,7 @@ dependencies:
   - intake-xarray
   - metpy
   - aiohttp
+  - s3fs
   - pip
   - pip:
     - -e .
