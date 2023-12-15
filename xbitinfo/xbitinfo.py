@@ -5,7 +5,13 @@ import os
 import numpy as np
 import xarray as xr
 from dask import array as da
-from julia.api import Julia
+
+try:
+    from julia.api import Julia
+
+    julia_installed = True
+except ImportError:
+    julia_installed = False
 from tqdm.auto import tqdm
 
 from . import __version__
@@ -13,19 +19,18 @@ from . import _py_bitinfo as pb
 from .julia_helpers import install
 
 already_ran = False
-if not already_ran:
+if not already_ran and julia_installed:
     already_ran = install(quiet=True)
+    jl = Julia(compiled_modules=False, debug=False)
+    from julia import Main  # noqa: E402
 
-jl = Julia(compiled_modules=False, debug=False)
-from julia import Main  # noqa: E402
-
-path_to_julia_functions = os.path.join(
-    os.path.dirname(__file__), "bitinformation_wrapper.jl"
-)
-Main.path = path_to_julia_functions
-jl.using("BitInformation")
-jl.using("Pkg")
-jl.eval("include(Main.path)")
+    path_to_julia_functions = os.path.join(
+        os.path.dirname(__file__), "bitinformation_wrapper.jl"
+    )
+    Main.path = path_to_julia_functions
+    jl.using("BitInformation")
+    jl.using("Pkg")
+    jl.eval("include(Main.path)")
 
 
 NMBITS = {64: 12, 32: 9, 16: 6}  # number of non mantissa bits for given dtype
@@ -170,6 +175,8 @@ def get_bitinformation(  # noqa: C901
         xbitinfo_version:           ...
         BitInformation.jl_version:  ...
     """
+    if implementation == "julia" and not julia_installed:
+        raise ImportError('Please install julia or use implementation="python".')
     if dim is None and axis is None:
         # gather bitinformation on all axis
         return _get_bitinformation_along_dims(
@@ -283,7 +290,15 @@ def _py_get_bitinformation(ds, var, axis, dim, kwargs={}):
         assert (
             kwargs == {}
         ), "This implementation only supports the plain bitinfo implementation"
-    X = da.array(ds[var]).astype(np.uint)
+    itemsize = ds[var].dtype.itemsize
+    astype = f"u{itemsize}"
+    X = da.array(ds[var])
+
+    # signed exponent conversion only for floats
+    if X.dtype in (np.float16, np.float32, np.float64):
+        X = pb.signed_exponent(X)
+
+    X = X.astype(astype)
     if axis is not None:
         dim = ds[var].dims[axis]
     if isinstance(dim, str):
@@ -322,7 +337,13 @@ def _get_bitinformation_along_dims(
         if label is not None:
             label = "_".join([label, d])
         info_per_bit_per_dim[d] = get_bitinformation(
-            ds, dim=d, axis=None, label=label, overwrite=overwrite, **kwargs
+            ds,
+            dim=d,
+            axis=None,
+            label=label,
+            overwrite=overwrite,
+            implementation=implementation,
+            **kwargs,
         ).expand_dims("dim", axis=0)
     info_per_bit = xr.merge(info_per_bit_per_dim.values()).squeeze()
     return info_per_bit
@@ -455,6 +476,8 @@ def _cdf_from_info_per_bit(info_per_bit, bitdim):
 
 def _jl_bitround(X, keepbits):
     """Wrap `BitInformation.jl.round <https://github.com/milankl/BitInformation.jl/blob/main/src/round_nearest.jl>`__. Used in :py:func:`xbitinfo.bitround.jl_bitround`."""
+    if not julia_installed:
+        raise ImportError("Please install julia or use xr_bitround")
     Main.X = X
     Main.keepbits = keepbits
     return jl.eval("round!(X, keepbits)")
@@ -667,7 +690,10 @@ class JsonCustomEncoder(json.JSONEncoder):
 
 def get_julia_package_version(package):
     """Get version information of julia package"""
-    version = jl.eval(
-        f'Pkg.TOML.parsefile(joinpath(pkgdir({package}), "Project.toml"))["version"]'
-    )
+    if julia_installed:
+        version = jl.eval(
+            f'Pkg.TOML.parsefile(joinpath(pkgdir({package}), "Project.toml"))["version"]'
+        )
+    else:
+        version = "implementation='python'"
     return version

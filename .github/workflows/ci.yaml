@@ -1,49 +1,45 @@
-name: CI  # based on https://github.com/pydata/xarray/blob/master/.github/workflows/ci.yaml
-
-on:
-  pull_request:
-  workflow_dispatch: # allows you to trigger manually
-
+name: CI
+'on':
+  pull_request: null
+  workflow_dispatch: null
 concurrency:
-  group: ${{ github.workflow }}-${{ github.ref }}
+  group: '${{ github.workflow }}-${{ github.ref }}'
   cancel-in-progress: true
-
 jobs:
   detect-ci-trigger:
     name: detect ci trigger
     runs-on: ubuntu-latest
     if: github.event_name == 'push' || github.event_name == 'pull_request'
     outputs:
-      triggered: ${{ steps.detect-trigger.outputs.trigger-found }}
+      triggered: '${{ steps.detect-trigger.outputs.trigger-found }}'
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4.1.1
         with:
           fetch-depth: 2
-      - uses: xarray-contrib/ci-trigger@v1.1
+      - uses: xarray-contrib/ci-trigger@v1.2.1
         id: detect-trigger
         with:
-          keyword: "[skip-ci]"
-
-  test:  # Runs testing suite with minimal dependencies
+          keyword: '[skip-ci]'
+  test:
     name: pytest
     runs-on: ubuntu-latest
     needs: detect-ci-trigger
     if: needs.detect-ci-trigger.outputs.triggered == 'false'
     defaults:
-        run:
-          shell: bash -l {0}
+      run:
+        shell: 'bash -l {0}'
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4.1.1
         with:
-            fetch-depth: 0 # Fetch all history for all branches and tags.
+          fetch-depth: 0
       - name: Set up conda
-        uses: conda-incubator/setup-miniconda@v2
+        uses: conda-incubator/setup-miniconda@v3.0.1
         with:
           auto-update-conda: false
           channels: conda-forge
           miniforge-variant: Mambaforge
           activate-environment: bitinfo
-          python-version: "3.11"
+          python-version: '3.11'
       - name: Set up conda environment
         run: |
           mamba env update -f environment.yml
@@ -56,22 +52,21 @@ jobs:
           pip install .
       - name: Run tests
         run: pytest
-
-  doctest:  # tests all docstrings
+  doctest:
     name: doctests
-    runs-on: "ubuntu-latest"
+    runs-on: ubuntu-latest
     defaults:
       run:
-        shell: bash -l {0}
+        shell: 'bash -l {0}'
     steps:
-      - uses: actions/checkout@v3
-      - uses: conda-incubator/setup-miniconda@v2
+      - uses: actions/checkout@v4.1.1
+      - uses: conda-incubator/setup-miniconda@v3.0.1
         with:
           channels: conda-forge
           miniforge-variant: Mambaforge
           activate-environment: bitinfo
           auto-update-conda: false
-          python-version: "3.11"
+          python-version: '3.11'
       - name: Install conda dependencies
         run: |
           mamba env update -f environment.yml
@@ -85,62 +80,68 @@ jobs:
       - name: Run doctests
         run: |
           python -m pytest --doctest-modules xbitinfo --ignore xbitinfo/tests
-
-  test_notebooks:  # Checks that notebooks complete without failure
-    name: "notebooks"
+  test_notebooks:
+    name: notebooks
     runs-on: ubuntu-latest
     needs: detect-ci-trigger
     if: needs.detect-ci-trigger.outputs.triggered == 'false'
     defaults:
       run:
-        shell: bash -l {0}
+        shell: 'bash -l {0}'
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v4.1.1
       - name: Set up conda
-        uses: conda-incubator/setup-miniconda@v2
+        uses: conda-incubator/setup-miniconda@v3.0.1
         with:
           auto-update-conda: false
           channels: conda-forge
           miniforge-variant: Mambaforge
           activate-environment: bitinfo
-          python-version: "3.11"
+          python-version: '3.11'
       - name: Set up conda environment
         run: |
           mamba env update -f environment.yml
+      - name: Remove julia (issue #212)
+        run: |
+          conda remove julia
       - name: Conda info
         run: conda info
       - name: Conda list
         run: conda list
       - name: install xbitinfo
         run: |
-          pip install .
+          pip install . --upgrade pip
       - name: Test notebooks
-        run: |
+        run: >
           python -m ipykernel install --user --name bitinfo
-          jupyter nbconvert --to html --execute docs/*.ipynb --ExecutePreprocessor.kernel_name=bitinfo
 
-  install:  # Installs xbitinfo on various OS without conda
-    name: install xbitinfo, ${{ matrix.os }}
-    runs-on: ${{ matrix.os }}
+          jupyter nbconvert --to html --execute docs/*.ipynb
+          --ExecutePreprocessor.kernel_name=bitinfo
+  install:
+    name: 'install xbitinfo, ${{ matrix.os }}'
+    runs-on: '${{ matrix.os }}'
     needs: detect-ci-trigger
     if: needs.detect-ci-trigger.outputs.triggered == 'false'
     strategy:
       fail-fast: false
       matrix:
-        os: ["ubuntu-latest", "macos-latest", "windows-latest"]
+        os:
+          - ubuntu-latest
+          - macos-latest
+          - windows-latest
     steps:
-    - uses: actions/checkout@v3
-      with:
-        fetch-depth: 0 # Fetch all history for all branches and tags.
-    - name: Setup python
-      uses: actions/setup-python@v3
-      with:
-        python-version: "3.11"
-    - name: "Set up Julia"
-      uses: julia-actions/setup-julia@v1.6.0
-      with:
-        version: "1.7.1"
-    - name: Install dependencies
-      run: |
-        pip install .[complete]
-        python -c "import xbitinfo"
+      - uses: actions/checkout@v4.1.1
+        with:
+          fetch-depth: 0
+      - name: Setup python
+        uses: actions/setup-python@v5.0.0
+        with:
+          python-version: '3.11'
+      - name: Set up Julia
+        uses: julia-actions/setup-julia@v1.9.4
+        with:
+          version: 1.7.1
+      - name: Install dependencies
+        run: |
+          pip install .[complete]
+          python -c "import xbitinfo"

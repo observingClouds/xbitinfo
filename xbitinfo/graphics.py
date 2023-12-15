@@ -1,13 +1,15 @@
+import matplotlib.cm as cm
 import numpy as np
 import xarray as xr
 
-from .xbitinfo import NMBITS, get_keepbits
+from .xbitinfo import NMBITS, _cdf_from_info_per_bit, get_keepbits
 
 
 def add_bitinfo_labels(
     da,
     info_per_bit,
-    inflevels,
+    inflevels=None,
+    keepbits=None,
     ax=None,
     x_dim_name="lon",
     y_dim_name="lat",
@@ -58,13 +60,16 @@ def add_bitinfo_labels(
     >>> ds = xr.tutorial.load_dataset("air_temperature")
     >>> info_per_bit = xb.get_bitinformation(ds, dim="lon")
     >>> inflevels = [1.0, 0.9999, 0.99, 0.975, 0.95]
+    >>> keepbits = None
     >>> ds_bitrounded_along_lon = xb.bitround.bitround_along_dim(
     ...     ds, info_per_bit, dim="lon", inflevels=inflevels
     ... )
     >>> diff = (ds - ds_bitrounded_along_lon)["air"].isel(time=0)
     >>> diff.plot()  # doctest: +ELLIPSIS
     <matplotlib.collections.QuadMesh object at ...>
-    >>> add_bitinfo_labels(diff, info_per_bit, inflevels)  # doctest: +ELLIPSIS
+    >>> add_bitinfo_labels(
+    ...     diff, info_per_bit, inflevels, keepbits
+    ... )  # doctest: +ELLIPSIS
 
     Plotting a multi-dimensional coordinate dataset
     >>> v = "Tair"
@@ -93,15 +98,51 @@ def add_bitinfo_labels(
     """
     import matplotlib.pyplot as plt
 
+    if inflevels is None and keepbits is None:
+        raise KeyError("Either inflevels or keepbits need to be provided")
+    elif inflevels is not None and keepbits is not None:
+        raise KeyError("Only inflevels or keepbits can be provided")
     if lon_coord_name == "guess":
         lon_coord_name = x_dim_name
     if lat_coord_name == "guess":
         lat_coord_name = y_dim_name
     if label_latitude == "center":
         label_latitude = da[lat_coord_name].mean()
-    stride = da[x_dim_name].size // len(inflevels)
     if ax is None:
         ax = plt.gca()
+
+    dimension_dict = info_per_bit.dims
+    dimension_list = list(dimension_dict.keys())
+    dimension = dimension_list[0]
+    CDF = _cdf_from_info_per_bit(info_per_bit, dimension)
+    CDF_DataArray = CDF[da.name]
+
+    if inflevels is None:
+        inflevels = []
+        for i, keep in enumerate(keepbits):
+            if dimension == "bit16":
+                mantissa_index = keep + 5
+            if dimension == "bit32":
+                mantissa_index = keep + 8
+            if dimension == "bit64":
+                mantissa_index = keep + 11
+
+            inflevels.append(CDF_DataArray[mantissa_index].values)
+
+    if keepbits is None:
+        keepbits = [get_keepbits(info_per_bit, ilev) for ilev in inflevels]
+
+    if isinstance(keepbits, list) and all(
+        isinstance(ds, xr.Dataset) for ds in keepbits
+    ):
+        keepbits_data = []
+        for ds in keepbits:
+            data_var = ds[da.name].values
+            for value in data_var:
+                keepbits_data.append(value)
+        keepbits = keepbits_data
+
+    stride = da[x_dim_name].size // len(inflevels)
 
     for i, inf in enumerate(inflevels):
         # draw latitude line
@@ -109,6 +150,7 @@ def add_bitinfo_labels(
         lats = da.isel({x_dim_name: stride * i})[lat_coord_name]
         lons, lats = xr.broadcast(lons, lats)
         ax.plot(lons, lats, color="k", linewidth=1, **kwargs)
+
         # write inflevel
         t = ax.text(
             da.isel(
@@ -125,6 +167,7 @@ def add_bitinfo_labels(
         )
         t.set_bbox(dict(facecolor="white", alpha=0.9, edgecolor="white"))
 
+    for i, keep in enumerate(keepbits):
         # write keepbits
         t_keepbits = ax.text(
             da.isel(
@@ -134,7 +177,7 @@ def add_bitinfo_labels(
                 }
             )[lon_coord_name].values,
             label_latitude + label_latitude_offset,
-            f"keepbits = {get_keepbits(info_per_bit, inf)[da.name]}",
+            f"keepbits = {keep}",
             horizontalalignment="center",
             color="k",
             **kwargs,
@@ -386,7 +429,7 @@ def plot_distribution(ds, nbins=1000, cmap="viridis", offset=0.01, close_zero=1e
         H[i, :] = H[i, :] / np.sum(H[i, :])  # normalize
 
     fig, ax = plt.subplots(1, 1, figsize=(5, 2 + nvars / 10))
-    colors = plt.cm.get_cmap(cmap, nvars).colors
+    colors = cm.get_cmap(cmap, nvars).colors
 
     for i in range(nvars):
         c = colors[i]
