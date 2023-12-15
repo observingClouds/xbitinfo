@@ -51,6 +51,7 @@ def test_add_bitinfo_labels():
     # Cleanup the plot
     plt.close()
 
+
 @pytest.mark.parametrize("dtype", ["float64", "float32", "float16"])
 def test_plot_bitinformation(dtype):
     rasm = xr.tutorial.load_dataset("air_temperature")
