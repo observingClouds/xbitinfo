@@ -23,6 +23,7 @@ dependencies:
   - numcodecs>=0.10.0
   - intake-xarray
   - metpy
+  - s3fs
   - pip
   - pip:
     - -e ../.
