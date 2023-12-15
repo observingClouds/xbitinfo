@@ -51,6 +51,7 @@ def test_add_bitinfo_labels():
     # Cleanup the plot
     plt.close()
 
+
 @pytest.mark.parametrize("dtype", ["float64", "float32", "float16"])
 def test_plot_bitinformation(rasm, dtype):
     ds = rasm.astype(dtype)
