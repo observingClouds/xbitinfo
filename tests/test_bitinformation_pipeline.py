@@ -26,7 +26,10 @@ def test_full(ds, dim, axis):
     # ds_bitrounded = xb.jl_bitround(ds, keepbits)
     ds_bitrounded = xb.xr_bitround(ds, keepbits)  # identical
     # save
-    ds.air.encoding["_FillValue"] = -999
+    try:
+        ds.air.encoding["_FillValue"] = -999
+    except AttributeError:
+        pass
     label = os.path.basename(ds.encoding["source"])
     print(label)
     ds.to_netcdf(f"./tmp_testdir/{label}.nc")
