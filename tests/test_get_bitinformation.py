@@ -1,5 +1,3 @@
-#!/usr/bin/env python
-
 """Tests for `xbitinfo` package."""
 import os
 
@@ -33,7 +31,7 @@ def assert_different(a, b):
     numpy.testing.assert_array_equal
     """
     __tracebackhide__ = True
-    assert type(a) == type(b)
+    assert isinstance(a, type(b))
     if isinstance(a, (Variable, DataArray)):
         assert not a.equals(b), formatting.diff_array_repr(a, b, "equals")
     elif isinstance(a, Dataset):
