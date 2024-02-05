@@ -29,8 +29,6 @@ dependencies:
   - myst-nb
   - numcodecs>=0.10.0
   - pytest-lazy-fixture
-  - intake-xarray
-  - metpy
   - aiohttp
   - s3fs
   - pip
