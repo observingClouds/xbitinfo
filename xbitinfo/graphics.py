@@ -228,7 +228,7 @@ def plot_bitinformation(bitinfo, cmap="turku", crop=None):
     >>> ds = xr.tutorial.load_dataset("air_temperature")
     >>> info_per_bit = xb.get_bitinformation(ds, dim="lon")
     >>> xb.plot_bitinformation(info_per_bit)
-    <Figure size 1200x400 with 3 Axes>
+    <Figure size 1200x800 with 4 Axes>
 
     """
     import matplotlib.pyplot as plt
