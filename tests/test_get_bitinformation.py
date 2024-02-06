@@ -165,7 +165,7 @@ def test_get_bitinformation_dtype(rasm, dtype, implementation):
     ds = rasm.astype(dtype)
     v = list(ds.data_vars)[0]
     dtype_bits = dtype.replace("float", "")
-    assert len(xb.get_bitinformation(ds, dim="x")[v].coords["bit" + dtype_bits]) == int(
+    assert len(xb.get_bitinformation(ds, dim="x")[v].coords["bit" + dtype]) == int(
         dtype_bits
     )
 
@@ -204,7 +204,7 @@ def test_get_bitinformation_different_dtypes(rasm, implementation):
     ds["Tair32"] = ds.Tair.astype("float32")
     ds["Tair16"] = ds.Tair.astype("float16")
     bi = xb.get_bitinformation(ds, implementation=implementation)
-    for bitdim in ["bit16", "bit32", "bit64"]:
+    for bitdim in ["bitfloat16", "bitfloat32", "bitfloat64"]:
         assert bitdim in bi.dims
         assert bitdim in bi.coords
 
@@ -226,17 +226,18 @@ def test_get_bitinformation_keep_attrs(rasm):
 @pytest.mark.parametrize(
     "ds,dim,axis",
     [
-        (pytest.lazy_fixture("ugrid_demo"), None, -1),
-        (pytest.lazy_fixture("icon_grid_demo"), "ncells", None),
-        (pytest.lazy_fixture("air_temperature"), "lon", None),
-        (pytest.lazy_fixture("rasm"), "x", None),
-        (pytest.lazy_fixture("ROMS_example"), "eta_rho", None),
-        (pytest.lazy_fixture("era52mt"), "time", None),
-        (pytest.lazy_fixture("eraint_uvz"), "longitude", None),
+        ("ugrid_demo", None, -1),
+        ("icon_grid_demo", "ncells", None),
+        ("air_temperature", "lon", None),
+        ("rasm", "x", None),
+        ("ROMS_example", "eta_rho", None),
+        ("era52mt", "time", None),
+        ("eraint_uvz", "longitude", None),
     ],
 )
-def test_implementations_agree(ds, dim, axis):
+def test_implementations_agree(ds, dim, axis, request):
     """Test whether the python and julia implementation retrieve the same results"""
+    ds = request.getfixturevalue(ds)
     bi_python = xb.get_bitinformation(
         ds,
         dim=dim,
