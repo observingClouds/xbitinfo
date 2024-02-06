@@ -237,7 +237,7 @@ def test_get_bitinformation_keep_attrs(rasm):
 )
 def test_implementations_agree(ds, dim, axis, request):
     """Test whether the python and julia implementation retrieve the same results"""
-    ds =  request.getfixturevalue(ds)
+    ds = request.getfixturevalue(ds)
     bi_python = xb.get_bitinformation(
         ds,
         dim=dim,

@@ -20,7 +20,7 @@ import xbitinfo as xb
 )
 def test_full(ds, dim, axis, request):
     """Test xbitinfo end to end."""
-    ds =  request.getfixturevalue(ds)
+    ds = request.getfixturevalue(ds)
     # xbitinfo
     bitinfo = xb.get_bitinformation(ds, dim=dim, axis=axis)
     keepbits = xb.get_keepbits(bitinfo)
