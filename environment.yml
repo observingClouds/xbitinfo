@@ -28,7 +28,6 @@ dependencies:
   - sphinx-book-theme
   - myst-nb
   - numcodecs>=0.10.0
-  - pytest-lazy-fixture
   - pip
   - pip:
     - -e .
