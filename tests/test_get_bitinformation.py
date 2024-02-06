@@ -226,17 +226,18 @@ def test_get_bitinformation_keep_attrs(rasm):
 @pytest.mark.parametrize(
     "ds,dim,axis",
     [
-        (pytest.lazy_fixture("ugrid_demo"), None, -1),
-        (pytest.lazy_fixture("icon_grid_demo"), "ncells", None),
-        (pytest.lazy_fixture("air_temperature"), "lon", None),
-        (pytest.lazy_fixture("rasm"), "x", None),
-        (pytest.lazy_fixture("ROMS_example"), "eta_rho", None),
-        (pytest.lazy_fixture("era52mt"), "time", None),
-        (pytest.lazy_fixture("eraint_uvz"), "longitude", None),
+        ("ugrid_demo", None, -1),
+        ("icon_grid_demo", "ncells", None),
+        ("air_temperature", "lon", None),
+        ("rasm", "x", None),
+        ("ROMS_example", "eta_rho", None),
+        ("era52mt", "time", None),
+        ("eraint_uvz", "longitude", None),
     ],
 )
-def test_implementations_agree(ds, dim, axis):
+def test_implementations_agree(ds, dim, axis, request):
     """Test whether the python and julia implementation retrieve the same results"""
+    ds =  request.getfixturevalue(ds)
     bi_python = xb.get_bitinformation(
         ds,
         dim=dim,

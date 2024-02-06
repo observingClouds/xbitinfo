@@ -9,17 +9,18 @@ import xbitinfo as xb
 @pytest.mark.parametrize(
     "ds,dim,axis",
     [
-        (pytest.lazy_fixture("ugrid_demo"), None, -1),
-        (pytest.lazy_fixture("icon_grid_demo"), "ncells", None),
-        (pytest.lazy_fixture("air_temperature"), "lon", None),
-        (pytest.lazy_fixture("rasm"), "x", None),
-        (pytest.lazy_fixture("ROMS_example"), "eta_rho", None),
-        (pytest.lazy_fixture("era52mt"), "time", None),
-        (pytest.lazy_fixture("eraint_uvz"), "longitude", None),
+        ("ugrid_demo", None, -1),
+        ("icon_grid_demo", "ncells", None),
+        ("air_temperature", "lon", None),
+        ("rasm", "x", None),
+        ("ROMS_example", "eta_rho", None),
+        ("era52mt", "time", None),
+        ("eraint_uvz", "longitude", None),
     ],
 )
-def test_full(ds, dim, axis):
+def test_full(ds, dim, axis, request):
     """Test xbitinfo end to end."""
+    ds =  request.getfixturevalue(ds)
     # xbitinfo
     bitinfo = xb.get_bitinformation(ds, dim=dim, axis=axis)
     keepbits = xb.get_keepbits(bitinfo)
