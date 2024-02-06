@@ -165,7 +165,7 @@ def test_get_bitinformation_dtype(rasm, dtype, implementation):
     ds = rasm.astype(dtype)
     v = list(ds.data_vars)[0]
     dtype_bits = dtype.replace("float", "")
-    assert len(xb.get_bitinformation(ds, dim="x")[v].coords["bit" + dtype_bits]) == int(
+    assert len(xb.get_bitinformation(ds, dim="x")[v].coords["bit" + dtype]) == int(
         dtype_bits
     )
 
@@ -204,7 +204,7 @@ def test_get_bitinformation_different_dtypes(rasm, implementation):
     ds["Tair32"] = ds.Tair.astype("float32")
     ds["Tair16"] = ds.Tair.astype("float16")
     bi = xb.get_bitinformation(ds, implementation=implementation)
-    for bitdim in ["bit16", "bit32", "bit64"]:
+    for bitdim in ["bitfloat16", "bitfloat32", "bitfloat64"]:
         assert bitdim in bi.dims
         assert bitdim in bi.coords
 
