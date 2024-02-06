@@ -21,3 +21,4 @@ jobs:
         with:
           # [Required] Access token with `workflow` scope.
           token: ${{ secrets.WORKFLOW_SECRET }}
+          pull_request_branch: gh-actions-update
