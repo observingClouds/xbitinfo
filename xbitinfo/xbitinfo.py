@@ -185,7 +185,7 @@ def get_bitinformation(  # noqa: C901
     """
     if implementation == "julia" and not julia_installed:
         raise ImportError('Please install julia or use implementation="python".')
-    if ds.is_null().any():
+    if ds.isnull().any():
         warnings.warn("This dataset contains NaNs, which can yield unexpected results.")
     if dim is None and axis is None:
         # gather bitinformation on all axis
