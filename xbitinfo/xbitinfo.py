@@ -232,6 +232,10 @@ def get_bitinformation(  # noqa: C901
         info_per_bit = {}
         pbar = tqdm(ds.data_vars)
         for var in pbar:
+                # Check for non-finite values
+            if np.any(ds[var].isnull()):
+                warning_message = f"Warning: Variable {var} in the dataset contains non-finite values (NaNs or infs). Unexpected results may occur."
+                logging.warning(warning_message)
             pbar.set_description(f"Processing var: {var} for dim: {dim}")
             if implementation == "julia":
                 info_per_bit_var = _jl_get_bitinformation(ds, var, axis, dim, kwargs)
