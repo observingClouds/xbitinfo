@@ -110,3 +110,6 @@ ENV/
 
 # setuptools-scm will bundled that in the sdist but we don't want it tracked
 xbitinfo/_version.py
+
+# macos folder visualisation
+.DS_Store
