@@ -4,7 +4,7 @@ CHANGELOG
 
 X.X.X (unreleased)
 ------------------
-
+* Add nan warning in :py:func:`xbitinfo.xbitinfo.get_bitinformation` (:issue:`200`, :pr:`260`) `Timothy Hodson` _.
 * Add support for additional datatypes in :py:func:`xbitinfo.xbitinfo.plot_bitinformation` (:pr:`218`, :issue:`168`) `Hauke Schulz`_.
 * Drop python 3.8 support and add python 3.11 (:pr:`175`) `Hauke Schulz`_.
 * Implement basic retrieval of bitinformation in python as alternative to julia implementation (:pr:`156`, :issue:`155`, :pr:`126`, :issue:`125`) `Hauke Schulz`_ with helpful comments from `Milan Klöwer`_.
