@@ -33,31 +33,38 @@ if not already_ran and julia_installed:
     jl.eval("include(Main.path)")
 
 
-NMBITS = {64: 12, 32: 9, 16: 6}  # number of non mantissa bits for given dtype
-
-
-def get_bit_coords(dtype_size):
-    """Get coordinates for bits assuming float dtypes."""
-    if dtype_size == 16:
-        coords = (
-            ["±"]
-            + [f"e{int(i)}" for i in range(1, 6)]
-            + [f"m{int(i-5)}" for i in range(6, 16)]
-        )
-    elif dtype_size == 32:
-        coords = (
-            ["±"]
-            + [f"e{int(i)}" for i in range(1, 9)]
-            + [f"m{int(i-8)}" for i in range(9, 32)]
-        )
-    elif dtype_size == 64:
-        coords = (
-            ["±"]
-            + [f"e{int(i)}" for i in range(1, 12)]
-            + [f"m{int(i-11)}" for i in range(12, 64)]
-        )
+def bit_partitioning(dtype):
+    if dtype.kind == "f":
+        n_bits = np.finfo(dtype).bits
+        n_sign = 1
+        n_exponent = np.finfo(dtype).nexp
+        n_mantissa = np.finfo(dtype).nmant
+    elif dtype.kind == "i":
+        n_bits = np.iinfo(dtype).bits
+        n_sign = 1
+        n_exponent = 0
+        n_mantissa = n_bits - n_sign
+    elif dtype.kind == "u":
+        n_bits = np.iinfo(dtype).bits
+        n_sign = 0
+        n_exponent = 0
+        n_mantissa = n_bits - n_sign
     else:
-        raise ValueError(f"dtype of size {dtype_size} neither known nor implemented.")
+        raise ValueError(f"dtype {dtype} neither known nor implemented.")
+    assert (
+        n_sign + n_exponent + n_mantissa == n_bits
+    ), "The components of the datatype could not be safely inferred."
+    return n_bits, n_sign, n_exponent, n_mantissa
+
+
+def get_bit_coords(dtype):
+    """Get coordinates for bits based on dtype."""
+    n_bits, n_sign, n_exponent, n_mantissa = bit_partitioning(dtype)
+    coords = (
+        n_sign * ["±"]
+        + [f"e{int(i)}" for i in range(1, n_exponent + 1)]
+        + [f"m{int(i)}" for i in range(1, n_mantissa + 1)]
+    )
     return coords
 
 
@@ -65,13 +72,13 @@ def dict_to_dataset(info_per_bit):
     """Convert keepbits dictionary to :py:class:`xarray.Dataset`."""
     dsb = xr.Dataset()
     for v in info_per_bit.keys():
-        dtype_size = len(info_per_bit[v]["bitinfo"])
+        dtype = np.dtype(info_per_bit[v]["dtype"])
         dim = info_per_bit[v]["dim"]
-        dim_name = f"bit{dtype_size}"
+        dim_name = f"bit{dtype}"
         dsb[v] = xr.DataArray(
             info_per_bit[v]["bitinfo"],
             dims=[dim_name],
-            coords={dim_name: get_bit_coords(dtype_size), "dim": dim},
+            coords={dim_name: get_bit_coords(dtype), "dim": dim},
             name=v,
             attrs={
                 "long_name": f"{v} bitwise information",
@@ -145,13 +152,13 @@ def get_bitinformation(  # noqa: C901
     -------
     >>> ds = xr.tutorial.load_dataset("air_temperature")
     >>> xb.get_bitinformation(ds, dim="lon")  # doctest: +ELLIPSIS
-    <xarray.Dataset>
-    Dimensions:  (bit32: 32)
+    <xarray.Dataset> Size: 652B
+    Dimensions:     (bitfloat32: 32)
     Coordinates:
-      * bit32    (bit32) <U3 '±' 'e1' 'e2' 'e3' 'e4' ... 'm20' 'm21' 'm22' 'm23'
-        dim      <U3 'lon'
+      * bitfloat32  (bitfloat32) <U3 384B '±' 'e1' 'e2' 'e3' ... 'm21' 'm22' 'm23'
+        dim         <U3 12B 'lon'
     Data variables:
-        air      (bit32) float64 0.0 0.0 0.0 0.0 ... 0.0 3.953e-05 0.0006889
+        air         (bitfloat32) float64 256B 0.0 0.0 0.0 ... 3.953e-05 0.0006889
     Attributes:
         xbitinfo_description:       bitinformation calculated by xbitinfo.get_bit...
         python_repository:          https://github.com/observingClouds/xbitinfo
@@ -160,13 +167,13 @@ def get_bitinformation(  # noqa: C901
         xbitinfo_version:           ...
         BitInformation.jl_version:  ...
     >>> xb.get_bitinformation(ds)
-    <xarray.Dataset>
-    Dimensions:  (bit32: 32, dim: 3)
+    <xarray.Dataset> Size: 1kB
+    Dimensions:     (bitfloat32: 32, dim: 3)
     Coordinates:
-      * bit32    (bit32) <U3 '±' 'e1' 'e2' 'e3' 'e4' ... 'm20' 'm21' 'm22' 'm23'
-      * dim      (dim) <U4 'lat' 'lon' 'time'
+      * bitfloat32  (bitfloat32) <U3 384B '±' 'e1' 'e2' 'e3' ... 'm21' 'm22' 'm23'
+      * dim         (dim) <U4 48B 'lat' 'lon' 'time'
     Data variables:
-        air      (dim, bit32) float64 0.0 0.0 0.0 0.0 ... 0.0 6.327e-06 0.0004285
+        air         (dim, bitfloat32) float64 768B 0.0 0.0 ... 6.327e-06 0.0004285
     Attributes:
         xbitinfo_description:       bitinformation calculated by xbitinfo.get_bit...
         python_repository:          https://github.com/observingClouds/xbitinfo
@@ -277,6 +284,7 @@ def _jl_get_bitinformation(ds, var, axis, dim, kwargs={}):
     )
     info_per_bit["dim"] = dim
     info_per_bit["axis"] = axis_jl - 1
+    info_per_bit["dtype"] = str(ds[var].dtype)
     return info_per_bit
 
 
@@ -312,6 +320,7 @@ def _py_get_bitinformation(ds, var, axis, dim, kwargs={}):
     info_per_bit["bitinfo"] = pb.bitinformation(X, axis=axis).compute()
     info_per_bit["dim"] = dim
     info_per_bit["axis"] = axis
+    info_per_bit["dtype"] = str(ds[var].dtype)
     return info_per_bit
 
 
@@ -521,38 +530,38 @@ def get_keepbits(info_per_bit, inflevel=0.99, information_filter=None, **kwargs)
     >>> ds = xr.tutorial.load_dataset("air_temperature")
     >>> info_per_bit = xb.get_bitinformation(ds, dim="lon")
     >>> xb.get_keepbits(info_per_bit)
-    <xarray.Dataset>
+    <xarray.Dataset> Size: 28B
     Dimensions:   (inflevel: 1)
     Coordinates:
-        dim       <U3 'lon'
-      * inflevel  (inflevel) float64 0.99
+        dim       <U3 12B 'lon'
+      * inflevel  (inflevel) float64 8B 0.99
     Data variables:
-        air       (inflevel) int64 7
+        air       (inflevel) int64 8B 7
     >>> xb.get_keepbits(info_per_bit, inflevel=0.99999999)
-    <xarray.Dataset>
+    <xarray.Dataset> Size: 28B
     Dimensions:   (inflevel: 1)
     Coordinates:
-        dim       <U3 'lon'
-      * inflevel  (inflevel) float64 1.0
+        dim       <U3 12B 'lon'
+      * inflevel  (inflevel) float64 8B 1.0
     Data variables:
-        air       (inflevel) int64 14
+        air       (inflevel) int64 8B 14
     >>> xb.get_keepbits(info_per_bit, inflevel=1.0)
-    <xarray.Dataset>
+    <xarray.Dataset> Size: 28B
     Dimensions:   (inflevel: 1)
     Coordinates:
-        dim       <U3 'lon'
-      * inflevel  (inflevel) float64 1.0
+        dim       <U3 12B 'lon'
+      * inflevel  (inflevel) float64 8B 1.0
     Data variables:
-        air       (inflevel) int64 23
+        air       (inflevel) int64 8B 23
     >>> info_per_bit = xb.get_bitinformation(ds)
     >>> xb.get_keepbits(info_per_bit)
-    <xarray.Dataset>
+    <xarray.Dataset> Size: 80B
     Dimensions:   (dim: 3, inflevel: 1)
     Coordinates:
-      * dim       (dim) <U4 'lat' 'lon' 'time'
-      * inflevel  (inflevel) float64 0.99
+      * dim       (dim) <U4 48B 'lat' 'lon' 'time'
+      * inflevel  (inflevel) float64 8B 0.99
     Data variables:
-        air       (dim, inflevel) int64 5 7 6
+        air       (dim, inflevel) int64 24B 5 7 6
     """
     if not isinstance(inflevel, list):
         inflevel = [inflevel]
@@ -560,28 +569,31 @@ def get_keepbits(info_per_bit, inflevel=0.99, information_filter=None, **kwargs)
     inflevel = xr.DataArray(inflevel, dims="inflevel", coords={"inflevel": inflevel})
     if (inflevel < 0).any() or (inflevel > 1.0).any():
         raise ValueError("Please provide `inflevel` from interval [0.,1.]")
-    for bitdim in ["bit16", "bit32", "bit64"]:
+    for bitdim in [
+        "bitfloat16",
+        "bitfloat32",
+        "bitfloat64",
+        "bitint16",
+        "bitint32",
+        "bitint64",
+        "bituint16",
+        "bituint32",
+        "bituint64",
+    ]:
         # get only variables of bitdim
         bit_vars = [v for v in info_per_bit.data_vars if bitdim in info_per_bit[v].dims]
         if bit_vars != []:
-            if information_filter == "Gradient":
-                cdf = get_cdf_without_artificial_information(
-                    info_per_bit[bit_vars],
-                    bitdim,
-                    kwargs["threshold"],
-                    kwargs["tolerance"],
-                    bit_vars,
-                )
-            else:
-                cdf = _cdf_from_info_per_bit(info_per_bit[bit_vars], bitdim)
+            cdf = _cdf_from_info_per_bit(info_per_bit[bit_vars], bitdim)
+            data_type = np.dtype(bitdim.replace("bit", ""))
+            n_bits, _, _, n_mant = bit_partitioning(data_type)
+            bitdim_non_mantissa_bits = n_bits - n_mant
 
-            bitdim_non_mantissa_bits = NMBITS[int(bitdim[3:])]
             keepmantissabits_bitdim = (
                 (cdf > inflevel).argmax(bitdim) + 1 - bitdim_non_mantissa_bits
             )
             # keep all mantissa bits for 100% information
             if 1.0 in inflevel:
-                bitdim_all_mantissa_bits = int(bitdim[3:]) - bitdim_non_mantissa_bits
+                bitdim_all_mantissa_bits = n_bits - bitdim_non_mantissa_bits
                 keepall = xr.ones_like(keepmantissabits_bitdim.sel(inflevel=1.0)) * (
                     bitdim_all_mantissa_bits
                 )
@@ -814,7 +826,7 @@ class JsonCustomEncoder(json.JSONEncoder):
     def default(self, obj):
         if isinstance(obj, (np.ndarray, np.number)):
             return obj.tolist()
-        elif isinstance(obj, (complex, np.complex)):
+        elif isinstance(obj, complex):
             return [obj.real, obj.imag]
         elif isinstance(obj, set):
             return list(obj)
