@@ -219,6 +219,11 @@ def plot_bitinformation(bitinfo, cmap="turku", crop=None):
     crop : int
       Maximum bits to show in figure.
 
+    Kwargs
+        threshold(` `float ``) : defaults to ``0.7``
+            Minimum cumulative sum of information content before artificial information filter is applied.
+        tolerance(` `float ``) : defaults to ``0.001``
+            The tolerance is the value below which gradient starts becoming constant
     Returns
     -------
     fig : matplotlib figure
