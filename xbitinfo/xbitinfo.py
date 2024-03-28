@@ -421,7 +421,6 @@ def get_cdf_without_artificial_information(
     ...     info,
     ...     inflevel=[0.99],
     ...     information_filter="Gradient",
-    ...     **{"threshold": 0.7, "tolerance": 0.001}
     ... )
     <xarray.Dataset>
     Dimensions:   (dim: 3, inflevel: 1)
