@@ -3,7 +3,7 @@ import pytest
 import xarray as xr
 
 import xbitinfo as xb
-from xbitinfo.graphics import add_bitinfo_labels
+from xbitinfo.graphics import add_bitinfo_labels, plot_bitinformation
 
 
 def test_add_bitinfo_labels():
@@ -50,3 +50,11 @@ def test_add_bitinfo_labels():
             assert ax.texts[i + 5].get_text() == keepbits_text
     # Cleanup the plot
     plt.close()
+
+
+@pytest.mark.parametrize("dtype", ["float64", "float32", "float16"])
+def test_plot_bitinformation(dtype):
+    rasm = xr.tutorial.load_dataset("air_temperature")
+    ds = rasm.astype(dtype)
+    info_per_bit = xb.get_bitinformation(ds, dim="lon")
+    plot_bitinformation(info_per_bit)

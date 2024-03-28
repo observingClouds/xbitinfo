@@ -2,7 +2,7 @@ import matplotlib.cm as cm
 import numpy as np
 import xarray as xr
 
-from .xbitinfo import NMBITS, _cdf_from_info_per_bit, get_keepbits
+from .xbitinfo import _cdf_from_info_per_bit, bit_partitioning, get_keepbits
 
 
 def add_bitinfo_labels(
@@ -117,16 +117,12 @@ def add_bitinfo_labels(
     CDF = _cdf_from_info_per_bit(info_per_bit, dimension)
     CDF_DataArray = CDF[da.name]
 
+    data_type = np.dtype(dimension.replace("bit", ""))
+    _, _, n_exp, _ = bit_partitioning(data_type)
     if inflevels is None:
         inflevels = []
         for i, keep in enumerate(keepbits):
-            if dimension == "bit16":
-                mantissa_index = keep + 5
-            if dimension == "bit32":
-                mantissa_index = keep + 8
-            if dimension == "bit64":
-                mantissa_index = keep + 11
-
+            mantissa_index = keep + n_exp
             inflevels.append(CDF_DataArray[mantissa_index].values)
 
     if keepbits is None:
@@ -185,7 +181,29 @@ def add_bitinfo_labels(
         t_keepbits.set_bbox(dict(facecolor="white", alpha=0.9, edgecolor="white"))
 
 
-def plot_bitinformation(bitinfo, cmap="turku"):
+def split_dataset_by_dims(info_per_bit):
+    """Split dataset by its dimensions.
+
+    Parameters
+    ----------
+    info_per_bit : dict
+      Information content of each bit for each variable in ``da``. This is the output from :py:func:`xbitinfo.xbitinfo.get_bitinformation`.
+
+    Returns
+    -------
+    var_by_dim : dict
+      Dictionary containing the dimensions of the datasets as keys and the dataset using the dimension as value.
+    """
+    var_by_dim = {d: [] for d in info_per_bit.dims}
+    for var in info_per_bit.data_vars:
+        assert (
+            len(info_per_bit[var].dims) == 1
+        ), f"Variable {var} has more than one dimension."
+        var_by_dim[info_per_bit[var].dims[0]].append(var)
+    return var_by_dim
+
+
+def plot_bitinformation(bitinfo, cmap="turku", crop=None):
     """Plot bitwise information content as in Klöwer et al. 2021 Figure 2.
 
     Klöwer, M., Razinger, M., Dominguez, J. J., Düben, P. D., & Palmer, T. N. (2021).
@@ -198,6 +216,8 @@ def plot_bitinformation(bitinfo, cmap="turku"):
       Containing the bitwise information content for each variable
     cmap : str or plt.cm
       Colormap. Defaults to ``"turku"``.
+    crop : int
+      Maximum bits to show in figure.
 
     Returns
     -------
@@ -208,110 +228,79 @@ def plot_bitinformation(bitinfo, cmap="turku"):
     >>> ds = xr.tutorial.load_dataset("air_temperature")
     >>> info_per_bit = xb.get_bitinformation(ds, dim="lon")
     >>> xb.plot_bitinformation(info_per_bit)
-    <Figure size 1200x400 with 3 Axes>
+    <Figure size 1200x800 with 4 Axes>
 
     """
     import matplotlib.pyplot as plt
 
-    assert bitinfo.coords["dim"].shape <= (
-        1,
-    ), "Only bitinfo along one dimension is supported at the moment. Please select dimension before plotting."
-
+    bitinfo = bitinfo.squeeze()
     assert (
-        "bit32" in bitinfo.dims
-    ), "currently only works properly for float32 data, looking forward to your PR closing https://github.com/observingClouds/xbitinfo/issues/168"
+        "dim" not in bitinfo.dims
+    ), "Found dependence of bitinformation on dimension. Please reduce data first by e.g. `bitinfo.max(dim='dim')`"
+    vars_by_dim = split_dataset_by_dims(bitinfo)
+    bitinfo_all = bitinfo
+    subfigure_data = [None] * len(vars_by_dim)
+    for d, (dim, vars) in enumerate(vars_by_dim.items()):
+        bitinfo = bitinfo_all[vars]
+        data_type = np.dtype(dim.replace("bit", ""))
+        n_bits, n_sign, n_exp, n_mant = bit_partitioning(data_type)
+        nonmantissa_bits = n_bits - n_mant
+        if crop is None:
+            bits_to_show = n_bits
+        else:
+            bits_to_show = int(np.min([crop, n_bits]))
+        nvars = len(bitinfo)
+        varnames = list(bitinfo.keys())
 
-    nvars = len(bitinfo)
-    varnames = bitinfo.keys()
+        infbits_dict = get_keepbits(bitinfo, 0.99)
+        infbits100_dict = get_keepbits(bitinfo, 0.999999999)
 
-    infbits_dict = get_keepbits(bitinfo, 0.99)
-    infbits100_dict = get_keepbits(bitinfo, 0.999999999)
+        ICnan = np.zeros((nvars, 64))
+        infbits = np.zeros(nvars)
+        infbits100 = np.zeros(nvars)
+        ICnan[:, :] = np.nan
+        for v, var in enumerate(varnames):
+            ic = bitinfo[var].squeeze(drop=True)
+            ICnan[v, : len(ic)] = ic
+            # infbits are all bits, infbits_dict were mantissa bits
+            infbits[v] = infbits_dict[var] + nonmantissa_bits
+            infbits100[v] = infbits100_dict[var] + nonmantissa_bits
+        ICnan = np.where(ICnan == 0, np.nan, ICnan)
+        ICcsum = np.nancumsum(ICnan, axis=1)
 
-    ICnan = np.zeros((nvars, 64))
-    infbits = np.zeros(nvars)
-    infbits100 = np.zeros(nvars)
-    ICnan[:, :] = np.nan
-    for v, var in enumerate(varnames):
-        ic = bitinfo[var].squeeze(drop=True)
-        ICnan[v, : len(ic)] = ic
-        # infbits are all bits, infbits_dict were mantissa bits
-        infbits[v] = infbits_dict[var] + NMBITS[len(ic)]
-        infbits100[v] = infbits100_dict[var] + NMBITS[len(ic)]
-    ICnan = np.where(ICnan == 0, np.nan, ICnan)
-    ICcsum = np.nancumsum(ICnan, axis=1)
+        infbitsy = np.hstack([0, np.repeat(np.arange(1, nvars), 2), nvars])
+        infbitsx = np.repeat(infbits, 2)
+        infbitsx100 = np.repeat(infbits100, 2)
 
-    infbitsy = np.hstack([0, np.repeat(np.arange(1, nvars), 2), nvars])
-    infbitsx = np.repeat(infbits, 2)
-    infbitsx100 = np.repeat(infbits100, 2)
+        fig_height = np.max([4, 4 + (nvars - 10) * 0.2])  # auto adjust to nvars
 
-    fig_height = np.max([4, 4 + (nvars - 10) * 0.2])  # auto adjust to nvars
-    fig, ax1 = plt.subplots(1, 1, figsize=(12, fig_height), sharey=True)
-    ax1.invert_yaxis()
-    ax1.set_box_aspect(1 / 32 * nvars)
-    plt.tight_layout(rect=[0.06, 0.18, 0.8, 0.98])
-    pos = ax1.get_position()
-    cax = fig.add_axes([pos.x0, 0.12, pos.x1 - pos.x0, 0.02])
+        subfigure_data[d] = {}
+        subfigure_data[d]["fig_height"] = fig_height
+        subfigure_data[d]["nvars"] = nvars
+        subfigure_data[d]["varnames"] = varnames
+        subfigure_data[d]["ICnan"] = ICnan
+        subfigure_data[d]["ICcsum"] = ICcsum
+        subfigure_data[d]["infbits"] = infbits
+        subfigure_data[d]["infbitsx"] = infbitsx
+        subfigure_data[d]["infbitsy"] = infbitsy
+        subfigure_data[d]["infbitsx100"] = infbitsx100
+        subfigure_data[d]["nbits"] = (n_sign, n_exp, n_bits, n_mant, nonmantissa_bits)
+        subfigure_data[d]["bits_to_show"] = bits_to_show
 
-    ax1right = ax1.twinx()
-    ax1right.invert_yaxis()
-    ax1right.set_box_aspect(1 / 32 * nvars)
-
-    if cmap == "turku":
-        import cmcrameri.cm as cmc
-
-        cmap = cmc.turku_r
-    pcm = ax1.pcolormesh(ICnan, vmin=0, vmax=1, cmap=cmap)
-    cbar = plt.colorbar(pcm, cax=cax, orientation="horizontal")
-    cbar.set_label("information content [bit]")
-
-    # 99% of real information enclosed
-    ax1.plot(
-        np.hstack([infbits, infbits[-1]]),
-        np.arange(nvars + 1),
-        "C1",
-        ds="steps-pre",
-        zorder=10,
-        label="99% of\ninformation",
+    fig_heights = [subfig["fig_height"] for subfig in subfigure_data]
+    fig = plt.figure(figsize=(12, sum(fig_heights) + 2 * 2))
+    fig_heights_incl_cax = fig_heights + [2 / (sum(fig_heights) + 2)] * 2
+    grid = fig.add_gridspec(
+        len(subfigure_data) + 2, 1, height_ratios=fig_heights_incl_cax
     )
 
-    # grey shading
-    ax1.fill_betweenx(
-        infbitsy, infbitsx, np.ones(len(infbitsx)) * 32, alpha=0.4, color="grey"
-    )
-    ax1.fill_betweenx(
-        infbitsy, infbitsx100, np.ones(len(infbitsx)) * 32, alpha=0.1, color="c"
-    )
-    ax1.fill_betweenx(
-        infbitsy,
-        infbitsx100,
-        np.ones(len(infbitsx)) * 32,
-        alpha=0.3,
-        facecolor="none",
-        edgecolor="c",
-    )
+    axs = []
+    for i in range(len(subfigure_data) + 2):
+        ax = fig.add_subplot(grid[i, 0])
+        axs.append(ax)
 
-    # for legend only
-    ax1.fill_betweenx(
-        [-1, -1],
-        [-1, -1],
-        [-1, -1],
-        color="burlywood",
-        label="last 1% of\ninformation",
-        alpha=0.5,
-    )
-    ax1.fill_betweenx(
-        [-1, -1],
-        [-1, -1],
-        [-1, -1],
-        facecolor="teal",
-        edgecolor="c",
-        label="false information",
-        alpha=0.3,
-    )
-    ax1.fill_betweenx([-1, -1], [-1, -1], [-1, -1], color="w", label="unused bits")
-
-    ax1.axvline(1, color="k", lw=1, zorder=3)
-    ax1.axvline(9, color="k", lw=1, zorder=3)
+    if isinstance(axs, plt.Axes):
+        axs = [axs]
 
     fig.suptitle(
         "Real bitwise information content",
@@ -321,48 +310,187 @@ def plot_bitinformation(bitinfo, cmap="turku"):
         horizontalalignment="left",
     )
 
-    ax1.set_xlim(0, 32)
-    ax1.set_ylim(nvars, 0)
-    ax1right.set_ylim(nvars, 0)
+    if cmap == "turku":
+        import cmcrameri.cm as cmc
 
-    ax1.set_yticks(np.arange(nvars) + 0.5)
-    ax1right.set_yticks(np.arange(nvars) + 0.5)
-    ax1.set_yticklabels(varnames)
-    ax1right.set_yticklabels([f"{i:4.1f}" for i in ICcsum[:, -1]])
-    ax1right.set_ylabel("total information per value [bit]")
+        cmap = cmc.turku_r
 
-    ax1.text(
-        infbits[0] + 0.1,
-        0.8,
-        f"{int(infbits[0]-9)} mantissa bits",
-        fontsize=8,
-        color="saddlebrown",
-    )
-    for i in range(1, nvars):
-        ax1.text(
-            infbits[i] + 0.1,
-            (i) + 0.8,
-            f"{int(infbits[i]-9)}",
+    max_bits_to_show = np.max([d["bits_to_show"] for d in subfigure_data])
+
+    for d, subfig in enumerate(subfigure_data):
+        infbits = subfig["infbits"]
+        nvars = subfig["nvars"]
+        n_sign, n_exp, n_bits, n_mant, nonmantissa_bits = subfig["nbits"]
+        ICcsum = subfig["ICcsum"]
+        ICnan = subfig["ICnan"]
+        infbitsy = subfig["infbitsy"]
+        infbitsx = subfig["infbitsx"]
+        infbitsx100 = subfig["infbitsx100"]
+        varnames = subfig["varnames"]
+        bits_to_show = subfig["bits_to_show"]
+
+        mbits_to_show = bits_to_show - nonmantissa_bits
+
+        axs[d].invert_yaxis()
+        axs[d].set_box_aspect(1 / max_bits_to_show * nvars)
+
+        ax1right = axs[d].twinx()
+        ax1right.invert_yaxis()
+        ax1right.set_box_aspect(1 / max_bits_to_show * nvars)
+
+        pcm = axs[d].pcolormesh(ICnan, vmin=0, vmax=1, cmap=cmap)
+
+        if d == len(subfigure_data) - 1:
+            cax = axs[len(subfigure_data)]
+            lax = axs[len(subfigure_data) + 1]
+            lax.axis("off")
+            cbar = plt.colorbar(pcm, cax=cax, orientation="horizontal")
+            cbar.set_label("information content [bit]")
+
+        # 99% of real information enclosed
+        l0 = axs[d].plot(
+            np.hstack([infbits, infbits[-1]]),
+            np.arange(nvars + 1),
+            "C1",
+            ds="steps-pre",
+            zorder=10,
+            label="99% of\ninformation",
+        )
+
+        # grey shading
+        axs[d].fill_betweenx(
+            infbitsy,
+            infbitsx,
+            np.ones(len(infbitsx)) * bits_to_show,
+            alpha=0.4,
+            color="grey",
+        )
+        axs[d].fill_betweenx(
+            infbitsy,
+            infbitsx100,
+            np.ones(len(infbitsx)) * bits_to_show,
+            alpha=0.1,
+            color="c",
+        )
+        axs[d].fill_betweenx(
+            infbitsy,
+            infbitsx100,
+            np.ones(len(infbitsx)) * bits_to_show,
+            alpha=0.3,
+            facecolor="none",
+            edgecolor="c",
+        )
+
+        # for legend only
+        l1 = axs[d].fill_betweenx(
+            [-1, -1],
+            [-1, -1],
+            [-1, -1],
+            color="burlywood",
+            label="last 1% of\ninformation",
+            alpha=0.5,
+        )
+        l2 = axs[d].fill_betweenx(
+            [-1, -1],
+            [-1, -1],
+            [-1, -1],
+            facecolor="teal",
+            edgecolor="c",
+            label="false information",
+            alpha=0.3,
+        )
+        l3 = axs[d].fill_betweenx(
+            [-1, -1], [-1, -1], [-1, -1], color="w", label="unused bits", edgecolor="k"
+        )
+
+        if n_sign > 0:
+            axs[d].axvline(n_sign, color="k", lw=1, zorder=3)
+        axs[d].axvline(nonmantissa_bits, color="k", lw=1, zorder=3)
+
+        axs[d].set_ylim(nvars, 0)
+        ax1right.set_ylim(nvars, 0)
+
+        axs[d].set_yticks(np.arange(nvars) + 0.5)
+        ax1right.set_yticks(np.arange(nvars) + 0.5)
+        axs[d].set_yticklabels(varnames)
+        ax1right.set_yticklabels([f"{i:4.1f}" for i in ICcsum[:, -1]])
+        if d == len(subfigure_data) // 2:
+            ax1right.set_ylabel("total information\nper value [bit]")
+
+        axs[d].text(
+            infbits[0] + 0.1,
+            0.8,
+            f"{int(infbits[0]-nonmantissa_bits)} mantissa bits",
             fontsize=8,
             color="saddlebrown",
         )
+        for i in range(1, nvars):
+            axs[d].text(
+                infbits[i] + 0.1,
+                (i) + 0.8,
+                f"{int(infbits[i]-9)}",
+                fontsize=8,
+                color="saddlebrown",
+            )
 
-    ax1.set_xticks([1, 9])
-    ax1.set_xticks(np.hstack([np.arange(1, 8), np.arange(9, 32)]), minor=True)
-    ax1.set_xticklabels([])
-    ax1.text(0, nvars + 1.2, "sign", rotation=90)
-    ax1.text(2, nvars + 1.2, "exponent bits", color="darkslategrey")
-    ax1.text(10, nvars + 1.2, "mantissa bits")
-
-    for i in range(1, 9):
-        ax1.text(
-            i + 0.5, nvars + 0.5, i, ha="center", fontsize=7, color="darkslategrey"
+        major_xticks = np.array([n_sign, n_sign + n_exp, n_bits], dtype="int")
+        axs[d].set_xticks(major_xticks[major_xticks <= bits_to_show])
+        minor_xticks = np.hstack(
+            [
+                np.arange(n_sign, nonmantissa_bits - 1),
+                np.arange(nonmantissa_bits, n_bits - 1),
+            ]
+        )
+        axs[d].set_xticks(
+            minor_xticks[minor_xticks <= bits_to_show],
+            minor=True,
+        )
+        axs[d].set_xticklabels([])
+        if n_sign > 0:
+            axs[d].text(0, nvars + 1.2, "sign", rotation=90)
+        if n_exp > 0:
+            axs[d].text(
+                n_sign + n_exp / 2,
+                nvars + 1.2,
+                "exponent bits",
+                color="darkslategrey",
+                horizontalalignment="center",
+                verticalalignment="center",
+            )
+        axs[d].text(
+            n_sign + n_exp + mbits_to_show / 2,
+            nvars + 1.2,
+            "mantissa bits",
+            horizontalalignment="center",
+            verticalalignment="center",
         )
 
-    for i in range(1, 24):
-        ax1.text(8 + i + 0.5, nvars + 0.5, i, ha="center", fontsize=7)
+        # Set xticklabels
+        ## Set exponent labels
+        for e, i in enumerate(range(n_sign, np.min([n_sign + n_exp, bits_to_show]))):
+            axs[d].text(
+                i + 0.5,
+                nvars + 0.5,
+                e + 1,
+                ha="center",
+                fontsize=7,
+                color="darkslategrey",
+            )
+        ## Set mantissa labels
+        for m, i in enumerate(
+            range(n_sign + n_exp, np.min([n_sign + n_exp + n_mant, bits_to_show]))
+        ):
+            axs[d].text(i + 0.5, nvars + 0.5, m + 1, ha="center", fontsize=7)
 
-    ax1.legend(bbox_to_anchor=(1.08, 0.5), loc="center left", framealpha=0.6)
+        if d == len(subfigure_data) - 1:
+            lax.legend(
+                bbox_to_anchor=(0.5, 0),
+                loc="center",
+                framealpha=0.6,
+                ncol=4,
+                handles=[l0[0], l1, l2, l3],
+            )
+        axs[d].set_xlim(0, bits_to_show)
 
     fig.show()
 
