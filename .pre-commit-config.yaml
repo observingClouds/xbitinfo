@@ -14,7 +14,7 @@ repos:
       - id: mixed-line-ending
     # This wants to go before isort & flake8
   - repo: https://github.com/PyCQA/autoflake
-    rev: "v2.2.1"
+    rev: "v2.3.1"
     hooks:
       - id: autoflake # isort should run before black as black sometimes tweaks the isort output
         args: ["--in-place", "--ignore-init-module-imports"]
@@ -24,14 +24,14 @@ repos:
       - id: isort
         args: ["--profile", "black"]
   - repo: https://github.com/asottile/pyupgrade
-    rev: v3.15.0
+    rev: v3.15.2
     hooks:
       - id: pyupgrade
         args:
           - "--py38-plus"
   # https://github.com/python/black#version-control-integration
   - repo: https://github.com/psf/black
-    rev: 23.12.1
+    rev: 24.3.0
     hooks:
       - id: black
       - id: black-jupyter
@@ -41,11 +41,11 @@ repos:
       - id: blackdoc
         exclude: docs/index.rst
   - repo: https://github.com/PyCQA/flake8
-    rev: 6.1.0
+    rev: 7.0.0
     hooks:
       - id: flake8
   - repo: https://github.com/pre-commit/mirrors-mypy
-    rev: v1.8.0
+    rev: v1.9.0
     hooks:
       - id: mypy
         exclude: "properties|asv_bench"
