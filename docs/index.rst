@@ -96,28 +96,16 @@ Credits
 
     quick-start.ipynb
 
-**Gradient based Artificial Information Filter**
+**User Guide**
 
-* :doc:`Gradient based Artificial Information Filter`
+* :doc:`artificialinformation`
 
 .. toctree::
       :maxdepth: 1
       :hidden:
-      :caption: Gradient based Artificial Information Filter
+      :caption: User Guide
 
       ArtificialInformation_Filter.ipynb
-
-
-**User Guide**
-
-* :doc:`chunking`
-
-.. toctree::
-    :maxdepth: 1
-    :hidden:
-    :caption: User Guide
-
-    chunking.ipynb
 
 **Help & Reference**
 
