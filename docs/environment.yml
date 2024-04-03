@@ -2,7 +2,7 @@ name: bitinfo-docs
 channels:
   - conda-forge
 dependencies:
-  - python
+  - python=3.9
   - julia<1.9.0
   - pyjulia
   - matplotlib-base
