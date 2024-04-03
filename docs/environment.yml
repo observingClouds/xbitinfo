@@ -30,4 +30,4 @@ dependencies:
   - numcodecs>=0.10.0
   - pip
   - pip:
-    - -e .
+    - -e ../.
