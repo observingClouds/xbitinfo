@@ -1,4 +1,17 @@
+pytest
+pooch
+netcdf4
 dask
+matplotlib
+cmcrameri
+prefect>=1.0.0,<2.0
+zarr
+julia
 xarray
 tqdm
 numcodecs>=0.10.0
+sphinx
+sphinxcontrib-napoleon
+sphinx-copybutton
+sphinx_book_theme
+myst-nb
