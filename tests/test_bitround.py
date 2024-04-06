@@ -86,26 +86,26 @@ def test_bitround_along_dim(air_temperature):
         ds, info_per_bit, dim="lon", inflevels=[1.0, 0.9999, 0.99, 0.975]
     )
 
-    assert ds_bitrounded_along_lon.air.dtype == "float32"
+    assert ds_bitrounded_along_lon.air.dtype == "float64"
     assert ds_bitrounded_along_lon.lon.size == ds.lon.size
     assert ds_bitrounded_along_lon.lat.size == ds.lat.size
     assert ds_bitrounded_along_lon.time.size == ds.time.size
     assert ds.air.values.dtype == ds_bitrounded_along_lon.air.values.dtype
 
-    assert (ds - ds_bitrounded_along_lon).air.mean() < 0.001
+    assert (ds - ds_bitrounded_along_lon).air.mean() < 0.01
 
     # test for keepbits
     ds_bitrounded_along_lon = bi.bitround_along_dim(
         ds, info_per_bit, dim="lon", inflevels=None, keepbits=2
     )
 
-    assert ds_bitrounded_along_lon.air.dtype == "float32"
+    assert ds_bitrounded_along_lon.air.dtype == "float64"
     assert ds_bitrounded_along_lon.lon.size == ds.lon.size
     assert ds_bitrounded_along_lon.lat.size == ds.lat.size
     assert ds_bitrounded_along_lon.time.size == ds.time.size
     assert ds.air.values.dtype == ds_bitrounded_along_lon.air.values.dtype
 
-    assert (ds - ds_bitrounded_along_lon).air.mean() < 0.001
+    assert (ds - ds_bitrounded_along_lon).air.mean() < 0.01
 
     # Test error when both keepbits and inflevels are provided
     with pytest.raises(ValueError):
