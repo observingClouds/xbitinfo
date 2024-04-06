@@ -1,0 +1,8 @@
+name: bitinfo-tests
+channels:
+  - conda-forge
+dependencies:
+  - pytest
+  - pooch
+  - netcdf4
+  - dask
