@@ -1,6 +1,7 @@
 """Tests for `xbitinfo` package."""
 
 import os
+import warnings
 
 import numpy as np
 import pytest
@@ -214,6 +215,14 @@ def test_get_bitinformation_different_dtypes(rasm, implementation):
 def test_get_bitinformation_dim_list(rasm, implementation):
     bi = xb.get_bitinformation(rasm, dim=["x", "y"], implementation=implementation)
     assert (bi.dim == ["x", "y"]).all()
+
+
+def test_get_bitinformation_nan_warning():
+    data = xr.Dataset({"var": ("x", np.array([1, 2, np.nan, 4, 5]))})
+
+    with warnings.catch_warnings(record=True) as w:
+        xb.get_bitinformation(data, implementation="python")
+        assert len(w) >= 1
 
 
 def test_get_bitinformation_keep_attrs(rasm):
