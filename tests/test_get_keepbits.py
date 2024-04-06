@@ -1,4 +1,5 @@
 """Tests for `xbitinfo.get_keepbits`."""
+
 import pytest
 import xarray as xr
 
