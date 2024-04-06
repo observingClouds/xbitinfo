@@ -2,7 +2,25 @@ name: bitinfo-tests
 channels:
   - conda-forge
 dependencies:
-  - pytest
+  - python
+  - julia<1.9.0
+  - pyjulia
+  - matplotlib-base
+  - numpy
   - pooch
+  - xarray
+  - dask-core
+  - distributed
+  - jupyterlab
   - netcdf4
-  - dask
+  - zarr
+  - cfgrib
+  - prefect>=1.0.0,<2.0
+  - graphviz
+  - pytest
+  - nb_conda_kernels
+  - cmcrameri
+  - tqdm
+  - asv
+  - pip:
+    - -e ../.
