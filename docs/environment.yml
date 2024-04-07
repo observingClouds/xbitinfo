@@ -16,6 +16,7 @@ dependencies:
   - cmcrameri
   - julia
   - tqdm
+  - pytest
   - sphinx!=4.4.0
   - sphinxcontrib-napoleon
   - sphinx-copybutton
