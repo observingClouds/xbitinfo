@@ -1,4 +1,5 @@
 """Unit test package for xbitinfo."""
+
 import importlib
 from distutils import version
 

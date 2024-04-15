@@ -1,4 +1,5 @@
 """Tests for `xbitinfo` package."""
+
 import os
 
 import numpy as np
