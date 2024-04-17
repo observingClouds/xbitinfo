@@ -2,7 +2,7 @@ name: bitinfo-docs
 channels:
   - conda-forge
 dependencies:
-  - python=3.9
+  - python
   - matplotlib-base
   - numpy
   - pooch
@@ -16,11 +16,12 @@ dependencies:
   - cmcrameri
   - tqdm
   - sphinx!=4.4.0
-  - sphinxcontrib-napoleon
   - sphinx-copybutton
   - sphinx-book-theme>=0.1.7
   - myst-nb
   - numcodecs>=0.10.0
+  - intake-xarray
+  - s3fs
   - pip
   - pip:
     - -e ../.
