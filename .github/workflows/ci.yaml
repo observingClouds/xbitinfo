@@ -113,10 +113,10 @@ jobs:
           pip install . --upgrade pip
       - name: Test notebooks
         run: >
-          python -m ipykernel install --user --name bitinfo
+          python -m ipykernel install --user --name bitinfo-docs
 
           jupyter nbconvert --to html --execute docs/*.ipynb
-          --ExecutePreprocessor.kernel_name=bitinfo
+          --ExecutePreprocessor.kernel_name=bitinfo-docs
   install:
     name: 'install xbitinfo, ${{ matrix.os }}'
     runs-on: '${{ matrix.os }}'

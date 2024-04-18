@@ -203,7 +203,7 @@ def split_dataset_by_dims(info_per_bit):
     return var_by_dim
 
 
-def plot_bitinformation(bitinfo, cmap="turku", crop=None):
+def plot_bitinformation(bitinfo, information_filter=None, cmap="turku", crop=None):
     """Plot bitwise information content as in Klöwer et al. 2021 Figure 2.
 
     Klöwer, M., Razinger, M., Dominguez, J. J., Düben, P. D., & Palmer, T. N. (2021).
@@ -214,6 +214,9 @@ def plot_bitinformation(bitinfo, cmap="turku", crop=None):
     ----------
     bitinfo : :py:func:`xarray.Dataset`
       Containing the bitwise information content for each variable
+    information_filter : str
+      Filter algorithm to filter artificial information content. Defaults to ``None``.
+      Available filters are: ``"Gradient"``.
     cmap : str or plt.cm
       Colormap. Defaults to ``"turku"``.
     crop : int
@@ -252,8 +255,22 @@ def plot_bitinformation(bitinfo, cmap="turku", crop=None):
         nvars = len(bitinfo)
         varnames = list(bitinfo.keys())
 
-        infbits_dict = get_keepbits(bitinfo, 0.99)
-        infbits100_dict = get_keepbits(bitinfo, 0.999999999)
+        if information_filter == "Gradient":
+            infbits_dict = get_keepbits(
+                bitinfo,
+                0.99,
+                information_filter,
+                **{"threshold": 0.7, "tolerance": 0.001},
+            )
+            infbits100_dict = get_keepbits(
+                bitinfo,
+                0.999999999,
+                information_filter,
+                **{"threshold": 0.7, "tolerance": 0.001},
+            )
+        else:
+            infbits_dict = get_keepbits(bitinfo, 0.99)
+            infbits100_dict = get_keepbits(bitinfo, 0.999999999)
 
         ICnan = np.zeros((nvars, 64))
         infbits = np.zeros(nvars)
