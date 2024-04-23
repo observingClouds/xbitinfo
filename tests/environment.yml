@@ -22,5 +22,10 @@ dependencies:
   - cmcrameri
   - tqdm
   - asv
+  - sphinx!=4.4.0
+  - sphinxcontrib-napoleon
+  - sphinx-copybutton
+  - sphinx-book-theme
+  - myst-nb
   - pip:
     - -e ../.
