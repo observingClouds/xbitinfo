@@ -13,7 +13,7 @@ jobs:
     outputs:
       triggered: '${{ steps.detect-trigger.outputs.trigger-found }}'
     steps:
-      - uses: actions/checkout@v4.1.1
+      - uses: actions/checkout@v4.1.4
         with:
           fetch-depth: 2
       - uses: xarray-contrib/ci-trigger@v1.2.1
@@ -29,11 +29,11 @@ jobs:
       run:
         shell: 'bash -l {0}'
     steps:
-      - uses: actions/checkout@v4.1.1
+      - uses: actions/checkout@v4.1.4
         with:
           fetch-depth: 0
       - name: Set up conda
-        uses: conda-incubator/setup-miniconda@v3.0.3
+        uses: conda-incubator/setup-miniconda@v3.0.4
         with:
           auto-update-conda: false
           channels: conda-forge
@@ -59,8 +59,8 @@ jobs:
       run:
         shell: 'bash -l {0}'
     steps:
-      - uses: actions/checkout@v4.1.1
-      - uses: conda-incubator/setup-miniconda@v3.0.3
+      - uses: actions/checkout@v4.1.4
+      - uses: conda-incubator/setup-miniconda@v3.0.4
         with:
           channels: conda-forge
           miniforge-variant: Mambaforge
@@ -89,9 +89,9 @@ jobs:
       run:
         shell: 'bash -l {0}'
     steps:
-      - uses: actions/checkout@v4.1.1
+      - uses: actions/checkout@v4.1.4
       - name: Set up conda
-        uses: conda-incubator/setup-miniconda@v3.0.3
+        uses: conda-incubator/setup-miniconda@v3.0.4
         with:
           auto-update-conda: false
           channels: conda-forge
@@ -127,7 +127,7 @@ jobs:
           - macos-latest
           - windows-latest
     steps:
-      - uses: actions/checkout@v4.1.1
+      - uses: actions/checkout@v4.1.4
         with:
           fetch-depth: 0
       - name: Setup python
