@@ -57,6 +57,7 @@ def add_bitinfo_labels(
     Example
     -------
     Plotting a single-dimension coordinate dataset:
+
     >>> ds = xr.tutorial.load_dataset("air_temperature")
     >>> info_per_bit = xb.get_bitinformation(ds, dim="lon")
     >>> inflevels = [1.0, 0.9999, 0.99, 0.975, 0.95]
@@ -72,6 +73,7 @@ def add_bitinfo_labels(
     ... )  # doctest: +ELLIPSIS
 
     Plotting a multi-dimensional coordinate dataset
+
     >>> v = "Tair"
     >>> ds = xr.tutorial.load_dataset("rasm")
     >>> dim = "y"
