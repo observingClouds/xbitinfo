@@ -240,7 +240,7 @@ def get_bitinformation(  # noqa: C901
                 quantized_storage_dtype = ds[var].encoding["dtype"]
                 warnings.warn(
                     f"Variable {var} is quantized as {quantized_storage_dtype}, but loaded as {loaded_dtype}. Consider reopening using `mask_and_scale=False` to get sensible results",
-                    category=UserWarning
+                    category=UserWarning,
                 )
 
             if implementation == "julia":
@@ -273,7 +273,9 @@ def get_bitinformation(  # noqa: C901
 def _quantized_variable_is_scaled(ds: xr.DataArray, var: str) -> bool:
     loaded_dtype = ds[var].dtype
     quantized_storage_dtype = ds[var].encoding["dtype"]
-    has_scale_or_offset = any(["add_offset" in ds[var].encoding, "scale_factor" in ds[var].encoding])
+    has_scale_or_offset = any(
+        ["add_offset" in ds[var].encoding, "scale_factor" in ds[var].encoding]
+    )
 
     if has_scale_or_offset and quantized_storage_dtype != loaded_dtype:
         return True

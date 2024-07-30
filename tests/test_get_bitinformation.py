@@ -1,11 +1,11 @@
 """Tests for `xbitinfo` package."""
 
 import os
+import warnings
 
 import numpy as np
 import pytest
 import xarray as xr
-import warnings
 from numpy.testing import assert_allclose, assert_equal
 from xarray.core import formatting
 from xarray.core.dataarray import DataArray
