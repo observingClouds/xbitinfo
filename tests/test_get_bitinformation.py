@@ -5,6 +5,7 @@ import os
 import numpy as np
 import pytest
 import xarray as xr
+import warnings
 from numpy.testing import assert_allclose, assert_equal
 from xarray.core import formatting
 from xarray.core.dataarray import DataArray
@@ -258,3 +259,17 @@ def test_implementations_agree(ds, dim, axis, request):
         masked_value=None,
     )
     bitinfo_assert_allclose(bi_python, bi_julia, rtol=1e-4)
+
+
+@pytest.mark.parametrize("implementation", ["python", "julia"])
+@pytest.mark.parametrize("dataset_name", ["air_temperature", "eraint_uvz"])
+def test_warn_on_quantized_variables(dataset_name, implementation):
+    ds_quantized = xr.tutorial.load_dataset(dataset_name)
+    ds_raw = xr.tutorial.load_dataset(dataset_name, mask_and_scale=False)
+
+    with pytest.warns(UserWarning):
+        _ = xb.get_bitinformation(ds_quantized, implementation=implementation)
+
+    with warnings.catch_warnings():
+        warnings.simplefilter("error")
+        _ = xb.get_bitinformation(ds_raw, implementation=implementation)
