@@ -271,16 +271,19 @@ def get_bitinformation(  # noqa: C901
 
 
 def _quantized_variable_is_scaled(ds: xr.DataArray, var: str) -> bool:
-    loaded_dtype = ds[var].dtype
-    quantized_storage_dtype = ds[var].encoding["dtype"]
-    has_scale_or_offset = any(
-        ["add_offset" in ds[var].encoding, "scale_factor" in ds[var].encoding]
-    )
+    has_scale_or_offset = any(["add_offset" in ds[var].encoding, "scale_factor" in ds[var].encoding])
 
-    if has_scale_or_offset and quantized_storage_dtype != loaded_dtype:
-        return True
-    else:
+    if not has_scale_or_offset:
         return False
+
+    loaded_dtype = ds[var].dtype
+    storage_dtype = ds[var].encoding.get("dtype", None)
+    assert storage_dtype is not None, f"Variable {var} is likely quantized, but does not have a storage dtype"
+
+    if loaded_dtype == storage_dtype:
+        return False
+
+    return True
 
 
 def _jl_get_bitinformation(ds, var, axis, dim, kwargs={}):
