@@ -169,7 +169,9 @@ def test_get_bitinformation_dtype(rasm, dtype, implementation):
         dtype_bits = np.finfo(dtype).bits
     elif dtype.kind == "i" or dtype.kind == "u":
         dtype_bits = np.iinfo(dtype).bits
-    assert len(xb.get_bitinformation(ds, dim="x")[v].coords["bit" + dtype]) == dtype_bits
+    assert (
+        len(xb.get_bitinformation(ds, dim="x")[v].coords["bit" + dtype]) == dtype_bits
+    )
 
 
 @pytest.mark.parametrize("implementation", ["julia", "python"])
