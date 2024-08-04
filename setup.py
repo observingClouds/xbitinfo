@@ -17,7 +17,7 @@ with open("requirements.txt") as f:
 test_requirements = ["pytest", "pooch", "netcdf4", "dask"]
 
 extras_require = {
-    "viz": ["matplotlib", "cmcrameri"],
+    "viz": ["matplotlib<3.9.1", "cmcrameri"],
     "prefect": ["prefect>=1.0.0,<2.0"],
     "io": ["netcdf4", "zarr"],
     "julia": ["julia"],

@@ -362,7 +362,15 @@ def _get_bitinformation_kwargs_handler(da, kwargs):
     """Helper function to preprocess kwargs args of :py:func:`xbitinfo.xbitinfo.get_bitinformation`."""
     kwargs_var = kwargs.copy()
     if "masked_value" not in kwargs_var:
-        kwargs_var["masked_value"] = f"convert({str(da.dtype).capitalize()},NaN)"
+        if da.dtype.kind == "i" or da.dtype.kind == "u":
+            logging.warning(
+                "No masked value given for integer type variable. Assuming no mask to apply."
+            )
+            kwargs_var["masked_value"] = "nothing"
+        elif da.dtype.kind == "f":
+            kwargs_var["masked_value"] = f"convert({str(da.dtype).capitalize()},NaN)"
+        else:
+            raise ValueError(f"Dtype kind ({da.dtype.kind}) not supported.")
     elif kwargs_var["masked_value"] is None:
         kwargs_var["masked_value"] = "nothing"
     if "set_zero_insignificant" not in kwargs_var:
@@ -678,12 +686,14 @@ def get_prefect_flow(paths=[]):
     Example
     -------
     Imagine n files of identical structure, i.e. 1-year per file climate model output:
+
     >>> ds = xr.tutorial.load_dataset("rasm")
     >>> year, datasets = zip(*ds.groupby("time.year"))
     >>> paths = [f"{y}.nc" for y in year]
     >>> xr.save_mfdataset(datasets, paths)
 
     Create prefect.Flow and run sequentially
+
     >>> flow = xb.get_prefect_flow(paths=paths)
     >>> import prefect
     >>> logger = prefect.context.get("logger")
@@ -691,9 +701,11 @@ def get_prefect_flow(paths=[]):
     >>> st = flow.run()
 
     Inspect flow state
+
     >>> # flow.visualize(st)  # requires graphviz
 
     Run in parallel with dask:
+
     >>> import os  # https://docs.xarray.dev/en/stable/user-guide/dask.html
     >>> os.environ["HDF5_USE_FILE_LOCKING"] = "FALSE"
     >>> from prefect.executors import DaskExecutor, LocalDaskExecutor
@@ -707,14 +719,14 @@ def get_prefect_flow(paths=[]):
     >>> # flow.run(executor=executor, parameters=dict(overwrite=True))
 
     Modify parameters of a flow:
+
     >>> flow.run(parameters=dict(inflevel=0.9999, overwrite=True))
     <Success: "All reference tasks succeeded.">
 
     See also
     --------
-    - https://examples.dask.org/applications/prefect-etl.html
-    - https://docs.prefect.io/core/getting_started/basic-core-flow.html
-
+    `ETL Pipelines with Prefect <https://examples.dask.org/applications/prefect-etl.html/>`__ and
+    `Run a flow <https://docs.prefect.io/core/getting_started/basic-core-flow.html>`__
     """
 
     from prefect import Flow, Parameter, task, unmapped
