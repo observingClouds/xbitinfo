@@ -163,6 +163,7 @@ def test_get_bitinformation_label(rasm, implementation):
 @pytest.mark.parametrize("dtype", ["float64", "float32", "float16", "int16"])
 def test_get_bitinformation_dtype(rasm, dtype, implementation):
     """Test xb.get_bitinformation returns correct number of bits depending on dtype."""
+    dtype = np.dtype(dtype)
     ds = rasm.astype(dtype)
     v = list(ds.data_vars)[0]
     if dtype.kind == "f":
@@ -170,7 +171,7 @@ def test_get_bitinformation_dtype(rasm, dtype, implementation):
     elif dtype.kind == "i" or dtype.kind == "u":
         dtype_bits = np.iinfo(dtype).bits
     assert (
-        len(xb.get_bitinformation(ds, dim="x")[v].coords["bit" + dtype]) == dtype_bits
+        len(xb.get_bitinformation(ds, dim="x")[v].coords["bit" + str(dtype)]) == dtype_bits
     )
 
 
