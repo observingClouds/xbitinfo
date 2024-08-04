@@ -392,7 +392,15 @@ def _get_bitinformation_kwargs_handler(da, kwargs):
     """Helper function to preprocess kwargs args of :py:func:`xbitinfo.xbitinfo.get_bitinformation`."""
     kwargs_var = kwargs.copy()
     if "masked_value" not in kwargs_var:
-        kwargs_var["masked_value"] = f"convert({str(da.dtype).capitalize()},NaN)"
+        if da.dtype.kind == "i" or da.dtype.kind == "u":
+            logging.warning(
+                "No masked value given for integer type variable. Assuming no mask to apply."
+            )
+            kwargs_var["masked_value"] = "nothing"
+        elif da.dtype.kind == "f":
+            kwargs_var["masked_value"] = f"convert({str(da.dtype).capitalize()},NaN)"
+        else:
+            raise ValueError(f"Dtype kind ({da.dtype.kind}) not supported.")
     elif kwargs_var["masked_value"] is None:
         kwargs_var["masked_value"] = "nothing"
     if "set_zero_insignificant" not in kwargs_var:

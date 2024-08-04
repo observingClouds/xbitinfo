@@ -13,7 +13,7 @@ jobs:
     outputs:
       triggered: '${{ steps.detect-trigger.outputs.trigger-found }}'
     steps:
-      - uses: actions/checkout@v4.1.4
+      - uses: actions/checkout@v4.1.7
         with:
           fetch-depth: 2
       - uses: xarray-contrib/ci-trigger@v1.2.1
@@ -29,7 +29,7 @@ jobs:
       run:
         shell: 'bash -l {0}'
     steps:
-      - uses: actions/checkout@v4.1.4
+      - uses: actions/checkout@v4.1.7
         with:
           fetch-depth: 0
       - name: Set up conda
@@ -59,7 +59,7 @@ jobs:
       run:
         shell: 'bash -l {0}'
     steps:
-      - uses: actions/checkout@v4.1.4
+      - uses: actions/checkout@v4.1.7
       - uses: conda-incubator/setup-miniconda@v3.0.4
         with:
           channels: conda-forge
@@ -89,7 +89,7 @@ jobs:
       run:
         shell: 'bash -l {0}'
     steps:
-      - uses: actions/checkout@v4.1.4
+      - uses: actions/checkout@v4.1.7
       - name: Set up conda
         uses: conda-incubator/setup-miniconda@v3.0.4
         with:
@@ -127,15 +127,15 @@ jobs:
           - macos-latest
           - windows-latest
     steps:
-      - uses: actions/checkout@v4.1.4
+      - uses: actions/checkout@v4.1.7
         with:
           fetch-depth: 0
       - name: Setup python
-        uses: actions/setup-python@v5.1.0
+        uses: actions/setup-python@v5.1.1
         with:
           python-version: '3.11'
       - name: Set up Julia
-        uses: julia-actions/setup-julia@v2.0.0
+        uses: julia-actions/setup-julia@v2.3.0
         with:
           version: 1.7.1
       - name: Install dependencies
