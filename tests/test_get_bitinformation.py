@@ -160,7 +160,7 @@ def test_get_bitinformation_label(rasm, implementation):
 
 
 @pytest.mark.parametrize("implementation", ["julia", "python"])
-@pytest.mark.parametrize("dtype", ["float64", "float32", "float16"])
+@pytest.mark.parametrize("dtype", ["float64", "float32", "float16", "int16"])
 def test_get_bitinformation_dtype(rasm, dtype, implementation):
     """Test xb.get_bitinformation returns correct number of bits depending on dtype."""
     ds = rasm.astype(dtype)
