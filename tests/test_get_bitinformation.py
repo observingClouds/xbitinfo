@@ -171,7 +171,8 @@ def test_get_bitinformation_dtype(rasm, dtype, implementation):
     elif dtype.kind == "i" or dtype.kind == "u":
         dtype_bits = np.iinfo(dtype).bits
     assert (
-        len(xb.get_bitinformation(ds, dim="x")[v].coords["bit" + str(dtype)]) == dtype_bits
+        len(xb.get_bitinformation(ds, dim="x")[v].coords["bit" + str(dtype)])
+        == dtype_bits
     )
 
 
