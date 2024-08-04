@@ -362,7 +362,7 @@ def _get_bitinformation_kwargs_handler(da, kwargs):
     """Helper function to preprocess kwargs args of :py:func:`xbitinfo.xbitinfo.get_bitinformation`."""
     kwargs_var = kwargs.copy()
     if "masked_value" not in kwargs_var:
-        if da.dtype.kind == "i":
+        if da.dtype.kind == "i" or da.dtype.kind == "u":
             logging.warning(
                 "No masked value given for integer type variable. Assuming no mask to apply."
             )
