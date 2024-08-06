@@ -1,6 +1,7 @@
 import json
 import logging
 import os
+import warnings
 
 import numpy as np
 import xarray as xr
@@ -233,6 +234,15 @@ def get_bitinformation(  # noqa: C901
         pbar = tqdm(ds.data_vars)
         for var in pbar:
             pbar.set_description(f"Processing var: {var} for dim: {dim}")
+
+            if _quantized_variable_is_scaled(ds, var):
+                loaded_dtype = ds[var].dtype
+                quantized_storage_dtype = ds[var].encoding["dtype"]
+                warnings.warn(
+                    f"Variable {var} is quantized as {quantized_storage_dtype}, but loaded as {loaded_dtype}. Consider reopening using `mask_and_scale=False` to get sensible results",
+                    category=UserWarning,
+                )
+
             if implementation == "julia":
                 info_per_bit_var = _jl_get_bitinformation(ds, var, axis, dim, kwargs)
                 if info_per_bit_var is None:
@@ -258,6 +268,26 @@ def get_bitinformation(  # noqa: C901
         for a in ds[var].attrs.keys():
             info_per_bit[var].attrs["source_" + a] = ds[var].attrs[a]
     return info_per_bit
+
+
+def _quantized_variable_is_scaled(ds: xr.DataArray, var: str) -> bool:
+    has_scale_or_offset = any(
+        ["add_offset" in ds[var].encoding, "scale_factor" in ds[var].encoding]
+    )
+
+    if not has_scale_or_offset:
+        return False
+
+    loaded_dtype = ds[var].dtype
+    storage_dtype = ds[var].encoding.get("dtype", None)
+    assert (
+        storage_dtype is not None
+    ), f"Variable {var} is likely quantized, but does not have a storage dtype"
+
+    if loaded_dtype == storage_dtype:
+        return False
+
+    return True
 
 
 def _jl_get_bitinformation(ds, var, axis, dim, kwargs={}):
