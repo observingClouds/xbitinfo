@@ -5,6 +5,7 @@ CHANGELOG
 X.X.X (unreleased)
 ------------------
 
+* Improve test/docs environment separation (:pr:`275`, :issue:`267`) `Aryan Bakliwal`_.
 * Set default masked value to None for integers (:pr:`289`) `Hauke Schulz`_.
 * Add basic filter to remove artificial information from bitinformation (:pr:`280`, :issue:`209`) `Ishaan Jain`_.
 * Add support for additional datatypes in :py:func:`xbitinfo.xbitinfo.plot_bitinformation` (:pr:`218`, :issue:`168`) `Hauke Schulz`_.
