@@ -5,7 +5,7 @@ CHANGELOG
 X.X.X (unreleased)
 ------------------
 
-* Update BitInformation.jl version to v0.6.2 (:pr:`291`) `Hauke Schulz`_
+* Update BitInformation.jl version to v0.6.3 (:pr:`292`) `Hauke Schulz`_
 * Improve test/docs environment separation (:pr:`275`, :issue:`267`) `Aryan Bakliwal`_.
 * Set default masked value to None for integers (:pr:`289`) `Hauke Schulz`_.
 * Add basic filter to remove artificial information from bitinformation (:pr:`280`, :issue:`209`) `Ishaan Jain`_.
