@@ -113,7 +113,7 @@ def _add_to_julia_project(Main, io_arg):
     Main.bitinformation_spec = Main.PackageSpec(
         name="BitInformation",
         url="https://github.com/milankl/BitInformation.jl",
-        rev="v0.6.2",
+        rev="v0.6.3",
     )
     Main.statsbase_spec = Main.PackageSpec(
         name="StatsBase",

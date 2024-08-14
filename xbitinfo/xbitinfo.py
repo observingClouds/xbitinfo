@@ -159,7 +159,7 @@ def get_bitinformation(  # noqa: C901
       * bitfloat64  (bitfloat64) <U3 768B '±' 'e1' 'e2' 'e3' ... 'm50' 'm51' 'm52'
         dim         <U3 12B 'lon'
     Data variables:
-        air         (bitfloat64) float64 512B 0.0 0.0 0.0 ... 0.002847 0.0 0.0005092
+        air         (bitfloat64) float64 512B 0.0 0.0 0.0 ... 0.002848 0.0 0.0005048
     Attributes:
         xbitinfo_description:       bitinformation calculated by xbitinfo.get_bit...
         python_repository:          https://github.com/observingClouds/xbitinfo
@@ -174,7 +174,7 @@ def get_bitinformation(  # noqa: C901
       * bitfloat64  (bitfloat64) <U3 768B '±' 'e1' 'e2' 'e3' ... 'm50' 'm51' 'm52'
       * dim         (dim) <U4 48B 'lat' 'lon' 'time'
     Data variables:
-        air         (dim, bitfloat64) float64 2kB 0.0 0.0 0.0 ... 0.0 0.0004498
+        air         (dim, bitfloat64) float64 2kB 0.0 0.0 0.0 ... 0.0 0.0004506
     Attributes:
         xbitinfo_description:       bitinformation calculated by xbitinfo.get_bit...
         python_repository:          https://github.com/observingClouds/xbitinfo
@@ -476,7 +476,7 @@ def get_cdf_without_artificial_information(
       * dim       (dim) <U4 48B 'lat' 'lon' 'time'
       * inflevel  (inflevel) float64 8B 0.99
     Data variables:
-        air       (dim, inflevel) int64 24B 5 6 6
+        air       (dim, inflevel) int64 24B 5 7 6
     """
 
     # Extract coordinates from the 'info_per_bit' dataset.
@@ -570,7 +570,7 @@ def get_keepbits(info_per_bit, inflevel=0.99, information_filter=None, **kwargs)
         dim       <U3 12B 'lon'
       * inflevel  (inflevel) float64 8B 0.99
     Data variables:
-        air       (inflevel) int64 8B 6
+        air       (inflevel) int64 8B 7
     >>> xb.get_keepbits(info_per_bit, inflevel=0.99999999)
     <xarray.Dataset> Size: 28B
     Dimensions:   (inflevel: 1)
@@ -595,7 +595,7 @@ def get_keepbits(info_per_bit, inflevel=0.99, information_filter=None, **kwargs)
       * dim       (dim) <U4 48B 'lat' 'lon' 'time'
       * inflevel  (inflevel) float64 8B 0.99
     Data variables:
-        air       (dim, inflevel) int64 24B 5 6 6
+        air       (dim, inflevel) int64 24B 5 7 6
     """
     if not isinstance(inflevel, list):
         inflevel = [inflevel]
