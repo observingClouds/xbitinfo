@@ -99,8 +99,12 @@ def test_get_bitinformation_masked_value(implementation="julia"):
     bitinfo_no_mask_None = xb.get_bitinformation(
         ds, dim="x", masked_value=None, implementation=implementation
     )
+    bitinfo_fillna = xb.get_bitinformation(
+        ds.fillna(-999), dim="x", masked_value=-999.0, implementation=implementation
+    )
     assert_identical(bitinfo_no_mask, bitinfo_no_mask_None)
     assert_identical(bitinfo, bitinfo_no_mask)
+    assert_different(bitinfo, bitinfo_fillna)
 
 
 @pytest.mark.parametrize("implementation", ["julia", "python"])
