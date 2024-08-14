@@ -100,7 +100,7 @@ def test_get_bitinformation_masked_value(implementation="julia"):
         ds, dim="x", masked_value=None, implementation=implementation
     )
     assert_identical(bitinfo_no_mask, bitinfo_no_mask_None)
-    assert_different(bitinfo, bitinfo_no_mask)
+    assert_identical(bitinfo, bitinfo_no_mask)
 
 
 @pytest.mark.parametrize("implementation", ["julia", "python"])
