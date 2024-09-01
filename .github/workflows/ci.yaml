@@ -134,11 +134,11 @@ jobs:
         with:
           fetch-depth: 0
       - name: Setup python
-        uses: actions/setup-python@v5.1.1
+        uses: actions/setup-python@v5.2.0
         with:
           python-version: '3.11'
       - name: Set up Julia
-        uses: julia-actions/setup-julia@v2.3.0
+        uses: julia-actions/setup-julia@v2.4.0
         with:
           version: 1.7.1
       - name: Install dependencies
