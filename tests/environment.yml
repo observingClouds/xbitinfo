@@ -2,7 +2,7 @@ name: bitinfo-tests
 channels:
   - conda-forge
 dependencies:
-  - python
+  - python<3.13
   - julia<1.9.0
   - pyjulia
   - libcurl<3.10
