@@ -100,7 +100,7 @@ jobs:
           python-version: '3.11'
       - name: Set up conda environment
         run: |
-          mamba env update -f docs/environment.yml
+          mamba env -f docs/environment.yml
       - name: Remove julia (issue #212)
         run: |
           conda remove julia
