@@ -5,7 +5,6 @@ dependencies:
   - python<3.13
   - julia<1.9.0
   - pyjulia
-  - curl<3.10
   - matplotlib-base
   - numpy
   - pooch
