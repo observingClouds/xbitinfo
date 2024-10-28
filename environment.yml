@@ -2,9 +2,10 @@ name: bitinfo
 channels:
   - conda-forge
 dependencies:
-  - python
+  - python<3.13
   - julia<1.9.0
   - pyjulia
+  - curl<8.10
   - matplotlib-base
   - numpy
   - pooch

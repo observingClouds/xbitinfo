@@ -5,6 +5,7 @@ CHANGELOG
 X.X.X (unreleased)
 ------------------
 
+* Limit libcurl version to fix recent binary issues (:pr:`297`) `Hauke Schulz`_.
 * Add warning for quantized variables (:pr:`286`, :issue:`202`) `Joel Jaeschke`_.
 * Update BitInformation.jl version to v0.6.3 (:pr:`292`) `Hauke Schulz`_
 * Improve test/docs environment separation (:pr:`275`, :issue:`267`) `Aryan Bakliwal`_.
