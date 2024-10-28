@@ -98,9 +98,7 @@ jobs:
           miniforge-variant: Mambaforge
           activate-environment: bitinfo-docs
           python-version: '3.11'
-      - name: Set up conda environment
-        run: |
-          mamba env -f docs/environment.yml
+          environment-file: docs/environment.yml
       - name: Remove julia (issue #212)
         run: |
           conda remove julia
