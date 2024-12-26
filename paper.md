@@ -40,13 +40,15 @@ JPEG uses a perceptual model of the human eye to decide on whether or not to kee
 Linear quantization and logarithmic quantization are commonly used with geospatial data, not the least because it is the standard algorithm shipped with the GRIB format.
 
 The issue with quantizations are however....
+
 - abitrary thresholds
 - thresholds should depend on the variable, high level, ...
 - as a consequence lack of information or too much unneeded information stored
 
-`klower_compressing_2021:2021` has developed an algorithm that can destinguish between real and artificial information content based on information theory. It further allows to set a threshold for the real information content that shall be preserved in case additional compression is needed.
+@klower_compressing_2021 has developed an algorithm that can destinguish between real and artificial information content based on information theory. It further allows to set a threshold for the real information content that shall be preserved in case additional compression is needed.
 
 As typical for lossy-compressions, parameters can be set to influence the loss. In case of the bitinformation algorithm, the `inflevel` parameter can be set to decide on the percentage of real information content to be preserved. after applying the bitinformation-informed bitrounding. The compression can therefore be split into three main stages:
+
  - **Bitinformation**: analysing the bitinformation content
  - **Bitrounding**:
     - deciding on information content to keep (inflevel)
@@ -55,16 +57,16 @@ As typical for lossy-compressions, parameters can be set to influence the loss. 
  - **Compression**:
     - applying (lossless) compression
 
-All stages are shown in Fig. \autoref{fig:general_workflow}.
+All stages are shown in \autoref{fig:general_workflow}.
 ![General workflow.\label{fig:general_workflow}](general_workflow.png){ width=40% }
 
-One can set the `inflevel` and use implementation offered by CDO (>=v2.1.0), numcodecs (>=v) or the Julia implementation provided by `klower_compressing_2021:2021`. However, in practice the decision on how much information shall be kept needs testing with the downstream tools and is often an iterative process to ensure consistent behaviour with the original dataset. The gathering of the bitinformation and the decision on the bitrounding parameters are therefore often not immediately following each other and are interrupted by visual inspection and testing (see Fig. \autoref{fig:xbitinfo_workflow})
+One can set the `inflevel` and use implementation offered by CDO (>=v2.1.0), numcodecs (>=v) or the Julia implementation provided by @klower_compressing_2021. However, in practice the decision on how much information shall be kept needs testing with the downstream tools and is often an iterative process to ensure consistent behaviour with the original dataset. The gathering of the bitinformation and the decision on the bitrounding parameters are therefore often not immediately following each other and are interrupted by visual inspection and testing (see \autoref{fig:xbitinfo_workflow})
 
 ![Xbitinfo workflow with the addition of storing the computational expensive retrieval of the bitinformation content in a JSON file for later reference and the ability to evaluate and adjust the keepbits on subsets of the original dataset.\label{fig:xbitinfo_workflow}](xbitinfo_workflow.png){ width=40% }
 
-Xbitinfo therefore provides additional convience functions over  `klower_compressing_2021:2021` to analyse, filter and visualize the information content. Because Xbitinfo operates on xarray `Datasets` it can also handle a large variety of input and output formats, like netCDF and Zarr and naturally fit into several current scientific workflows. Thanks to the xarray-compatibility it can also make use of a wide range of modern compression algorithms that are implemented for the specific output data formats to utilize the additional compression gains due to reduced information.
+Xbitinfo therefore provides additional convience functions over  @klower_compressing_2021 to analyse, filter and visualize the information content. Because Xbitinfo operates on xarray `Datasets` it can also handle a large variety of input and output formats, like netCDF and Zarr and naturally fit into several current scientific workflows. Thanks to the xarray-compatibility it can also make use of a wide range of modern compression algorithms that are implemented for the specific output data formats to utilize the additional compression gains due to reduced information.
 
-Xbitinfo provides two backends for the calculation of the bitinformation content, one wraps the latest Julia implementation provided with `klower_compressing_2021:2021` for consistency and the other uses numpy to be dask compatible and more performant.
+Xbitinfo provides two backends for the calculation of the bitinformation content, one wraps the latest Julia implementation provided with @klower_compressing_2021 for consistency and the other uses numpy to be dask compatible and more performant.
 
 
 # Example
