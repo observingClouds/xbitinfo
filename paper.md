@@ -33,9 +33,9 @@ The geospatial field as all other fields are generating more and more data, whil
 
 Lossless compressions like zstd and zip are able to reduce storage consumptions without removing a single bit. Often this very conservative behaviour is however unnecessary because not all the bits are needed for the later usecase of the data or even meaningfull due to e.g. hardware limitations and numerical rounding errors.
 
-Lossy compressions are therefore often used to remove the unnecessary bits with JPEG being a very promintent example of such compressor.
+Lossy compressions are therefore often used to remove the unnecessary bits with JPEG and MP3 being very promintent examples of such a compressor.
 
-JPEG uses a perceptual model of the human eye to decide on whether or not to keep information. While this approach is acceptable for the publication of a scientific figure, it is not for the original data that still undergoes mathematical operations, like gradients. Such operations require a mathematically stable reduction in information content.
+JPEG and MP3 use perceptual models of the human visual and auditory system to decide on whether or not to keep information [@jpeg_iso;@mp3_iso]. While this approach is acceptable for the publication of a scientific figure, it is not for the original data that still undergoes mathematical operations, like gradients. Such operations require a mathematically stable reduction in information content.
 
 Linear quantization and logarithmic quantization are commonly used with geospatial data, not the least because it is the standard algorithm shipped with the GRIB format.
 
