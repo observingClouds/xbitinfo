@@ -37,17 +37,14 @@ Lossy compressions are therefore often used to remove the unnecessary bits with 
 
 JPEG and MP3 use perceptual models of the human visual and auditory system to decide on whether or not to keep information [@jpeg_iso;@mp3_iso]. While this approach is acceptable for the publication of a scientific figure, it is not for the original data that still undergoes mathematical operations, like gradients. Such operations require a mathematically stable reduction in information content.
 
-Linear quantization and logarithmic quantization are commonly used with geospatial data, not the least because it is the standard algorithm shipped with the GRIB format.
+Linear quantization are commonly used with geospatial data, not the least because it is the standard algorithm shipped with the GRIB format.
 
-The issue with quantizations are however....
+The issue with linear quantization is however that it often is not a good mapping for geophysical quantities with a more logarithmical distribution.
+Further, the number of preserved mantissa bits after the quantization process is often applied to an entire set of variables and dimensions. As a consequence some variables have too little information preserved while others kept too much (artifical) information.
 
-- abitrary thresholds
-- thresholds should depend on the variable, high level, ...
-- as a consequence lack of information or too much unneeded information stored
+@klower_compressing_2021 has developed an algorithm that can distinguish between real and artificial information content based on information theory. It further allows to set a threshold for the real information content that shall be preserved in case additional compression is needed beyond the filtering of artificial information.
 
-@klower_compressing_2021 has developed an algorithm that can destinguish between real and artificial information content based on information theory. It further allows to set a threshold for the real information content that shall be preserved in case additional compression is needed.
-
-As typical for lossy-compressions, parameters can be set to influence the loss. In case of the bitinformation algorithm, the `inflevel` parameter can be set to decide on the percentage of real information content to be preserved. after applying the bitinformation-informed bitrounding. The compression can therefore be split into three main stages:
+As typical for lossy-compressions, parameters can be set to influence the loss. In case of the bitinformation algorithm, the `inflevel` parameter can be set to decide on the percentage of real information content to be preserved. The compression can therefore be split into three main stages:
 
  - **Bitinformation**: analysing the bitinformation content
  - **Bitrounding**:
@@ -89,23 +86,8 @@ ds.to_compressed_zarr("/path/to/output/file")
 
 It should be noted that the BitInformation algorithm relies on uncompressed data that hasn't been manipulated beforehand. A common issue is that climate model output has been linearily quantized during its generation, e.g. because it has been written to the GRIB format. Such datasets should be handeled with care as the bitinformation often contains artificial information resulting in too many keepbits. Filters to capture those cases are currently developed within xbitinfo to warn the user.
 
-
-<!-- # Citations
-
-Citations to entries in paper.bib should be in
-[rMarkdown](http://rmarkdown.rstudio.com/authoring_bibliographies_and_citations.html)
-format.
-
-If you want to cite a software repository URL (e.g. something on GitHub without a preferred
-citation) then you can do it with the example BibTeX entry below for @fidgit.
-
-For a quick reference, the following citation commands can be used:
-- `@author:2001`  ->  "Author et al. (2001)"
-- `[@author:2001]` -> "(Author et al., 2001)"
-- `[@author1:2001; @author2:2001]` -> "(Author1 et al., 2001; Author2 et al., 2002)" -->
-
 # Acknowledgements
 
-We acknowledge contributions from ...
+We acknowledge all GitHub contributors that helped and continue to help to improve Xbitinfo and its dependencies, namely ...
 
 # References
