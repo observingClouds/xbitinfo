@@ -25,7 +25,7 @@ bibliography: paper.bib
 
 # Summary
 
-Xbitinfo combines the workflow elements needed to analyse datasets based on their information content and to compress accordingly in one software package. Xbitinfo provides additional tools to visualize information histograms and to make informed decisions on the information threshold. Being based on xarray Datasets it allows to interact with a range of common input and output dataformats, including all numcodes compression algorithms.
+Xbitinfo combines the workflow elements needed to analyse datasets based on their information content and to compress accordingly in one software package. Xbitinfo provides additional tools to visualize information histograms and to make informed decisions on the information threshold. Being based on xarray Datasets it allows to interact with a range of common input and output dataformats, including all numcodecs compression algorithms.
 
 # Statement of need
 
@@ -57,7 +57,7 @@ As typical for lossy-compressions, parameters can be set to influence the loss. 
 All stages are shown in \autoref{fig:general_workflow}.
 ![General workflow.\label{fig:general_workflow}](general_workflow.png){ width=40% }
 
-One can set the `inflevel` and use implementation offered by CDO (>=v2.1.0), numcodecs (>=v) or the Julia implementation provided by @klower_compressing_2021. However, in practice the decision on how much information shall be kept needs testing with the downstream tools and is often an iterative process to ensure consistent behaviour with the original dataset. The gathering of the bitinformation and the decision on the bitrounding parameters are therefore often not immediately following each other and are interrupted by visual inspection and testing (see \autoref{fig:xbitinfo_workflow})
+The Bitrounding is supported by many libraries (e.g. CDO, netCDF, numcodecs). One can also set the `inflevel` and get the according number of keepbits with the Julia implementation provided by @klower_compressing_2021. However, this requires the usage of several libraries of different software stacks and in practice the decision on how much information shall be kept needs testing with the downstream tools and is often an iterative process to ensure consistent behaviour with the original dataset. The gathering of the bitinformation and the decision on the bitrounding parameters are therefore often not immediately following each other and are interrupted by visual inspection and testing (see \autoref{fig:xbitinfo_workflow})
 
 ![Xbitinfo workflow with the addition of storing the computational expensive retrieval of the bitinformation content in a JSON file for later reference and the ability to evaluate and adjust the keepbits on subsets of the original dataset.\label{fig:xbitinfo_workflow}](xbitinfo_workflow.png){ width=40% }
 
