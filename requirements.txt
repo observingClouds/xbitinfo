@@ -1,4 +1,4 @@
 dask
-xarray
+xarray==2024.11.0
 tqdm
 numcodecs>=0.10.0
