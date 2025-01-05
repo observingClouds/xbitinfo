@@ -97,7 +97,7 @@ def xr_bitround(da, keepbits):
     keep = _keepbits_interface(da, keepbits)
 
     da = xr.apply_ufunc(_np_bitround, da, keep, dask="parallelized", keep_attrs=True)
-    da.attrs["_QuantizeBitRoundNumberOfSignificantDigits"] = keep
+    da.attrs["_QuantizeBitRoundNumberOfSignificantDigits"] = np.array(keep)
     return da
 
 
