@@ -5,6 +5,7 @@ CHANGELOG
 X.X.X (unreleased)
 ------------------
 
+* Fix CI setup-miniconda action (:pr:`299`) `Hauke Schulz`_.
 * Limit libcurl version to fix recent binary issues (:pr:`297`) `Hauke Schulz`_.
 * Add warning for quantized variables (:pr:`286`, :issue:`202`) `Joel Jaeschke`_.
 * Update BitInformation.jl version to v0.6.3 (:pr:`292`) `Hauke Schulz`_
