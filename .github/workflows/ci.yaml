@@ -33,11 +33,11 @@ jobs:
         with:
           fetch-depth: 0
       - name: Set up conda
-        uses: conda-incubator/setup-miniconda@v3.0.4
+        uses: conda-incubator/setup-miniconda@v3.1.0
         with:
           auto-update-conda: false
           channels: conda-forge
-          miniforge-variant: Mambaforge
+          miniforge-version: latest
           activate-environment: bitinfo-tests
           python-version: '3.11'
           environment-file: tests/environment.yml
@@ -58,10 +58,10 @@ jobs:
         shell: 'bash -l {0}'
     steps:
       - uses: actions/checkout@v4.2.2
-      - uses: conda-incubator/setup-miniconda@v3.0.4
+      - uses: conda-incubator/setup-miniconda@v3.1.0
         with:
           channels: conda-forge
-          miniforge-variant: Mambaforge
+          miniforge-version: latest
           activate-environment: bitinfo-tests
           auto-update-conda: false
           python-version: '3.11'
@@ -87,11 +87,11 @@ jobs:
     steps:
       - uses: actions/checkout@v4.2.2
       - name: Set up conda
-        uses: conda-incubator/setup-miniconda@v3.0.4
+        uses: conda-incubator/setup-miniconda@v3.1.0
         with:
           auto-update-conda: false
           channels: conda-forge
-          miniforge-variant: Mambaforge
+          miniforge-version: latest
           activate-environment: bitinfo-docs
           python-version: '3.11'
           environment-file: docs/environment.yml
