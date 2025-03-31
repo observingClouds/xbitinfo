@@ -32,10 +32,8 @@ accordingly. Xbitinfo provides additional tools to visualize the information his
 informed decisions on the real information threshold that is subsequently used as the preserved precision
 during the compression of arrays of floating-point numbers. In contrast, the false information is rounded
 to zero using bitrounding. Lossless compression subsequently exploits the high compressibility from tailing
-zero mantissa bits.
-
-Xbitinfo's functionality supports xarray datasets to interact with a range of common input and output
-dataformats, including all numcodecs compression algorithms. 
+zero mantissa bits. Xbitinfo's functionality supports xarray datasets to interact with a range of common
+input and output dataformats, including all numcodecs compression algorithms. 
 
 # Statement of need
 
