@@ -11,33 +11,55 @@ authors:
     orcid: 0000-0002-3920-4356
     affiliation: 3
   - name: Aaron Spring
-    affiliation: 3
+    affiliation: 4
 affiliations:
  - name: University of Washington, Seattle, USA
    index: 1
  - name: eScience Institute, University of Washington, Seattle, USA
    index: 2
- - name: Independent Researcher, Country
+ - name: University of Oxford, Oxford, UK
    index: 3
-date: 16 April 2024
+ - name: Independent Researcher, Country
+   index: 4
+date: 31 March 2025
 bibliography: paper.bib
 ---
 
 # Summary
 
-Xbitinfo combines the workflow elements needed to analyse datasets based on their information content and to compress accordingly in one software package. Xbitinfo provides additional tools to visualize information histograms and to make informed decisions on the information threshold. Being based on xarray Datasets it allows to interact with a range of common input and output dataformats, including all numcodecs compression algorithms.
+Xbitinfo analyses datasets based on their bitwise real information content and applies lossy compression accordingly.
+Xbitinfo provides additional tools to visualize the information histograms and to make informed decisions
+on the real information threshold that is subsequently used as the preserved precision during the compression of
+arrays of floating-point numbers. In contrast, the false information is rounded to zero using bitrounding.
+Lossless compression subsequently exploits the high compressibility from tailing zero mantissa bits.
+
+Xbitinfo's functionality supports xarray datasets to interact with a range of common input and output dataformats,
+including all numcodecs compression algorithms. 
 
 # Statement of need
 
-The geospatial field as all other fields are generating more and more data, while storage solutions have not increased at the same pace. In addition more and more data is stored in the cloud and egress fees and network speeds are more and more of a concern. Compression algorithms can help to reduce the pressure on these components significantly and are therefore commonly used.
+The geosciences,  similar to other research fields, are generating more and more data both through simulation and
+observation. At the same time, data storage solutions have not increased at the same pace.
+In addition more and more data is stored in the cloud and egress fees and network speeds are more and more of a concern.
+Compression algorithms can help to reduce the pressure on these components significantly and are therefore commonly used.
 
-Lossless compressions like zstd and zip are able to reduce storage consumptions without removing a single bit. Often this very conservative behaviour is however unnecessary because not all the bits are needed for the later usecase of the data or even meaningfull due to e.g. hardware limitations and numerical rounding errors.
+Lossless compressors like Zlib or Zstandard encode datasets exploiting redundancies without losing any information.
+This is often unnecessarily conservative as not all the bits are meaningful, i.e. they do not contain real information.
+They often encode unnecessarily high precision of floating-point numbers, several orders of magnitude higher than
+the uncertainty of the data (arising from e.g. model, numerical, observational or rounding errors) itself.
+Lossy compression is therefore often used, sacrificing bits with little to no real information, and from
+image and audio compression, JPEG and MP3 are two promintent examples.
+Geospatial data lacks a similarly widely accepted compression standard.
 
-Lossy compressions are therefore often used to remove the unnecessary bits with JPEG and MP3 being very promintent examples of such a compressor.
+JPEG and MP3 use perceptual models of the human visual and auditory system to decide on whether or not to keep
+information [@jpeg_iso;@mp3_iso]. While this approach is acceptable for the publication of a scientific figure,
+it may not yield a tolerable compression error for the original data that still undergoes mathematical operations,
+like gradients.
+Commonly used with geospatial data is linear quantization as it is a standard algorithm supported by the GRIB format.
 
-JPEG and MP3 use perceptual models of the human visual and auditory system to decide on whether or not to keep information [@jpeg_iso;@mp3_iso]. While this approach is acceptable for the publication of a scientific figure, it is not for the original data that still undergoes mathematical operations, like gradients. Such operations require a mathematically stable reduction in information content.
 
-Linear quantization are commonly used with geospatial data, not the least because it is the standard algorithm shipped with the GRIB format.
+
+ commonly used with geospatial data, not the least because it is the standard algorithm shipped with the GRIB format.
 
 The issue with linear quantization is however that it often is not a good mapping for geophysical quantities with a more logarithmical distribution.
 Further, the number of preserved mantissa bits after the quantization process is often applied to an entire set of variables and dimensions. As a consequence some variables have too little information preserved while others kept too much (artifical) information.
