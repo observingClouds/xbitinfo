@@ -1,4 +1,4 @@
-import matplotlib.cm as cm
+import matplotlib.colormaps as cm
 import numpy as np
 import xarray as xr
 
@@ -576,7 +576,8 @@ def plot_distribution(ds, nbins=1000, cmap="viridis", offset=0.01, close_zero=1e
         H[i, :] = H[i, :] / np.sum(H[i, :])  # normalize
 
     fig, ax = plt.subplots(1, 1, figsize=(5, 2 + nvars / 10))
-    colors = cm.get_cmap(cmap, nvars).colors
+    cmap_instance = cm[cmap]
+    colors = cmap_instance(np.linspace(0, 1, nvars))
 
     for i in range(nvars):
         c = colors[i]
