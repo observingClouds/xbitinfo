@@ -728,9 +728,12 @@ def get_prefect_flow(paths=[]):
 
     >>> flow = xb.get_prefect_flow(paths=paths)
     >>> import prefect
-    >>> logger = prefect.context.get("logger")
-    >>> logger.setLevel("ERROR")
-    >>> st = flow.run()
+    >>> from prefect import get_run_logger
+    >>> if __name__ == "__main__":
+    ...     logger = get_run_logger()
+    ...     logger.setLevel("ERROR")
+    ...     st = flow.run()
+    ...
 
     Inspect flow state
 
@@ -740,20 +743,21 @@ def get_prefect_flow(paths=[]):
 
     >>> import os  # https://docs.xarray.dev/en/stable/user-guide/dask.html
     >>> os.environ["HDF5_USE_FILE_LOCKING"] = "FALSE"
-    >>> from prefect.executors import DaskExecutor, LocalDaskExecutor
+    >>> from prefect_dask.task_runners import DaskTaskRunner
     >>> from dask.distributed import Client
-    >>> client = Client(n_workers=2, threads_per_worker=1, processes=True)
-    >>> executor = DaskExecutor(
-    ...     address=client.scheduler.address
-    ... )  # take your own client
-    >>> executor = DaskExecutor()  # use dask from prefect
-    >>> executor = LocalDaskExecutor()  # use dask local from prefect
-    >>> # flow.run(executor=executor, parameters=dict(overwrite=True))
+    >>> if __name__ == "__main__":
+    ...     client = Client(n_workers=2, threads_per_worker=1, processes=True)
+    ...     executor = DaskTaskRunner(
+    ...         address=client.scheduler.address
+    ...     )  # take your own client
+    ...     flow.run(executor=executor, parameters=dict(overwrite=True))
+    ...
 
     Modify parameters of a flow:
 
-    >>> flow.run(parameters=dict(inflevel=0.9999, overwrite=True))
-    <Success: "All reference tasks succeeded.">
+    >>> if __name__ == "__main__":
+    ...     flow.run(parameters=dict(inflevel=0.9999, overwrite=True))
+    ...
 
     See also
     --------
