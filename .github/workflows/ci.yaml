@@ -43,7 +43,7 @@ jobs:
       - name: Install the project
         run: uv sync --all-extras --dev
       - name: Run tests
-        run: uv run pytest tests
+        run: uv run --group test pytest tests
   doctest:
     name: doctests
     runs-on: ubuntu-latest
@@ -65,7 +65,7 @@ jobs:
         run: uv run pytest tests
       - name: Run doctests
         run: |
-          uv run pytest --doctest-modules xbitinfo --ignore xbitinfo/tests
+          uv run --group test pytest --doctest-modules xbitinfo --ignore xbitinfo/tests
   test_notebooks:
     name: notebooks
     runs-on: ubuntu-latest
