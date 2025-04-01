@@ -1,5 +1,6 @@
 import numcodecs
 import xarray as xr
+from zarr.codecs import BloscCodec, BloscShuffle
 
 
 def get_chunksizes(da, for_cdo=False, time_dim="time", chunks=None):
@@ -136,7 +137,7 @@ class ToCompressed_Netcdf:
 
 def get_compress_encoding_zarr(
     ds,
-    compressor=numcodecs.Blosc("zstd", shuffle=numcodecs.Blosc.BITSHUFFLE),
+    compressor=BloscCodec(cname="zstd", shuffle=BloscShuffle.bitshuffle),
 ):
     """Generate encoding for :py:meth:`xarray.Dataset.to_zarr`.
 
@@ -151,19 +152,18 @@ def get_compress_encoding_zarr(
     :py:meth:`xarray.Dataset.to_zarr`
     """
     encoding = {}
-    enc_checker = xr.backends.zarr.extract_zarr_variable_encoding
     if isinstance(compressor, dict):
-        default_compressor = numcodecs.Blosc("zstd", shuffle=numcodecs.Blosc.BITSHUFFLE)
+        default_compressor = BloscCodec(cname="zstd", shuffle=BloscShuffle.bitshuffle)
         encoding = {
-            v: {
-                **enc_checker(ds[v]),
-                "compressor": compressor.get(v, default_compressor),
-            }
+            v: {k: ds[v].encoding[k] for k in ds[v].encoding if k != "coordinates"}
+            | {"compressor": compressor.get(v, default_compressor)}
             for v in ds.data_vars
         }
     else:
         encoding = {
-            v: {**enc_checker(ds[v]), "compressor": compressor} for v in ds.data_vars
+            v: {k: ds[v].encoding[k] for k in ds[v].encoding if k != "coordinates"}
+            | {"compressor": compressor}
+            for v in ds.data_vars
         }
 
     return encoding
@@ -177,7 +177,7 @@ class ToCompressed_Zarr:
     ----------
     path : str, path-like or file-like
       Output location of compressed dataset
-    compressor : numcodecs
+    compressor : BloscCodec
       Compressor used for encoding. Defaults to zstd with bit-shuffling.
     kwargs : dict
       Arguments to be passed to :py:meth:`xarray.Dataset.to_zarr`
@@ -187,9 +187,9 @@ class ToCompressed_Zarr:
     >>> ds = xr.tutorial.load_dataset("rasm")
     >>> path = "compressed_rasm.zarr"
     >>> ds.to_compressed_zarr(path, mode="w")
-    >>> ds.to_compressed_zarr(path, compressor=numcodecs.Blosc("zlib"), mode="w")
+    >>> ds.to_compressed_zarr(path, compressor=BloscCodec(cname="zlib"), mode="w")
     >>> ds.to_compressed_zarr(
-    ...     path, compressor={"Tair": numcodecs.Blosc("zstd")}, mode="w"
+    ...     path, compressor={"Tair": BloscCodec(cname="zstd")}, mode="w"
     ... )
 
     See also
@@ -204,7 +204,7 @@ class ToCompressed_Zarr:
     def __call__(
         self,
         path,
-        compressor=numcodecs.Blosc("zstd", shuffle=numcodecs.Blosc.BITSHUFFLE),
+        compressor=BloscCodec(cname="zstd", shuffle=BloscShuffle.bitshuffle),
         **kwargs,
     ):
         self._obj.to_zarr(

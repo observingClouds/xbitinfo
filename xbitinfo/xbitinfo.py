@@ -6,6 +6,7 @@ import warnings
 import numpy as np
 import xarray as xr
 from dask import array as da
+from prefect import flow, task, unmapped
 
 try:
     from julia.api import Julia
@@ -759,9 +760,6 @@ def get_prefect_flow(paths=[]):
     `Run a flow <https://docs.prefect.io/core/getting_started/basic-core-flow.html>`__
     """
 
-    from prefect import Flow, Parameter, task, unmapped
-    from prefect.engine.signals import SKIP
-
     from .bitround import jl_bitround, xr_bitround
 
     @task
@@ -813,39 +811,41 @@ def get_prefect_flow(paths=[]):
                 try:
                     ds_new = xr.open_dataset(new_path, chunks=chunks)
                     ds = xr.open_dataset(path, chunks=chunks)
-                    if (
-                        ds.nbytes == ds_new.nbytes
-                    ):  # bitrounded and original have same number of bytes in memory
-                        raise SKIP(f"{new_path} already exists.")
+                    if ds.nbytes == ds_new.nbytes:
+                        raise ValueError(f"{new_path} already exists.")
                 except Exception as e:
                     print(
                         f"{type(e)} when xr.open_dataset({new_path}), therefore delete and recalculate."
                     )
                     os.remove(new_path)
+
         ds = xr.open_dataset(path, chunks=chunks)
         if enforce_dtype:
             ds = ds.astype(enforce_dtype)
+
         bitround_func = jl_bitround if bitround_in_julia else xr_bitround
         ds_bitround = bitround_func(ds, keepbits)
         ds_bitround.to_compressed_netcdf(new_path, complevel=complevel)
-        return
 
-    with Flow("xbitinfo_pipeline") as flow:
-        if paths == []:
+    @flow
+    def xbitinfo_pipeline(
+        paths,
+        analyse_paths="first",
+        dim=None,
+        axis=0,
+        inflevel=0.99,
+        label=None,
+        rename=[".nc", "_bitrounded_compressed.nc"],
+        overwrite=False,
+        bitround_in_julia=False,
+        complevel=7,
+        chunks=None,
+        enforce_dtype=None,
+        non_negative_keepbits=True,
+    ):
+        if not paths:
             raise ValueError("Please provide paths of files to bitround, found [].")
-        paths = Parameter("paths", default=paths)
-        analyse_paths = Parameter("analyse_paths", default="first")
-        dim = Parameter("dim", default=None)
-        axis = Parameter("axis", default=0)
-        inflevel = Parameter("inflevel", default=0.99)
-        label = Parameter("label", default=None)
-        rename = Parameter("rename", default=[".nc", "_bitrounded_compressed.nc"])
-        overwrite = Parameter("overwrite", default=False)
-        bitround_in_julia = Parameter("bitround_in_julia", default=False)
-        complevel = Parameter("complevel", default=7)
-        chunks = Parameter("chunks", default=None)
-        enforce_dtype = Parameter("enforce_dtype", default=None)
-        non_negative_keepbits = Parameter("non_negative_keepbits", default=True)
+
         keepbits = get_bitinformation_keepbits(
             paths,
             analyse_paths=analyse_paths,
@@ -855,7 +855,9 @@ def get_prefect_flow(paths=[]):
             label=label,
             enforce_dtype=enforce_dtype,
             non_negative_keepbits=non_negative_keepbits,
-        )  # once
+        )
+
+        # Parallel map
         bitround_and_save.map(
             paths,
             keepbits=unmapped(keepbits),
@@ -865,8 +867,7 @@ def get_prefect_flow(paths=[]):
             overwrite=unmapped(overwrite),
             enforce_dtype=unmapped(enforce_dtype),
             bitround_in_julia=unmapped(bitround_in_julia),
-        )  # parallel map
-    return flow
+        )
 
 
 class JsonCustomEncoder(json.JSONEncoder):

@@ -1,10 +1,10 @@
 import os
 import shutil
 
-import numcodecs
 import pytest
 import xarray as xr
 import zarr
+from zarr.codecs import BloscCodec, BloscShuffle
 
 import xbitinfo as xb
 
@@ -52,7 +52,7 @@ def get_zarr_size(fn):
     # Collect size
     total = 0
     for var in list(grp.keys()):
-        total += grp[var].nbytes_stored
+        total += grp[var].nbytes_stored()
     return total
 
 
@@ -84,8 +84,8 @@ def test_to_compressed_zarr_individual_compressors(eraint_uvz):
     }  # deactivate default compression
     ds.to_zarr(f"./tmp_testdir/{label}.zarr", mode="w", encoding=encoding)
     compressors = {
-        "u": numcodecs.Blosc("zstd", clevel=7),
-        "v": numcodecs.Blosc("zlib", clevel=7, shuffle=numcodecs.Blosc.BITSHUFFLE),
+        "u": BloscCodec(cname="zstd", clevel=7),
+        "v": BloscCodec(cname="zlib", clevel=7, shuffle=BloscShuffle.bitshuffle),
     }
     ds.to_compressed_zarr(
         f"./tmp_testdir/{label}_compressed.zarr", compressors, mode="w"
