@@ -12,6 +12,7 @@ dependencies = [
     "tqdm",
     "numcodecs>=0.10.0",
     "matplotlib>=3.9.0",
+    "prefect>=3.3.0",
 ]
 
 [dependency-groups]
