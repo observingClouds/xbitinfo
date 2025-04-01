@@ -1,6 +1,45 @@
-[build-system]
-requires = ["setuptools>=42", "wheel", "pip"]
-build-backend = "setuptools.build_meta"
+[project]
+name = "xbitinfo"
+dynamic = ["version"]
+description = "Retrieve information content and compress accordingly."
+readme = "README.md"
+requires-python = ">=3.9"
+license = { text = "MIT license" }
+keywords = ["xbitinfo"]
+dependencies = [
+    "dask",
+    "xarray",
+    "tqdm",
+    "numcodecs>=0.10.0",
+    "matplotlib>=3.9.0",
+]
+
+[dependency-groups]
+viz = ["matplotlib<3.9.1", "cmcrameri"]
+prefect = ["prefect>=3.3.0"]
+io = ["netcdf4", "zarr"]
+julia = ["julia"]
+test = ["pytest", "pooch", "netcdf4", "dask", "zarr", "julia", "cmcrameri", "cfgrib", "prefect>=3.3.0", "prefect_dask"]
+docs = [
+    "sphinx",
+    "sphinxcontrib-napoleon",
+    "sphinx-copybutton",
+    "sphinx_book_theme",
+    "myst-nb",
+    "matplotlib<3.9.1",
+    "cmcrameri",
+    "prefect>=3.3.0",
+    "netcdf4",
+    "zarr",
+    "julia"
+]
+
+[tool.setuptools]
+packages = ["xbitinfo", "xbitinfo.*"]
+include-package-data = true
+package-data = { "xbitinfo" = ["*.jl"] }
+test-suite = "tests"
+
 
 [tool.pytest]
 addopts = "--ignore=setup.py"
@@ -108,3 +147,10 @@ ignore-init-module-imports = true
 
 [tool.blackdoc]
 exclude = "docs/index.rst"
+
+[build-system]
+requires = ["pdm-backend"]
+build-backend = "pdm.backend"
+
+[tool.pdm.version]
+source = "scm"
