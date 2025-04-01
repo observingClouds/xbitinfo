@@ -36,7 +36,8 @@ docs = [
     "ipykernel",
     "s3fs",
     "zarr",
-    "julia"
+    "julia",
+    "pooch",
 ]
 
 [tool.setuptools]
