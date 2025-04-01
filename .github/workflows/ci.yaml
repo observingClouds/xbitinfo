@@ -40,8 +40,6 @@ jobs:
           version: '1.10'
       - name: Install uv
         uses: astral-sh/setup-uv@v5
-      - name: Install the project
-        run: uv sync --all-extras --dev
       - name: Run tests
         run: uv run --group test pytest tests
   doctest:
@@ -59,8 +57,6 @@ jobs:
           version: '1.10'
       - name: Install uv
         uses: astral-sh/setup-uv@v5
-      - name: Install the project
-        run: uv sync --all-extras --dev
       - name: Run tests
         run: uv run pytest tests
       - name: Run doctests
@@ -81,13 +77,11 @@ jobs:
           version: '1.10'
       - name: Install uv
         uses: astral-sh/setup-uv@v5
-      - name: Install the project
-        run: uv sync --all-extras --dev
       - name: Test notebooks
         run: >
-          uv run python -m ipykernel install --user --name bitinfo-docs
+          uv run --group docs python -m ipykernel install --user --name bitinfo-docs
 
-          uv run jupyter nbconvert --to html --execute docs/*.ipynb
+          uv run --group docs jupyter nbconvert --to html --execute docs/*.ipynb
           --ExecutePreprocessor.kernel_name=bitinfo-docs
   install:
     name: 'install xbitinfo, ${{ matrix.os }}'
@@ -115,8 +109,6 @@ jobs:
           version: '1.10'
       - name: Install uv
         uses: astral-sh/setup-uv@v5
-      - name: Install the project
-        run: uv sync --all-extras --dev
       - name: Smoketest
         run: |
           uv run python -c "import xbitinfo"

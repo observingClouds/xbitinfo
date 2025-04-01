@@ -31,6 +31,8 @@ docs = [
     "cmcrameri",
     "prefect>=3.3.0",
     "netcdf4",
+    "ipykernel",
+    "s3fs",
     "zarr",
     "julia"
 ]
