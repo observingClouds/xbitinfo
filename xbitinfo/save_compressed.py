@@ -138,6 +138,7 @@ class ToCompressed_Netcdf:
 def get_compress_encoding_zarr(
     ds,
     compressor=BloscCodec(cname="zstd", shuffle=BloscShuffle.bitshuffle),
+    zarr_format="2",
 ):
     """Generate encoding for :py:meth:`xarray.Dataset.to_zarr`.
 
@@ -152,17 +153,26 @@ def get_compress_encoding_zarr(
     :py:meth:`xarray.Dataset.to_zarr`
     """
     encoding = {}
+    enc_checker = xr.backends.zarr.extract_zarr_variable_encoding
+    if zarr_format == "2":
+        compressor_key = "compressor"
+    elif zarr_format == "3":
+        compressor_key = "compressors"
     if isinstance(compressor, dict):
         default_compressor = BloscCodec(cname="zstd", shuffle=BloscShuffle.bitshuffle)
         encoding = {
-            v: {k: ds[v].encoding[k] for k in ds[v].encoding if k != "coordinates"}
-            | {"compressor": compressor.get(v, default_compressor)}
+            v: {
+                **enc_checker(ds[v], zarr_format=zarr_format),
+                compressor_key: compressor.get(v, default_compressor),
+            }
             for v in ds.data_vars
         }
     else:
         encoding = {
-            v: {k: ds[v].encoding[k] for k in ds[v].encoding if k != "coordinates"}
-            | {"compressor": compressor}
+            v: {
+                **enc_checker(ds[v], zarr_format=zarr_format),
+                compressor_key: compressor,
+            }
             for v in ds.data_vars
         }
 
