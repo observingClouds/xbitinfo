@@ -16,6 +16,9 @@ jobs:
       - uses: actions/checkout@v4.2.2
         with:
           fetch-depth: 2
+      - uses: julia-actions/setup-julia@v2
+        with:
+          version: '1.10'
       - uses: xarray-contrib/ci-trigger@v1.2.1
         id: detect-trigger
         with:
@@ -32,24 +35,15 @@ jobs:
       - uses: actions/checkout@v4.2.2
         with:
           fetch-depth: 0
-      - name: Set up conda
-        uses: conda-incubator/setup-miniconda@v3.0.4
+      - uses: julia-actions/setup-julia@v2
         with:
-          auto-update-conda: false
-          channels: conda-forge
-          miniforge-variant: Mambaforge
-          activate-environment: bitinfo-tests
-          python-version: '3.11'
-          environment-file: tests/environment.yml
-      - name: Conda info
-        run: conda info
-      - name: Conda list
-        run: conda list
-      - name: install xbitinfo
-        run: |
-          pip install .
+          version: '1.10'
+      - name: Install uv
+        uses: astral-sh/setup-uv@v5
+      - name: Install the project
+        run: uv sync --all-extras --dev
       - name: Run tests
-        run: pytest
+        run: uv run pytest tests
   doctest:
     name: doctests
     runs-on: ubuntu-latest
@@ -58,24 +52,20 @@ jobs:
         shell: 'bash -l {0}'
     steps:
       - uses: actions/checkout@v4.2.2
-      - uses: conda-incubator/setup-miniconda@v3.0.4
         with:
-          channels: conda-forge
-          miniforge-variant: Mambaforge
-          activate-environment: bitinfo-tests
-          auto-update-conda: false
-          python-version: '3.11'
-          environment-file: tests/environment.yml
-      - name: Install xbitinfo
-        run: |
-          python -m pip install -e .
-      - name: Conda info
-        run: conda info
-      - name: Conda list
-        run: conda list
+          fetch-depth: 0
+      - uses: julia-actions/setup-julia@v2
+        with:
+          version: '1.10'
+      - name: Install uv
+        uses: astral-sh/setup-uv@v5
+      - name: Install the project
+        run: uv sync --all-extras --dev
+      - name: Run tests
+        run: uv run pytest tests
       - name: Run doctests
         run: |
-          python -m pytest --doctest-modules xbitinfo --ignore xbitinfo/tests
+          uv run pytest --doctest-modules xbitinfo --ignore xbitinfo/tests
   test_notebooks:
     name: notebooks
     runs-on: ubuntu-latest
@@ -86,30 +76,18 @@ jobs:
         shell: 'bash -l {0}'
     steps:
       - uses: actions/checkout@v4.2.2
-      - name: Set up conda
-        uses: conda-incubator/setup-miniconda@v3.0.4
+      - uses: julia-actions/setup-julia@v2
         with:
-          auto-update-conda: false
-          channels: conda-forge
-          miniforge-variant: Mambaforge
-          activate-environment: bitinfo-docs
-          python-version: '3.11'
-          environment-file: docs/environment.yml
-      - name: Remove julia (issue #212)
-        run: |
-          conda remove julia
-      - name: Conda info
-        run: conda info
-      - name: Conda list
-        run: conda list
-      - name: install xbitinfo
-        run: |
-          pip install . --upgrade pip
+          version: '1.10'
+      - name: Install uv
+        uses: astral-sh/setup-uv@v5
+      - name: Install the project
+        run: uv sync --all-extras --dev
       - name: Test notebooks
         run: >
-          python -m ipykernel install --user --name bitinfo-docs
+          uv run python -m ipykernel install --user --name bitinfo-docs
 
-          jupyter nbconvert --to html --execute docs/*.ipynb
+          uv run jupyter nbconvert --to html --execute docs/*.ipynb
           --ExecutePreprocessor.kernel_name=bitinfo-docs
   install:
     name: 'install xbitinfo, ${{ matrix.os }}'
@@ -132,10 +110,13 @@ jobs:
         with:
           python-version: '3.11'
       - name: Set up Julia
-        uses: julia-actions/setup-julia@v2.6.0
+        uses: julia-actions/setup-julia@v2
         with:
-          version: 1.7.1
-      - name: Install dependencies
+          version: '1.10'
+      - name: Install uv
+        uses: astral-sh/setup-uv@v5
+      - name: Install the project
+        run: uv sync --all-extras --dev
+      - name: Smoketest
         run: |
-          pip install .[complete]
-          python -c "import xbitinfo"
+          uv run python -c "import xbitinfo"
