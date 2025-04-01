@@ -1,4 +1,0 @@
-dask
-xarray
-tqdm
-numcodecs>=0.10.0
