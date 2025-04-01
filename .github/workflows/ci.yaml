@@ -57,11 +57,9 @@ jobs:
           version: '1.10'
       - name: Install uv
         uses: astral-sh/setup-uv@v5
-      - name: Run tests
-        run: uv run pytest tests
       - name: Run doctests
         run: |
-          uv run --group test pytest --doctest-modules xbitinfo --ignore xbitinfo/tests
+          uv run --group test python -m pytest --doctest-modules xbitinfo --ignore xbitinfo/tests
   test_notebooks:
     name: notebooks
     runs-on: ubuntu-latest
