@@ -10,6 +10,9 @@ build:
       - asdf install uv latest
       - asdf global uv latest
       - UV_PROJECT_ENVIRONMENT=$READTHEDOCS_VIRTUALENV_PATH uv sync --all-extras --group docs
+      - asdf plugin add julia
+      - asdf install julia latest
+      - asdf global julia latest
     install:
       - "true"
 
