@@ -1,29 +1,25 @@
 """Unit test package for xbitinfo."""
 
 import importlib
-from distutils import version
 
 import pytest
+from packaging.version import InvalidVersion, Version
 
 
-def _importorskip(modname, minversion=None):
+def _import_or_skip(modname, minversion=None):
     try:
         mod = importlib.import_module(modname)
         has = True
         if minversion is not None:
-            if LooseVersion(mod.__version__) < LooseVersion(minversion):
-                raise ImportError("Minimum version not satisfied")
+            try:
+                if Version(mod.__version__) < Version(minversion):
+                    raise ImportError("Minimum version not satisfied")
+            except InvalidVersion:
+                raise ImportError(f"Invalid version for {modname}: {mod.__version__}")
     except ImportError:
         has = False
     func = pytest.mark.skipif(not has, reason=f"requires {modname}")
     return has, func
 
 
-def LooseVersion(vstring):
-    # Our development version is something like '0.10.9+aac7bfc'
-    # This function just ignored the git commit id.
-    vstring = vstring.split("+")[0]
-    return version.LooseVersion(vstring)
-
-
-has_julia, requires_julia = _importorskip("julia")
+has_julia, requires_julia = _import_or_skip("julia")
