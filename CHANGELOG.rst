@@ -16,6 +16,7 @@ X.X.X (unreleased)
 * Implement basic retrieval of bitinformation in python as alternative to julia implementation (:pr:`156`, :issue:`155`, :pr:`126`, :issue:`125`) `Hauke Schulz`_ with helpful comments from `Milan Klöwer`_.
 * Make julia binding to BitInformation.jl optional (:pr:`153`, :issue:`151`) `Aaron Spring`_.
 * Add support for python 3.13 (:pr:`303`) and use uv for GitHub Actions `Hauke Schulz`_.
+* Simplify get_bitinformation function (:pr:`262`, :issue:`261`) `Hauke Schulz`_.
 
 0.0.3 (2022-07-11)
 ------------------
