@@ -13,9 +13,12 @@ jobs:
     outputs:
       triggered: '${{ steps.detect-trigger.outputs.trigger-found }}'
     steps:
-      - uses: actions/checkout@v4.1.1
+      - uses: actions/checkout@v4.2.2
         with:
           fetch-depth: 2
+      - uses: julia-actions/setup-julia@v2
+        with:
+          version: '1.10'
       - uses: xarray-contrib/ci-trigger@v1.2.1
         id: detect-trigger
         with:
@@ -29,29 +32,16 @@ jobs:
       run:
         shell: 'bash -l {0}'
     steps:
-      - uses: actions/checkout@v4.1.1
+      - uses: actions/checkout@v4.2.2
         with:
           fetch-depth: 0
-      - name: Set up conda
-        uses: conda-incubator/setup-miniconda@v3.0.3
+      - uses: julia-actions/setup-julia@v2
         with:
-          auto-update-conda: false
-          channels: conda-forge
-          miniforge-variant: Mambaforge
-          activate-environment: bitinfo
-          python-version: '3.11'
-      - name: Set up conda environment
-        run: |
-          mamba env update -f environment.yml
-      - name: Conda info
-        run: conda info
-      - name: Conda list
-        run: conda list
-      - name: install xbitinfo
-        run: |
-          pip install .
+          version: '1.10'
+      - name: Install uv
+        uses: astral-sh/setup-uv@v5
       - name: Run tests
-        run: pytest
+        run: uv run --group test pytest tests
   doctest:
     name: doctests
     runs-on: ubuntu-latest
@@ -59,27 +49,17 @@ jobs:
       run:
         shell: 'bash -l {0}'
     steps:
-      - uses: actions/checkout@v4.1.1
-      - uses: conda-incubator/setup-miniconda@v3.0.3
+      - uses: actions/checkout@v4.2.2
         with:
-          channels: conda-forge
-          miniforge-variant: Mambaforge
-          activate-environment: bitinfo
-          auto-update-conda: false
-          python-version: '3.11'
-      - name: Install conda dependencies
-        run: |
-          mamba env update -f environment.yml
-      - name: Install xbitinfo
-        run: |
-          python -m pip install -e .
-      - name: Conda info
-        run: conda info
-      - name: Conda list
-        run: conda list
+          fetch-depth: 0
+      - uses: julia-actions/setup-julia@v2
+        with:
+          version: '1.10'
+      - name: Install uv
+        uses: astral-sh/setup-uv@v5
       - name: Run doctests
         run: |
-          python -m pytest --doctest-modules xbitinfo --ignore xbitinfo/tests
+          uv run --group test python -m pytest --doctest-modules xbitinfo --ignore xbitinfo/tests
   test_notebooks:
     name: notebooks
     runs-on: ubuntu-latest
@@ -89,34 +69,18 @@ jobs:
       run:
         shell: 'bash -l {0}'
     steps:
-      - uses: actions/checkout@v4.1.1
-      - name: Set up conda
-        uses: conda-incubator/setup-miniconda@v3.0.3
+      - uses: actions/checkout@v4.2.2
+      - uses: julia-actions/setup-julia@v2
         with:
-          auto-update-conda: false
-          channels: conda-forge
-          miniforge-variant: Mambaforge
-          activate-environment: bitinfo
-          python-version: '3.11'
-      - name: Set up conda environment
-        run: |
-          mamba env update -f environment.yml
-      - name: Remove julia (issue #212)
-        run: |
-          conda remove julia
-      - name: Conda info
-        run: conda info
-      - name: Conda list
-        run: conda list
-      - name: install xbitinfo
-        run: |
-          pip install . --upgrade pip
+          version: '1.10'
+      - name: Install uv
+        uses: astral-sh/setup-uv@v5
       - name: Test notebooks
         run: >
-          python -m ipykernel install --user --name bitinfo
+          uv run --group docs python -m ipykernel install --user --name bitinfo-docs
 
-          jupyter nbconvert --to html --execute docs/*.ipynb
-          --ExecutePreprocessor.kernel_name=bitinfo
+          uv run --group docs jupyter nbconvert --to html --execute docs/*.ipynb
+          --ExecutePreprocessor.kernel_name=bitinfo-docs
   install:
     name: 'install xbitinfo, ${{ matrix.os }}'
     runs-on: '${{ matrix.os }}'
@@ -130,18 +94,19 @@ jobs:
           - macos-latest
           - windows-latest
     steps:
-      - uses: actions/checkout@v4.1.1
+      - uses: actions/checkout@v4.2.2
         with:
           fetch-depth: 0
       - name: Setup python
-        uses: actions/setup-python@v5.1.0
+        uses: actions/setup-python@v5.3.0
         with:
           python-version: '3.11'
       - name: Set up Julia
-        uses: julia-actions/setup-julia@v2.0.0
+        uses: julia-actions/setup-julia@v2
         with:
-          version: 1.7.1
-      - name: Install dependencies
+          version: '1.10'
+      - name: Install uv
+        uses: astral-sh/setup-uv@v5
+      - name: Smoketest
         run: |
-          pip install .[complete]
-          python -c "import xbitinfo"
+          uv run python -c "import xbitinfo"

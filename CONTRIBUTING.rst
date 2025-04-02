@@ -105,7 +105,7 @@ Preparing Pull Requests
    whenever you commit.
 
    Now you have an environment called ``bitinfo`` that you can work in.
-   You’ll need to make sure to activate that environment next time you want
+   You'll need to make sure to activate that environment next time you want
    to use it after closing the terminal or your system.
 
    You can now edit your local working copy and run/add tests as necessary.
@@ -117,9 +117,7 @@ Preparing Pull Requests
 
    ``pre-commit`` also runs::
 
-    * `mypy <http://mypy-lang.org/>`_ for static type checking on
-      `type hints <https://docs.python.org/3/library/typing.html>`_.
-    * `isort <https://pycqa.github.io/isort/>`_ sorting imports
+    * `ruff <https://docs.astral.sh/ruff/>`_ code formatter.
     * `black <https://black.readthedocs.io/en/stable/>`_ code formatting
     * `flake8 <https://flake8.pycqa.org/en/latest/>`_ code linting
     ..

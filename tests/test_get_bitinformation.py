@@ -1,6 +1,7 @@
 """Tests for `xbitinfo` package."""
 
 import os
+import warnings
 
 import numpy as np
 import pytest
@@ -99,8 +100,12 @@ def test_get_bitinformation_masked_value(implementation="julia"):
     bitinfo_no_mask_None = xb.get_bitinformation(
         ds, dim="x", masked_value=None, implementation=implementation
     )
+    bitinfo_fillna = xb.get_bitinformation(
+        ds.fillna(-999), dim="x", masked_value=-999.0, implementation=implementation
+    )
     assert_identical(bitinfo_no_mask, bitinfo_no_mask_None)
-    assert_different(bitinfo, bitinfo_no_mask)
+    assert_identical(bitinfo, bitinfo_no_mask)
+    assert_different(bitinfo, bitinfo_fillna)
 
 
 @pytest.mark.parametrize("implementation", ["julia", "python"])
@@ -160,14 +165,19 @@ def test_get_bitinformation_label(rasm, implementation):
 
 
 @pytest.mark.parametrize("implementation", ["julia", "python"])
-@pytest.mark.parametrize("dtype", ["float64", "float32", "float16"])
+@pytest.mark.parametrize("dtype", ["float64", "float32", "float16", "int16"])
 def test_get_bitinformation_dtype(rasm, dtype, implementation):
     """Test xb.get_bitinformation returns correct number of bits depending on dtype."""
+    dtype = np.dtype(dtype)
     ds = rasm.astype(dtype)
     v = list(ds.data_vars)[0]
-    dtype_bits = dtype.replace("float", "")
-    assert len(xb.get_bitinformation(ds, dim="x")[v].coords["bit" + dtype]) == int(
-        dtype_bits
+    if dtype.kind == "f":
+        dtype_bits = np.finfo(dtype).bits
+    elif dtype.kind == "i" or dtype.kind == "u":
+        dtype_bits = np.iinfo(dtype).bits
+    assert (
+        len(xb.get_bitinformation(ds, dim="x")[v].coords["bit" + str(dtype)])
+        == dtype_bits
     )
 
 
@@ -258,3 +268,17 @@ def test_implementations_agree(ds, dim, axis, request):
         masked_value=None,
     )
     bitinfo_assert_allclose(bi_python, bi_julia, rtol=1e-4)
+
+
+@pytest.mark.parametrize("implementation", ["python", "julia"])
+@pytest.mark.parametrize("dataset_name", ["air_temperature", "eraint_uvz"])
+def test_warn_on_quantized_variables(dataset_name, implementation):
+    ds_quantized = xr.tutorial.load_dataset(dataset_name)
+    ds_raw = xr.tutorial.load_dataset(dataset_name, mask_and_scale=False)
+
+    with pytest.warns(UserWarning):
+        _ = xb.get_bitinformation(ds_quantized, implementation=implementation)
+
+    with warnings.catch_warnings():
+        warnings.simplefilter("error")
+        _ = xb.get_bitinformation(ds_raw, implementation=implementation)

@@ -1,10 +1,12 @@
 import json
 import logging
 import os
+import warnings
 
 import numpy as np
 import xarray as xr
 from dask import array as da
+from prefect import flow, task, unmapped
 
 try:
     from julia.api import Julia
@@ -14,7 +16,8 @@ except ImportError:
     julia_installed = False
 from tqdm.auto import tqdm
 
-from . import __version__
+import xbitinfo as xb
+
 from . import _py_bitinfo as pb
 from .julia_helpers import install
 
@@ -91,7 +94,7 @@ def dict_to_dataset(info_per_bit):
         "python_repository": "https://github.com/observingClouds/xbitinfo",
         "julia_repository": "https://github.com/milankl/BitInformation.jl",
         "reference_paper": "http://www.nature.com/articles/s43588-021-00156-2",
-        "xbitinfo_version": __version__,
+        "xbitinfo_version": xb.__version__,
         "BitInformation.jl_version": get_julia_package_version("BitInformation"),
     }
     for c in dsb.coords:
@@ -158,7 +161,7 @@ def get_bitinformation(  # noqa: C901
       * bitfloat64  (bitfloat64) <U3 768B '±' 'e1' 'e2' 'e3' ... 'm50' 'm51' 'm52'
         dim         <U3 12B 'lon'
     Data variables:
-        air         (bitfloat64) float64 512B 0.0 0.0 0.0 ... 0.002847 0.0 0.0005092
+        air         (bitfloat64) float64 512B 0.0 0.0 0.0 ... 0.002848 0.0 0.0005048
     Attributes:
         xbitinfo_description:       bitinformation calculated by xbitinfo.get_bit...
         python_repository:          https://github.com/observingClouds/xbitinfo
@@ -173,7 +176,7 @@ def get_bitinformation(  # noqa: C901
       * bitfloat64  (bitfloat64) <U3 768B '±' 'e1' 'e2' 'e3' ... 'm50' 'm51' 'm52'
       * dim         (dim) <U4 48B 'lat' 'lon' 'time'
     Data variables:
-        air         (dim, bitfloat64) float64 2kB 0.0 0.0 0.0 ... 0.0 0.0004498
+        air         (dim, bitfloat64) float64 2kB 0.0 0.0 0.0 ... 0.0 0.0004506
     Attributes:
         xbitinfo_description:       bitinformation calculated by xbitinfo.get_bit...
         python_repository:          https://github.com/observingClouds/xbitinfo
@@ -233,6 +236,15 @@ def get_bitinformation(  # noqa: C901
         pbar = tqdm(ds.data_vars)
         for var in pbar:
             pbar.set_description(f"Processing var: {var} for dim: {dim}")
+
+            if _quantized_variable_is_scaled(ds, var):
+                loaded_dtype = ds[var].dtype
+                quantized_storage_dtype = ds[var].encoding["dtype"]
+                warnings.warn(
+                    f"Variable {var} is quantized as {quantized_storage_dtype}, but loaded as {loaded_dtype}. Consider reopening using `mask_and_scale=False` to get sensible results",
+                    category=UserWarning,
+                )
+
             if implementation == "julia":
                 info_per_bit_var = _jl_get_bitinformation(ds, var, axis, dim, kwargs)
                 if info_per_bit_var is None:
@@ -258,6 +270,26 @@ def get_bitinformation(  # noqa: C901
         for a in ds[var].attrs.keys():
             info_per_bit[var].attrs["source_" + a] = ds[var].attrs[a]
     return info_per_bit
+
+
+def _quantized_variable_is_scaled(ds: xr.DataArray, var: str) -> bool:
+    has_scale_or_offset = any(
+        ["add_offset" in ds[var].encoding, "scale_factor" in ds[var].encoding]
+    )
+
+    if not has_scale_or_offset:
+        return False
+
+    loaded_dtype = ds[var].dtype
+    storage_dtype = ds[var].encoding.get("dtype", None)
+    assert (
+        storage_dtype is not None
+    ), f"Variable {var} is likely quantized, but does not have a storage dtype"
+
+    if loaded_dtype == storage_dtype:
+        return False
+
+    return True
 
 
 def _jl_get_bitinformation(ds, var, axis, dim, kwargs={}):
@@ -362,7 +394,15 @@ def _get_bitinformation_kwargs_handler(da, kwargs):
     """Helper function to preprocess kwargs args of :py:func:`xbitinfo.xbitinfo.get_bitinformation`."""
     kwargs_var = kwargs.copy()
     if "masked_value" not in kwargs_var:
-        kwargs_var["masked_value"] = f"convert({str(da.dtype).capitalize()},NaN)"
+        if da.dtype.kind == "i" or da.dtype.kind == "u":
+            logging.warning(
+                "No masked value given for integer type variable. Assuming no mask to apply."
+            )
+            kwargs_var["masked_value"] = "nothing"
+        elif da.dtype.kind == "f":
+            kwargs_var["masked_value"] = f"convert({str(da.dtype).capitalize()},NaN)"
+        else:
+            raise ValueError(f"Dtype kind ({da.dtype.kind}) not supported.")
     elif kwargs_var["masked_value"] is None:
         kwargs_var["masked_value"] = "nothing"
     if "set_zero_insignificant" not in kwargs_var:
@@ -385,7 +425,121 @@ def load_bitinformation(label):
         raise FileNotFoundError(f"No bitinformation could be found at {label+'.json'}")
 
 
-def get_keepbits(info_per_bit, inflevel=0.99):
+def get_cdf_without_artificial_information(
+    info_per_bit, bitdim, threshold, tolerance, bit_vars
+):
+    """
+    Calculate a Cumulative Distribution Function (CDF) with artificial information removal.
+
+    This function calculates a modified CDF for a given set of bit information and variable dimensions,
+    removing artificial information while preserving the desired threshold of information content.
+
+    1.)The function's aim is to return the cdf in a way that artificial information gets removed.
+    2.)This function calculates the CDF using the provided information content per bit dataset.
+    3.)It then computes the gradient of the CDF values to identify points where the gradient becomes close to the given tolerance,
+    indicating a drop in information.
+    4.)Simultaneously, it keeps track of the minimum cumulative sum of information content which is threshold here, which signifies atleast
+    this much fraction of total information needs to be passed.
+    5.)So the bit where the intersection of the gradient reaching the tolerance and the cumulative sum exceeding the threshold. All bits beyond this
+    index are assumed to contain artificial information and are set to zero in the resulting CDF.
+
+
+    Parameters:
+    -----------
+    info_per_bit : :py:class: 'xarray.Dataset'
+        Information content of each bit. This is the output from :py:func:`xbitinfo.xbitinfo.get_bitinformation`.
+    bitdim : str
+        The dimension representing the bit information.
+    threshold : float
+        Minimum cumulative sum of information content before artificial information filter is applied.
+    tolerance : float
+        The tolerance is the value below which gradient starts becoming constant
+    bit_vars : list
+        List of variable names of the dataset.
+
+    Returns:
+    --------
+    xarray.Dataset
+        A modified CDF dataset with artificial information removed.
+
+    Example:
+    --------
+    >>> ds = xr.tutorial.load_dataset("air_temperature")
+    >>> info = xb.get_bitinformation(ds)
+    >>> get_keepbits(
+    ...     info,
+    ...     inflevel=[0.99],
+    ...     information_filter="Gradient",
+    ...     **{"threshold": 0.7, "tolerance": 0.001}
+    ... )
+    <xarray.Dataset> Size: 80B
+    Dimensions:   (dim: 3, inflevel: 1)
+    Coordinates:
+      * dim       (dim) <U4 48B 'lat' 'lon' 'time'
+      * inflevel  (inflevel) float64 8B 0.99
+    Data variables:
+        air       (dim, inflevel) int64 24B 5 7 6
+    """
+
+    # Extract coordinates from the 'info_per_bit' dataset.
+    coordinates = info_per_bit.coords
+    # Extract the 'dim' values from the coordinates and store them in 'coordinates_array'.
+    coordinates_array = coordinates["dim"].values
+    # Initialize a flag to identify if 'coordinates_array' is a scalar value.
+    flag_scalar_value = False
+    # Check if 'coordinates_array' is a scalar (has zero dimensions).
+    if coordinates_array.ndim == 0:
+        # If it's a scalar, extract the scalar value and set the flag to True.
+        value = coordinates_array.item()
+        flag_scalar_value = True
+        # Convert the scalar value into a 1D numpy array so that we can iterate over it for determining dimensions.
+        coordinates_array = np.array([value])
+
+    cdf = _cdf_from_info_per_bit(info_per_bit, bitdim)
+    for var_name in bit_vars:
+        for dimension in coordinates_array:
+            if flag_scalar_value:
+                # If it's a scalar, extract the information array directly.
+                infoArray = info_per_bit[var_name]
+            else:
+                # If it's not a scalar, select the information array using the specified dimension.
+                infoArray = info_per_bit[var_name].sel(dim=dimension)
+
+            # total sum of information along a dimension
+            infSum = sum(infoArray).item()
+
+            data_type = np.dtype(bitdim.replace("bit", ""))
+            _, n_sign, n_exponent, _ = bit_partitioning(data_type)
+            sign_and_exponent = n_sign + n_exponent
+
+            # sum of sign and exponent bits
+            SignExpSum = sum(infoArray[:sign_and_exponent]).item()
+            if flag_scalar_value:
+                cdf_array = cdf[var_name]
+            else:
+                cdf_array = cdf[var_name].sel(dim=dimension)
+
+            gradient_array = np.diff(cdf_array.values)
+            # Initialize 'CurrentBit_Sum' with the value of 'SignExpSum'.
+            CurrentBit_Sum = SignExpSum
+            for i in range(sign_and_exponent, len(gradient_array) - 1):
+                # Update 'CurrentBit_Sum' by adding the information content of the current bit.
+                CurrentBit_Sum = CurrentBit_Sum + infoArray[i].item()
+                if (
+                    gradient_array[i]
+                ) < tolerance and CurrentBit_Sum >= threshold * infSum:
+                    infbits = i
+                    break
+
+            for i in range(0, infbits + 1):
+                # Normalize CDF values for elements up to 'infbits'.
+                cdf_array[i] = cdf_array[i] / cdf_array[infbits]
+
+            cdf_array[(infbits + 1) :] = 1
+    return cdf
+
+
+def get_keepbits(info_per_bit, inflevel=0.99, information_filter=None, **kwargs):
     """Get the number of mantissa bits to keep. To be used in :py:func:`xbitinfo.bitround.xr_bitround` and :py:func:`xbitinfo.bitround.jl_bitround`.
 
     Parameters
@@ -394,6 +548,13 @@ def get_keepbits(info_per_bit, inflevel=0.99):
       Information content of each bit. This is the output from :py:func:`xbitinfo.xbitinfo.get_bitinformation`.
     inflevel : float or list
       Level of information that shall be preserved.
+
+    Kwargs
+        threshold(` `float ``) : defaults to ``0.7``
+            Minimum cumulative sum of information content before artificial information filter is applied.
+        tolerance(` `float ``) : defaults to ``0.001``
+            The tolerance is the value below which gradient starts becoming constant
+
 
     Returns
     -------
@@ -411,7 +572,7 @@ def get_keepbits(info_per_bit, inflevel=0.99):
         dim       <U3 12B 'lon'
       * inflevel  (inflevel) float64 8B 0.99
     Data variables:
-        air       (inflevel) int64 8B 6
+        air       (inflevel) int64 8B 7
     >>> xb.get_keepbits(info_per_bit, inflevel=0.99999999)
     <xarray.Dataset> Size: 28B
     Dimensions:   (inflevel: 1)
@@ -436,7 +597,7 @@ def get_keepbits(info_per_bit, inflevel=0.99):
       * dim       (dim) <U4 48B 'lat' 'lon' 'time'
       * inflevel  (inflevel) float64 8B 0.99
     Data variables:
-        air       (dim, inflevel) int64 24B 5 6 6
+        air       (dim, inflevel) int64 24B 5 7 6
     """
     if not isinstance(inflevel, list):
         inflevel = [inflevel]
@@ -458,7 +619,16 @@ def get_keepbits(info_per_bit, inflevel=0.99):
         # get only variables of bitdim
         bit_vars = [v for v in info_per_bit.data_vars if bitdim in info_per_bit[v].dims]
         if bit_vars != []:
-            cdf = _cdf_from_info_per_bit(info_per_bit[bit_vars], bitdim)
+            if information_filter == "Gradient":
+                cdf = get_cdf_without_artificial_information(
+                    info_per_bit[bit_vars],
+                    bitdim,
+                    kwargs["threshold"],
+                    kwargs["tolerance"],
+                    bit_vars,
+                )
+            else:
+                cdf = _cdf_from_info_per_bit(info_per_bit[bit_vars], bitdim)
             data_type = np.dtype(bitdim.replace("bit", ""))
             n_bits, _, _, n_mant = bit_partitioning(data_type)
             bitdim_non_mantissa_bits = n_bits - n_mant
@@ -548,47 +718,52 @@ def get_prefect_flow(paths=[]):
     Example
     -------
     Imagine n files of identical structure, i.e. 1-year per file climate model output:
+
     >>> ds = xr.tutorial.load_dataset("rasm")
     >>> year, datasets = zip(*ds.groupby("time.year"))
     >>> paths = [f"{y}.nc" for y in year]
     >>> xr.save_mfdataset(datasets, paths)
 
     Create prefect.Flow and run sequentially
+
     >>> flow = xb.get_prefect_flow(paths=paths)
     >>> import prefect
-    >>> logger = prefect.context.get("logger")
-    >>> logger.setLevel("ERROR")
-    >>> st = flow.run()
+    >>> from prefect import get_run_logger
+    >>> if __name__ == "__main__":
+    ...     logger = get_run_logger()
+    ...     logger.setLevel("ERROR")
+    ...     st = flow.run()
+    ...
 
     Inspect flow state
+
     >>> # flow.visualize(st)  # requires graphviz
 
     Run in parallel with dask:
+
     >>> import os  # https://docs.xarray.dev/en/stable/user-guide/dask.html
     >>> os.environ["HDF5_USE_FILE_LOCKING"] = "FALSE"
-    >>> from prefect.executors import DaskExecutor, LocalDaskExecutor
+    >>> from prefect_dask.task_runners import DaskTaskRunner
     >>> from dask.distributed import Client
-    >>> client = Client(n_workers=2, threads_per_worker=1, processes=True)
-    >>> executor = DaskExecutor(
-    ...     address=client.scheduler.address
-    ... )  # take your own client
-    >>> executor = DaskExecutor()  # use dask from prefect
-    >>> executor = LocalDaskExecutor()  # use dask local from prefect
-    >>> # flow.run(executor=executor, parameters=dict(overwrite=True))
+    >>> if __name__ == "__main__":
+    ...     client = Client(n_workers=2, threads_per_worker=1, processes=True)
+    ...     executor = DaskTaskRunner(
+    ...         address=client.scheduler.address
+    ...     )  # take your own client
+    ...     flow.run(executor=executor, parameters=dict(overwrite=True))
+    ...
 
     Modify parameters of a flow:
-    >>> flow.run(parameters=dict(inflevel=0.9999, overwrite=True))
-    <Success: "All reference tasks succeeded.">
+
+    >>> if __name__ == "__main__":
+    ...     flow.run(parameters=dict(inflevel=0.9999, overwrite=True))
+    ...
 
     See also
     --------
-    - https://examples.dask.org/applications/prefect-etl.html
-    - https://docs.prefect.io/core/getting_started/basic-core-flow.html
-
+    `ETL Pipelines with Prefect <https://examples.dask.org/applications/prefect-etl.html/>`__ and
+    `Run a flow <https://docs.prefect.io/core/getting_started/basic-core-flow.html>`__
     """
-
-    from prefect import Flow, Parameter, task, unmapped
-    from prefect.engine.signals import SKIP
 
     from .bitround import jl_bitround, xr_bitround
 
@@ -641,39 +816,41 @@ def get_prefect_flow(paths=[]):
                 try:
                     ds_new = xr.open_dataset(new_path, chunks=chunks)
                     ds = xr.open_dataset(path, chunks=chunks)
-                    if (
-                        ds.nbytes == ds_new.nbytes
-                    ):  # bitrounded and original have same number of bytes in memory
-                        raise SKIP(f"{new_path} already exists.")
+                    if ds.nbytes == ds_new.nbytes:
+                        raise ValueError(f"{new_path} already exists.")
                 except Exception as e:
                     print(
                         f"{type(e)} when xr.open_dataset({new_path}), therefore delete and recalculate."
                     )
                     os.remove(new_path)
+
         ds = xr.open_dataset(path, chunks=chunks)
         if enforce_dtype:
             ds = ds.astype(enforce_dtype)
+
         bitround_func = jl_bitround if bitround_in_julia else xr_bitround
         ds_bitround = bitround_func(ds, keepbits)
         ds_bitround.to_compressed_netcdf(new_path, complevel=complevel)
-        return
 
-    with Flow("xbitinfo_pipeline") as flow:
-        if paths == []:
+    @flow
+    def xbitinfo_pipeline(
+        paths,
+        analyse_paths="first",
+        dim=None,
+        axis=0,
+        inflevel=0.99,
+        label=None,
+        rename=[".nc", "_bitrounded_compressed.nc"],
+        overwrite=False,
+        bitround_in_julia=False,
+        complevel=7,
+        chunks=None,
+        enforce_dtype=None,
+        non_negative_keepbits=True,
+    ):
+        if not paths:
             raise ValueError("Please provide paths of files to bitround, found [].")
-        paths = Parameter("paths", default=paths)
-        analyse_paths = Parameter("analyse_paths", default="first")
-        dim = Parameter("dim", default=None)
-        axis = Parameter("axis", default=0)
-        inflevel = Parameter("inflevel", default=0.99)
-        label = Parameter("label", default=None)
-        rename = Parameter("rename", default=[".nc", "_bitrounded_compressed.nc"])
-        overwrite = Parameter("overwrite", default=False)
-        bitround_in_julia = Parameter("bitround_in_julia", default=False)
-        complevel = Parameter("complevel", default=7)
-        chunks = Parameter("chunks", default=None)
-        enforce_dtype = Parameter("enforce_dtype", default=None)
-        non_negative_keepbits = Parameter("non_negative_keepbits", default=True)
+
         keepbits = get_bitinformation_keepbits(
             paths,
             analyse_paths=analyse_paths,
@@ -683,7 +860,9 @@ def get_prefect_flow(paths=[]):
             label=label,
             enforce_dtype=enforce_dtype,
             non_negative_keepbits=non_negative_keepbits,
-        )  # once
+        )
+
+        # Parallel map
         bitround_and_save.map(
             paths,
             keepbits=unmapped(keepbits),
@@ -693,15 +872,14 @@ def get_prefect_flow(paths=[]):
             overwrite=unmapped(overwrite),
             enforce_dtype=unmapped(enforce_dtype),
             bitround_in_julia=unmapped(bitround_in_julia),
-        )  # parallel map
-    return flow
+        )
 
 
 class JsonCustomEncoder(json.JSONEncoder):
     def default(self, obj):
         if isinstance(obj, (np.ndarray, np.number)):
             return obj.tolist()
-        elif isinstance(obj, complex):
+        elif isinstance(obj, (complex, np.complex)):
             return [obj.real, obj.imag]
         elif isinstance(obj, set):
             return list(obj)

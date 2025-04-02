@@ -96,10 +96,10 @@ Credits
 
     quick-start.ipynb
 
-
 **User Guide**
 
 * :doc:`chunking`
+* :doc:`artificialinformation`
 
 .. toctree::
     :maxdepth: 1
@@ -107,6 +107,7 @@ Credits
     :caption: User Guide
 
     chunking.ipynb
+    ArtificialInformation_Filter.ipynb
 
 **Help & Reference**
 

@@ -5,10 +5,17 @@ CHANGELOG
 X.X.X (unreleased)
 ------------------
 
+* Limit libcurl version to fix recent binary issues (:pr:`297`) `Hauke Schulz`_.
+* Add warning for quantized variables (:pr:`286`, :issue:`202`) `Joel Jaeschke`_.
+* Update BitInformation.jl version to v0.6.3 (:pr:`292`) `Hauke Schulz`_
+* Improve test/docs environment separation (:pr:`275`, :issue:`267`) `Aryan Bakliwal`_.
+* Set default masked value to None for integers (:pr:`289`) `Hauke Schulz`_.
+* Add basic filter to remove artificial information from bitinformation (:pr:`280`, :issue:`209`) `Ishaan Jain`_.
 * Add support for additional datatypes in :py:func:`xbitinfo.xbitinfo.plot_bitinformation` (:pr:`218`, :issue:`168`) `Hauke Schulz`_.
 * Drop python 3.8 support and add python 3.11 (:pr:`175`) `Hauke Schulz`_.
 * Implement basic retrieval of bitinformation in python as alternative to julia implementation (:pr:`156`, :issue:`155`, :pr:`126`, :issue:`125`) `Hauke Schulz`_ with helpful comments from `Milan Klöwer`_.
 * Make julia binding to BitInformation.jl optional (:pr:`153`, :issue:`151`) `Aaron Spring`_.
+* Add support for python 3.13 (:pr:`303`) and use uv for GitHub Actions `Hauke Schulz`_.
 
 0.0.3 (2022-07-11)
 ------------------

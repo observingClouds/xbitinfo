@@ -1,4 +1,4 @@
-import matplotlib.cm as cm
+import matplotlib.pyplot as plt
 import numpy as np
 import xarray as xr
 
@@ -57,6 +57,7 @@ def add_bitinfo_labels(
     Example
     -------
     Plotting a single-dimension coordinate dataset:
+
     >>> ds = xr.tutorial.load_dataset("air_temperature")
     >>> info_per_bit = xb.get_bitinformation(ds, dim="lon")
     >>> inflevels = [1.0, 0.9999, 0.99, 0.975, 0.95]
@@ -72,6 +73,7 @@ def add_bitinfo_labels(
     ... )  # doctest: +ELLIPSIS
 
     Plotting a multi-dimensional coordinate dataset
+
     >>> v = "Tair"
     >>> ds = xr.tutorial.load_dataset("rasm")
     >>> dim = "y"
@@ -96,7 +98,6 @@ def add_bitinfo_labels(
     ... )  # doctest: +SKIP
 
     """
-    import matplotlib.pyplot as plt
 
     if inflevels is None and keepbits is None:
         raise KeyError("Either inflevels or keepbits need to be provided")
@@ -203,7 +204,7 @@ def split_dataset_by_dims(info_per_bit):
     return var_by_dim
 
 
-def plot_bitinformation(bitinfo, cmap="turku", crop=None):
+def plot_bitinformation(bitinfo, information_filter=None, cmap="turku", crop=None):
     """Plot bitwise information content as in Klöwer et al. 2021 Figure 2.
 
     Klöwer, M., Razinger, M., Dominguez, J. J., Düben, P. D., & Palmer, T. N. (2021).
@@ -214,6 +215,9 @@ def plot_bitinformation(bitinfo, cmap="turku", crop=None):
     ----------
     bitinfo : :py:func:`xarray.Dataset`
       Containing the bitwise information content for each variable
+    information_filter : str
+      Filter algorithm to filter artificial information content. Defaults to ``None``.
+      Available filters are: ``"Gradient"``.
     cmap : str or plt.cm
       Colormap. Defaults to ``"turku"``.
     crop : int
@@ -231,7 +235,6 @@ def plot_bitinformation(bitinfo, cmap="turku", crop=None):
     <Figure size 1200x800 with 4 Axes>
 
     """
-    import matplotlib.pyplot as plt
 
     bitinfo = bitinfo.squeeze()
     assert (
@@ -252,8 +255,22 @@ def plot_bitinformation(bitinfo, cmap="turku", crop=None):
         nvars = len(bitinfo)
         varnames = list(bitinfo.keys())
 
-        infbits_dict = get_keepbits(bitinfo, 0.99)
-        infbits100_dict = get_keepbits(bitinfo, 0.999999999)
+        if information_filter == "Gradient":
+            infbits_dict = get_keepbits(
+                bitinfo,
+                0.99,
+                information_filter,
+                **{"threshold": 0.7, "tolerance": 0.001},
+            )
+            infbits100_dict = get_keepbits(
+                bitinfo,
+                0.999999999,
+                information_filter,
+                **{"threshold": 0.7, "tolerance": 0.001},
+            )
+        else:
+            infbits_dict = get_keepbits(bitinfo, 0.99)
+            infbits100_dict = get_keepbits(bitinfo, 0.999999999)
 
         ICnan = np.zeros((nvars, 64))
         infbits = np.zeros(nvars)
@@ -530,7 +547,6 @@ def plot_distribution(ds, nbins=1000, cmap="viridis", offset=0.01, close_zero=1e
     <Axes: title={'center': 'Statistical distributions'}, xlabel='value', ylabel='Probability density'>
 
     """
-    import matplotlib.pyplot as plt
 
     if not isinstance(ds, xr.Dataset):
         raise ValueError(
@@ -557,10 +573,10 @@ def plot_distribution(ds, nbins=1000, cmap="viridis", offset=0.01, close_zero=1e
         H[i, :] = H[i, :] / np.sum(H[i, :])  # normalize
 
     fig, ax = plt.subplots(1, 1, figsize=(5, 2 + nvars / 10))
-    colors = cm.get_cmap(cmap, nvars).colors
+    cmap_instance = plt.get_cmap(cmap, nvars)
 
     for i in range(nvars):
-        c = colors[i]
+        c = cmap_instance.colors[i]
         plt.plot(bins[:-1], H[i, :] + offset * i, color=c)
         plt.fill_between(
             bins[:-1], H[i, :] + offset * i, offset * i, alpha=0.5, color=c
