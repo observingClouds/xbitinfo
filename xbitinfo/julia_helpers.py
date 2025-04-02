@@ -8,7 +8,7 @@ import os
 import warnings
 from pathlib import Path
 
-from ._version import __version__
+import xbitinfo as xb
 
 
 def install(julia_project=None, quiet=False):  # pragma: no cover
@@ -65,7 +65,7 @@ def import_error_string(julia_project=None):
 def _get_julia_project(julia_project):
     if julia_project is None:
         is_shared = True
-        julia_project = f"xbitinfo-{__version__}"
+        julia_project = f"xbitinfo-{xb.__version__}"
     else:
         is_shared = False
         julia_project = Path(julia_project)

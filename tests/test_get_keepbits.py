@@ -123,7 +123,7 @@ def test_get_keepbits_informationFilter():
         info_ds,
         inflevel=[0.99],
         information_filter=None,
-        **{"threshold": 0.7, "tolerance": 0.001}
+        **{"threshold": 0.7, "tolerance": 0.001},
     )
     Keepbits_FilterNone_Value = Keepbits_FilterNone["RH2"].values
     assert Keepbits_FilterNone_Value == 19
@@ -132,7 +132,7 @@ def test_get_keepbits_informationFilter():
         info_ds,
         inflevel=[0.99],
         information_filter="Gradient",
-        **{"threshold": 0.7, "tolerance": 0.001}
+        **{"threshold": 0.7, "tolerance": 0.001},
     )
     Keepbits_FilterGradient_Value = Keepbits_FilterGradient["RH2"].values
     assert Keepbits_FilterGradient_Value == 7
@@ -157,7 +157,7 @@ def test_get_keepbits_informationFilter_1():
         info,
         inflevel=[0.99],
         information_filter=None,
-        **{"threshold": 0.7, "tolerance": 0.001}
+        **{"threshold": 0.7, "tolerance": 0.001},
     )
     Keepbits_FilterNone_Value = Keepbits_FilterNone["air"].values
 
@@ -165,7 +165,7 @@ def test_get_keepbits_informationFilter_1():
         info,
         inflevel=[0.99],
         information_filter="Gradient",
-        **{"threshold": 0.7, "tolerance": 0.001}
+        **{"threshold": 0.7, "tolerance": 0.001},
     )
 
     Keepbits_FilterGradient_Value = Keepbits_FilterGradient["air"].values
