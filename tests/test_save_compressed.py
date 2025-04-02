@@ -62,7 +62,7 @@ def test_to_compressed_zarr(rasm):
     label = "file"
     # save
     encoding = {
-        var: {"compressor": None} for var in ds.data_vars
+        var: {"compressors": None} for var in ds.data_vars
     }  # deactivate default compression
     ds.to_zarr(f"./tmp_testdir/{label}.zarr", mode="w", encoding=encoding)
     ds.to_compressed_zarr(f"./tmp_testdir/{label}_compressed.zarr", mode="w")
@@ -80,7 +80,7 @@ def test_to_compressed_zarr_individual_compressors(eraint_uvz):
     label = "file"
     # save
     encoding = {
-        var: {"compressor": None} for var in ds.data_vars
+        var: {"compressors": None} for var in ds.data_vars
     }  # deactivate default compression
     ds.to_zarr(f"./tmp_testdir/{label}.zarr", mode="w", encoding=encoding)
     compressors = {
