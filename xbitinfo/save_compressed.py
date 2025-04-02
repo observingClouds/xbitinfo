@@ -146,7 +146,7 @@ def get_compress_encoding_zarr(
     -------
     >>> ds = xr.tutorial.load_dataset("rasm")
     >>> get_compress_encoding_zarr(ds)  # doctest: +NORMALIZE_WHITESPACE
-    {'Tair': {'chunks': 'auto',
+    {'Tair': {'chunks': None,
               'compressor': BloscCodec(typesize=None,
                                        cname=<BloscCname.zstd: 'zstd'>,
                                        clevel=5,
