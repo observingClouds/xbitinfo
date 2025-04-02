@@ -220,6 +220,26 @@ def get_bitinformation(
     else:
         _check_bitinfo_kwargs(implementation, axis, dim, kwargs)
 
+    return _get_bitinformation(
+        ds,
+        dim=dim,
+        axis=axis,
+        label=label,
+        overwrite=overwrite,
+        implementation=implementation,
+        **kwargs,
+    )
+
+
+def _get_bitinformation(
+    ds,
+    dim=None,
+    axis=None,
+    label=None,
+    overwrite=False,
+    implementation="julia",
+    **kwargs,
+):
     if dim is None and axis is None:
         # gather bitinformation on all axis
         return _get_bitinformation_along_dims(
@@ -364,7 +384,7 @@ def _get_bitinformation_along_dims(
         logging.info(f"Get bitinformation along dimension {d}")
         if label is not None:
             label = "_".join([label, d])
-        info_per_bit_per_dim[d] = get_bitinformation(
+        info_per_bit_per_dim[d] = _get_bitinformation(
             ds,
             dim=d,
             axis=None,
