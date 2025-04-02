@@ -181,6 +181,13 @@ def get_compress_encoding_zarr(
             for v in ds.data_vars
         }
 
+    # chunks 'auto' can cause issues
+    for v, enc in encoding.items():
+        chunks = enc.get("chunks", None)
+        if chunks is not None:
+            if chunks == "auto":
+                enc["chunks"] = None
+
     return encoding
 
 
