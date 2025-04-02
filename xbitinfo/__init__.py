@@ -1,8 +1,10 @@
 """Top-level package for xbitinfo."""
 
+import importlib.metadata
+
 try:
-    from ._version import __version__
-except ImportError:
+    __version__ = importlib.metadata.version(__name__)
+except importlib.metadata.PackageNotFoundError:
     __version__ = "unknown"
 
 from .bitround import jl_bitround, xr_bitround

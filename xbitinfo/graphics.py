@@ -1,4 +1,4 @@
-import matplotlib.cm as cm
+import matplotlib.pyplot as plt
 import numpy as np
 import xarray as xr
 
@@ -98,7 +98,6 @@ def add_bitinfo_labels(
     ... )  # doctest: +SKIP
 
     """
-    import matplotlib.pyplot as plt
 
     if inflevels is None and keepbits is None:
         raise KeyError("Either inflevels or keepbits need to be provided")
@@ -236,7 +235,6 @@ def plot_bitinformation(bitinfo, information_filter=None, cmap="turku", crop=Non
     <Figure size 1200x800 with 4 Axes>
 
     """
-    import matplotlib.pyplot as plt
 
     bitinfo = bitinfo.squeeze()
     assert (
@@ -549,7 +547,6 @@ def plot_distribution(ds, nbins=1000, cmap="viridis", offset=0.01, close_zero=1e
     <Axes: title={'center': 'Statistical distributions'}, xlabel='value', ylabel='Probability density'>
 
     """
-    import matplotlib.pyplot as plt
 
     if not isinstance(ds, xr.Dataset):
         raise ValueError(
@@ -576,10 +573,10 @@ def plot_distribution(ds, nbins=1000, cmap="viridis", offset=0.01, close_zero=1e
         H[i, :] = H[i, :] / np.sum(H[i, :])  # normalize
 
     fig, ax = plt.subplots(1, 1, figsize=(5, 2 + nvars / 10))
-    colors = cm.get_cmap(cmap, nvars).colors
+    cmap_instance = plt.get_cmap(cmap, nvars)
 
     for i in range(nvars):
-        c = colors[i]
+        c = cmap_instance.colors[i]
         plt.plot(bins[:-1], H[i, :] + offset * i, color=c)
         plt.fill_between(
             bins[:-1], H[i, :] + offset * i, offset * i, alpha=0.5, color=c
