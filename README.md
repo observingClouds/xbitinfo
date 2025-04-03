@@ -17,9 +17,11 @@ The package intends to present an easy pipeline to compress (climate) datasets b
 
 Klöwer, M., Razinger, M., Dominguez, J. J., Düben, P. D., & Palmer, T. N. (2021). Compressing atmospheric data into its real information content. Nature Computational Science, 1(11), 713–724. doi: [10/gnm4jj](https://doi.org/10.1038/s43588-021-00156-2)
 
-### Video
+### Videos
 
-[![Video](https://img.youtube.com/vi/kcbOdwfskmY/0.jpg)](https://www.youtube.com/watch?v=kcbOdwfskmY)
+[General explanation](https://www.youtube.com/watch?v=kcbOdwfskmY)
+[Xbitinfo](https://zenodo.org/records/7259092)
+[Compression with Varying Information Density](https://zenodo.org/records/10066243)
 
 ### Julia Repository
 
