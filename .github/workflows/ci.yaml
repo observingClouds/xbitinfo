@@ -39,7 +39,7 @@ jobs:
         with:
           version: '1.10'
       - name: Install uv
-        uses: astral-sh/setup-uv@v5.4.1
+        uses: astral-sh/setup-uv@v6.3.1
       - name: Run tests
         run: uv run --group test pytest tests
   doctest:
@@ -56,7 +56,7 @@ jobs:
         with:
           version: '1.10'
       - name: Install uv
-        uses: astral-sh/setup-uv@v5.4.1
+        uses: astral-sh/setup-uv@v6.3.1
       - name: Run doctests
         run: |
           uv run --group test python -m pytest --doctest-modules xbitinfo --ignore xbitinfo/tests
@@ -74,7 +74,7 @@ jobs:
         with:
           version: '1.10'
       - name: Install uv
-        uses: astral-sh/setup-uv@v5.4.1
+        uses: astral-sh/setup-uv@v6.3.1
       - name: Test notebooks
         run: >
           uv run --group docs python -m ipykernel install --user --name bitinfo-docs
@@ -98,7 +98,7 @@ jobs:
         with:
           fetch-depth: 0
       - name: Setup python
-        uses: actions/setup-python@v5.5.0
+        uses: actions/setup-python@v5.6.0
         with:
           python-version: '3.11'
       - name: Set up Julia
@@ -106,7 +106,7 @@ jobs:
         with:
           version: '1.10'
       - name: Install uv
-        uses: astral-sh/setup-uv@v5.4.1
+        uses: astral-sh/setup-uv@v6.3.1
       - name: Smoketest
         run: |
           uv run python -c "import xbitinfo"
