@@ -393,7 +393,9 @@ def _get_bitinformation_along_dims(
             implementation=implementation,
             **kwargs,
         ).expand_dims("dim", axis=0)
-    info_per_bit = xr.merge(info_per_bit_per_dim.values()).squeeze()
+    info_per_bit = xr.merge(
+        info_per_bit_per_dim.values(), join="outer", compat="no_conflicts"
+    ).squeeze()
     return info_per_bit
 
 
@@ -697,7 +699,7 @@ def get_keepbits(info_per_bit, inflevel=0.99, information_filter=None, **kwargs)
                     "inflevel",
                 )
             keepmantissabits.append(keepmantissabits_bitdim)
-    keepmantissabits = xr.merge(keepmantissabits)
+    keepmantissabits = xr.merge(keepmantissabits, join="outer", compat="no_conflicts")
     if inflevel.inflevel.size > 1:  # restore original ordering
         keepmantissabits = keepmantissabits.sel(inflevel=inflevel.inflevel)
     return keepmantissabits
