@@ -1,5 +1,5 @@
 <h1 align="center">
-<img src="/docs/_static/xbitinfo_logo.svg" width="300">
+<img src="https://raw.githubusercontent.com/observingClouds/xbitinfo/refs/heads/main/docs/_static/xbitinfo_logo.svg" width="300">
 </h1><br>
 
 # xbitinfo: Retrieve bitwise information content and compress accordingly
