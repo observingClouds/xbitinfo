@@ -31,7 +31,8 @@ pip install xbitinfo
 ```
 or
 ```
-conda install -c conda-forge xbitinfo-python```
+conda install -c conda-forge xbitinfo-python
+```
 
 ### Installation including optional Julia backend
 ```
