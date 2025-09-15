@@ -26,14 +26,21 @@ Overall, the package presents a pipeline to compress (climate) datasets based on
 
 ## How to install
 ### Pure-python installation (recommended)
-`pip install xbitinfo`
+```
+pip install xbitinfo
+```
 or
-`conda install -c conda-forge xbitinfo-python`
+```
+conda install -c conda-forge xbitinfo-python```
 
 ### Installation including optional Julia backend
-`conda install -c conda-forge xbitinfo`
+```
+conda install -c conda-forge xbitinfo
+```
 or
-`pip install xbitinfo` # julia needs to be installed manually
+```
+pip install xbitinfo  # julia needs to be installed manually
+```
 
 ## How to use
 
