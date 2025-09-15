@@ -49,10 +49,17 @@ import xarray as xr
 import xbitinfo as xb
 example_dataset = 'eraint_uvz'
 ds = xr.tutorial.load_dataset(example_dataset)
-bitinfo = xb.get_bitinformation(ds, dim="longitude")  # calling bitinformation.jl.bitinformation
+# Step 1: analyze bitwise information content
+bitinfo = xb.get_bitinformation(ds, dim="longitude")
+
+# Step 2: decide on a threshold of real information to preserve (e.g. 99%)
 keepbits = xb.get_keepbits(bitinfo, inflevel=0.99)  # get number of mantissa bits to keep for 99% real information
+
+# Step 3: reduce the precision of the dataset accordingly (bitrounding)
 ds_bitrounded = xb.xr_bitround(ds, keepbits)  # bitrounding keeping only keepbits mantissa bits
-ds_bitrounded.to_compressed_netcdf(outpath)  # save to netcdf with compression
+
+# Step 4: apply lossless compression (e.g. zlib, blosc, zstd) and store the dataset
+ds_bitrounded.to_compressed_netcdf(outpath)
 ```
 
 ## How the science works
