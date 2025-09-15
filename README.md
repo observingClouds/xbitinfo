@@ -2,14 +2,51 @@
 <img src="/docs/_static/xbitinfo_logo.svg" width="300">
 </h1><br>
 
-# xbitinfo: Retrieve information content and compress accordingly
+# xbitinfo: Retrieve bitwise information content and compress accordingly
 
-[![Binder](https://mybinder.org/badge_logo.svg)](https://mybinder.org/v2/gh/observingClouds/xbitinfo/main?labpath=docs%2Fquick-start.ipynb) [![Open In SageMaker Studio Lab](https://studiolab.sagemaker.aws/studiolab.svg)](https://studiolab.sagemaker.aws/import/github/https://github.com/observingClouds/xbitinfo/blob/main/docs/quick-start.ipynb) [![CI](https://github.com/observingClouds/xbitinfo/actions/workflows/ci.yaml/badge.svg?branch=main)](https://github.com/observingClouds/xbitinfo/actions/workflows/ci.yaml) [![pre-commit.ci status](https://results.pre-commit.ci/badge/github/observingClouds/xbitinfo/main.svg)](https://results.pre-commit.ci/latest/github/observingClouds/xbitinfo/main) [![Documentation Status](https://readthedocs.org/projects/xbitinfo/badge/?version=latest)](https://xbitinfo.readthedocs.io/en/latest/?badge=latest) [![pypi](https://img.shields.io/pypi/v/xbitinfo.svg)](https://pypi.python.org/pypi/xbitinfo) ![Conda (channel only)](https://img.shields.io/conda/vn/conda-forge/xbitinfo)
+[![Binder](https://mybinder.org/badge_logo.svg)](https://mybinder.org/v2/gh/observingClouds/xbitinfo/main?labpath=docs%2Fquick-start.ipynb) [![Open In SageMaker Studio Lab](https://studiolab.sagemaker.aws/studiolab.svg)](https://studiolab.sagemaker.aws/import/github/https://github.com/observingClouds/xbitinfo/blob/main/docs/quick-start.ipynb) [![CI](https://github.com/observingClouds/xbitinfo/actions/workflows/ci.yaml/badge.svg?branch=main)](https://github.com/observingClouds/xbitinfo/actions/workflows/ci.yaml) [![pre-commit.ci status](https://results.pre-commit.ci/badge/github/observingClouds/xbitinfo/main.svg)](https://results.pre-commit.ci/latest/github/observingClouds/xbitinfo/main) [![Documentation Status](https://readthedocs.org/projects/xbitinfo/badge/?version=latest)](https://xbitinfo.readthedocs.io/en/latest/) [![pypi](https://img.shields.io/pypi/v/xbitinfo.svg)](https://pypi.python.org/pypi/xbitinfo) ![Conda (channel only)](https://img.shields.io/conda/vn/conda-forge/xbitinfo)
 
 
-This is an [`xarray`](xarray.pydata.org/)-wrapper around [BitInformation.jl](https://github.com/milankl/BitInformation.jl) to retrieve and apply bitrounding from within python.
-The package intends to present an easy pipeline to compress (climate) datasets based on the real information content.
+Xbitinfo analyses datasets based on their bitwise real information content and applies lossy compression accordingly. Being based on [`xarray`](xarray.pydata.org/) it integrates seamlessly into common research workflows. Additional convienient functions help users to visualize the bitwise information content and to make informed decisions on the real information threshold that is subsequently used as the preserved precision during the compression.
 
+Xbitinfo works in four steps:
+1. Analyse the bitwise information content of a dataset
+2. Decide on a threshold of real information to preserve (e.g. 99%)
+3. Reduce the precision of the dataset accordingly (bitrounding)
+4. Apply lossless compression (e.g. zlib, blosc, zstd) and store the dataset
+
+To fullfill these steps, Xbitinfo relies on:
+- `xarray` for handling multi-dimensional arrays and file formats (e.g. netcdf, zarr, hdf5, grib)
+- `dask` for scaling to large datasets
+- [`BitInformation.jl`](https://github.com/milankl/BitInformation.jl) (optional) for computing the bitwise information content based on the original Julia implementation. Continuous integration tests ensure however that the python-implementation shipped with xbitinfo result in identical results.
+- `numcodecs` for a wide-range of lossless compression algorithms
+
+Overall, the package presents a pipeline to compress (climate) datasets based on the real information content.
+
+
+## How to install
+### Pure-python installation (recommended)
+`pip install xbitinfo`
+or
+`conda install -c conda-forge xbitinfo-python`
+
+### Installation including optional Julia backend
+`conda install -c conda-forge xbitinfo`
+or
+`pip install xbitinfo` # julia needs to be installed manually
+
+## How to use
+
+```python
+import xarray as xr
+import xbitinfo as xb
+example_dataset = 'eraint_uvz'
+ds = xr.tutorial.load_dataset(example_dataset)
+bitinfo = xb.get_bitinformation(ds, dim="longitude")  # calling bitinformation.jl.bitinformation
+keepbits = xb.get_keepbits(bitinfo, inflevel=0.99)  # get number of mantissa bits to keep for 99% real information
+ds_bitrounded = xb.xr_bitround(ds, keepbits)  # bitrounding keeping only keepbits mantissa bits
+ds_bitrounded.to_compressed_netcdf(outpath)  # save to netcdf with compression
+```
 
 ## How the science works
 
@@ -27,24 +64,6 @@ Klöwer, M., Razinger, M., Dominguez, J. J., Düben, P. D., & Palmer, T. N. (202
 
 [BitInformation.jl](https://github.com/milankl/BitInformation.jl)
 
-## How to install
-### Preferred installation
-`conda install -c conda-forge xbitinfo`
-### Alternative installation
-`pip install xbitinfo` # ensure to install julia manually
-
-## How to use
-
-```python
-import xarray as xr
-import xbitinfo as xb
-example_dataset = 'eraint_uvz'
-ds = xr.tutorial.load_dataset(example_dataset)
-bitinfo = xb.get_bitinformation(ds, dim="longitude")  # calling bitinformation.jl.bitinformation
-keepbits = xb.get_keepbits(bitinfo, inflevel=0.99)  # get number of mantissa bits to keep for 99% real information
-ds_bitrounded = xb.xr_bitround(ds, keepbits)  # bitrounding keeping only keepbits mantissa bits
-ds_bitrounded.to_compressed_netcdf(outpath)  # save to netcdf with compression
-```
 
 
 ## Credits
