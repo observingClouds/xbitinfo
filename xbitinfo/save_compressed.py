@@ -233,7 +233,7 @@ class ToCompressed_Zarr:
             path,
             encoding=get_compress_encoding_zarr(
                 self._obj,
-                compressors=compressor,
+                compressor=compressor,
             ),
             **kwargs,
         )
