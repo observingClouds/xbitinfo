@@ -25,6 +25,12 @@ Overall, the package presents a pipeline to compress (climate) datasets based on
 
 
 ## How to install
+
+`Xbitinfo` is packaged and distributed both via `PyPI` and `conda-forge` and can be installed via `pip` or `conda` respectively.
+
+Depending on whether one wants to use the Julia implementation of the bitinformation algorithm (`BitInformation.jl`) or the native python implementation shipped with `xbitinfo`,
+one might choose one installation option over the other.
+
 ### Pure-python installation (recommended)
 ```
 pip install xbitinfo
