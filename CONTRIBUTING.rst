@@ -191,7 +191,6 @@ Preparing Pull Requests
    Add yourself to list of authors at the end of `CHANGELOG.rst <CHANGELOG.rst>`_ file if
    not there yet, in alphabetical order.
 
-#. Add yourself to the `authors <AUTHORS.rst>`_.
 
 #. Finally, submit a `Pull Request <https://docs.github.com/en/github/collaborating-with-pull-requests/proposing-changes-to-your-work-with-pull-requests/about-pull-requests>`_ through the GitHub website using this data::
 
