@@ -2,5 +2,6 @@
 Contributors
 ============
 
-* Hauke Schulz <hauke.schulz@mpimet.mpg.de>
-* Aaron Spring <aaron.spring@mpimet.mpg.de>
+.. image:: https://contrib.rocks/image?repo=observingClouds/xbitinfo
+   :target: https://github.com/observingClouds/xbitinfo/graphs/contributors
+   :alt: Contributors

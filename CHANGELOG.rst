@@ -2,9 +2,11 @@
 CHANGELOG
 =========
 
-X.X.X (unreleased)
+0.0.4 (2025-09-22)
 ------------------
 
+* Improve documentation (:pr:`310`) `Hauke Schulz`_.
+* Fix deprecation compatibility issues (:pr:`309`) `Hauke Schulz`_.
 * Limit libcurl version to fix recent binary issues (:pr:`297`) `Hauke Schulz`_.
 * Add warning for quantized variables (:pr:`286`, :issue:`202`) `Joel Jaeschke`_.
 * Update BitInformation.jl version to v0.6.3 (:pr:`292`) `Hauke Schulz`_
@@ -16,6 +18,7 @@ X.X.X (unreleased)
 * Implement basic retrieval of bitinformation in python as alternative to julia implementation (:pr:`156`, :issue:`155`, :pr:`126`, :issue:`125`) `Hauke Schulz`_ with helpful comments from `Milan Klöwer`_.
 * Make julia binding to BitInformation.jl optional (:pr:`153`, :issue:`151`) `Aaron Spring`_.
 * Add support for python 3.13 (:pr:`303`) and use uv for GitHub Actions `Hauke Schulz`_.
+* Simplify get_bitinformation function (:pr:`262`, :issue:`261`) `Hauke Schulz`_.
 
 0.0.3 (2022-07-11)
 ------------------

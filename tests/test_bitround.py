@@ -19,7 +19,7 @@ def test_xr_bitround(air_temperature, dtype, input_type, implementation, keepbit
     ds = air_temperature.astype(dtype)
     i = 6
     if keepbits == "dict":
-        keepbits = {v: i for v in ds.data_vars}
+        keepbits = dict.fromkeys(ds.data_vars, i)
     elif keepbits == "int":
         keepbits = i
     if input_type == "DataArray":
