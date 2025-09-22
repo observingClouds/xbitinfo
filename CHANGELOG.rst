@@ -2,7 +2,7 @@
 CHANGELOG
 =========
 
-X.X.X (unreleased)
+0.0.4 (2025-09-22)
 ------------------
 
 * Improve documentation (:pr:`310`) `Hauke Schulz`_.
