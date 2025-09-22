@@ -115,13 +115,12 @@ Preparing Pull Requests
    needed, or will generally be quite clear about what you need to do to pass
    the commit test.
 
-   ``pre-commit`` also runs::
+   ``pre-commit`` also runs:
 
     * `ruff <https://docs.astral.sh/ruff/>`_ code formatter.
     * `black <https://black.readthedocs.io/en/stable/>`_ code formatting
     * `flake8 <https://flake8.pycqa.org/en/latest/>`_ code linting
-    ..
-        * `blackdoc <https://blackdoc.readthedocs.io/en/latest/>`_ docstring code formatter
+    * `blackdoc <https://blackdoc.readthedocs.io/en/latest/>`_ docstring code formatter
 
 
 #. Break your edits up into reasonably sized commits::
@@ -192,7 +191,6 @@ Preparing Pull Requests
    Add yourself to list of authors at the end of `CHANGELOG.rst <CHANGELOG.rst>`_ file if
    not there yet, in alphabetical order.
 
-#. Add yourself to the `authors <AUTHORS.rst>`_.
 
 #. Finally, submit a `Pull Request <https://docs.github.com/en/github/collaborating-with-pull-requests/proposing-changes-to-your-work-with-pull-requests/about-pull-requests>`_ through the GitHub website using this data::
 

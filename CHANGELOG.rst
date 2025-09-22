@@ -5,6 +5,7 @@ CHANGELOG
 X.X.X (unreleased)
 ------------------
 
+* Improve documentation (:pr:`310`) `Hauke Schulz`_.
 * Fix deprecation compatibility issues (:pr:`309`) `Hauke Schulz`_.
 * Limit libcurl version to fix recent binary issues (:pr:`297`) `Hauke Schulz`_.
 * Add warning for quantized variables (:pr:`286`, :issue:`202`) `Joel Jaeschke`_.

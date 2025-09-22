@@ -38,6 +38,8 @@ docs = [
     "zarr",
     "julia",
     "pooch",
+    "ipywidgets",
+    "pip"
 ]
 
 [tool.setuptools]
