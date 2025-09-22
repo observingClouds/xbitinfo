@@ -77,9 +77,9 @@ Klöwer, M., Razinger, M., Dominguez, J. J., Düben, P. D., & Palmer, T. N. (202
 
 ### Videos
 
-[General explanation](https://www.youtube.com/watch?v=kcbOdwfskmY)
-[Xbitinfo](https://zenodo.org/records/7259092)
-[Compression with Varying Information Density](https://zenodo.org/records/10066243)
+- [General explanation of bitwise information content](https://www.youtube.com/watch?v=kcbOdwfskmY)
+- [Xbitinfo implementation](https://zenodo.org/records/7259092)
+- [Compression with Varying Information Density](https://zenodo.org/records/10066243)
 
 ### Julia Repository
 
