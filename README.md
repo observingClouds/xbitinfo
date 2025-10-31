@@ -54,9 +54,10 @@ pip install xbitinfo  # julia needs to be installed manually
 ```python
 import xarray as xr
 import xbitinfo as xb
+
 # Load example dataset
 # (requires pooch to be installed via e.g. `pip install pooch`)
-example_dataset = 'eraint_uvz'
+example_dataset = "eraint_uvz"
 ds = xr.tutorial.load_dataset(example_dataset)
 # Step 1: analyze bitwise information content
 bitinfo = xb.get_bitinformation(ds, dim="longitude")
