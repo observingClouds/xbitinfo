@@ -2,6 +2,11 @@
 CHANGELOG
 =========
 
+unreleased
+------------------
+
+* Improve README code example (:pr:`325`) `Hauke Schulz`_.
+
 0.0.5 (2025-11-07)
 ------------------
 
