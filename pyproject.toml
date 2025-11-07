@@ -3,7 +3,7 @@ name = "xbitinfo"
 dynamic = ["version"]
 description = "Retrieve information content and compress accordingly."
 readme = "README.md"
-requires-python = ">=3.9"
+requires-python = ">=3.11,<3.14"
 license = { text = "MIT license" }
 keywords = ["xbitinfo"]
 dependencies = [
@@ -47,7 +47,6 @@ packages = ["xbitinfo", "xbitinfo.*"]
 include-package-data = true
 package-data = { "xbitinfo" = ["*.jl"] }
 test-suite = "tests"
-
 
 [tool.pytest]
 addopts = "--ignore=setup.py"
