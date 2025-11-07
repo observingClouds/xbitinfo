@@ -2,7 +2,7 @@
 CHANGELOG
 =========
 
-unreleased
+0.0.5 (2025-11-07)
 ------------------
 
 * Update pre-commit hooks and update doctests (:pr:`307`) `Hauke Schulz`_.
