@@ -1,6 +1,16 @@
 import numcodecs
 import xarray as xr
-from zarr.codecs import BloscCodec, BloscShuffle
+import zarr
+from packaging.version import Version
+
+if Version(zarr.__version__) >= Version("3"):
+    from zarr.codecs import BloscCodec, BloscShuffle
+
+    bitshuffle = BloscShuffle.bitshuffle
+else:
+    from numcodecs import Blosc as BloscCodec
+
+    bitshuffle = numcodecs.Blosc.BITSHUFFLE
 
 
 def get_chunksizes(da, for_cdo=False, time_dim="time", chunks=None):
@@ -137,7 +147,7 @@ class ToCompressed_Netcdf:
 
 def get_compress_encoding_zarr(
     ds,
-    compressor=BloscCodec(cname="zstd", shuffle=BloscShuffle.bitshuffle),
+    compressor=BloscCodec(cname="zstd", shuffle=bitshuffle),
     zarr_format="2",
 ):
     """Generate encoding for :py:meth:`xarray.Dataset.to_zarr`.
@@ -164,7 +174,7 @@ def get_compress_encoding_zarr(
     elif zarr_format == "3":
         compressor_key = "compressors"
     if isinstance(compressor, dict):
-        default_compressor = BloscCodec(cname="zstd", shuffle=BloscShuffle.bitshuffle)
+        default_compressor = BloscCodec(cname="zstd", shuffle=bitshuffle)
         encoding = {
             v: {
                 **enc_checker(ds[v], zarr_format=zarr_format),
@@ -226,7 +236,7 @@ class ToCompressed_Zarr:
     def __call__(
         self,
         path,
-        compressor=BloscCodec(cname="zstd", shuffle=BloscShuffle.bitshuffle),
+        compressor=BloscCodec(cname="zstd", shuffle=bitshuffle),
         **kwargs,
     ):
         self._obj.to_zarr(
