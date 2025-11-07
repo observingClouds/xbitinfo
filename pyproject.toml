@@ -48,6 +48,8 @@ include-package-data = true
 package-data = { "xbitinfo" = ["*.jl"] }
 test-suite = "tests"
 
+[tool.uv.dependency-groups]
+test = {requires-python = ">=3.10"}
 
 [tool.pytest]
 addopts = "--ignore=setup.py"
