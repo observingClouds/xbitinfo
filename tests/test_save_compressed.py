@@ -4,16 +4,7 @@ import shutil
 import pytest
 import xarray as xr
 import zarr
-from packaging.version import Version
-
-if Version(zarr.__version__) >= Version("3"):
-    from zarr.codecs import BloscCodec, BloscShuffle
-
-    bitshuffle = BloscShuffle.bitshuffle
-else:
-    from numcodecs import Blosc as BloscCodec
-
-    bitshuffle = BloscCodec.BITSHUFFLE
+from zarr.codecs import BloscCodec, BloscShuffle
 
 import xbitinfo as xb
 

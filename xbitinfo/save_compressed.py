@@ -10,7 +10,7 @@ if Version(zarr.__version__) >= Version("3"):
 else:
     from numcodecs import Blosc as BloscCodec
 
-    bitshuffle = BloscCodec.BITSHUFFLE
+    bitshuffle = numcodecs.Blosc.BITSHUFFLE
 
 
 def get_chunksizes(da, for_cdo=False, time_dim="time", chunks=None):
