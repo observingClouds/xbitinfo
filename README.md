@@ -55,6 +55,9 @@ pip install xbitinfo  # julia needs to be installed manually
 import xarray as xr
 import xbitinfo as xb
 
+# Define output path for compressed dataset
+outpath = "example_bitrounded_compressed.nc"
+
 # Load example dataset
 # (requires pooch to be installed via e.g. `pip install pooch`)
 example_dataset = "eraint_uvz"
