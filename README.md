@@ -63,7 +63,7 @@ outpath = "example_bitrounded_compressed.nc"
 example_dataset = "eraint_uvz"
 ds = xr.tutorial.load_dataset(example_dataset)
 # Step 1: analyze bitwise information content
-bitinfo = xb.get_bitinformation(ds, dim="longitude")
+bitinfo = xb.get_bitinformation(ds, dim="longitude", implementation="python")
 
 # Step 2: decide on a threshold of real information to preserve (e.g. 99%)
 keepbits = xb.get_keepbits(
