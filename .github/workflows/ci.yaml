@@ -54,7 +54,7 @@ jobs:
           python-version: ${{ matrix.python-version }}
           cache-dependency-glob: "**/pyproject.toml"
       - name: Run tests
-        run: uv run --group test pytest tests
+        run: uv run --prerelease=allow --group test pytest tests
   doctest:
     name: doctests
     runs-on: ubuntu-latest
