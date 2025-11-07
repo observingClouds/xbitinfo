@@ -6,6 +6,7 @@ unreleased
 ------------------
 
 * Update pre-commit hooks and update doctests (:pr:`307`) `Hauke Schulz`_.
+* Add note to docs on additional requirements running ArtificialInformation filter example (:pr:`322`) `Hauke Schulz`_.
 
 0.0.4 (2025-09-22)
 ------------------
