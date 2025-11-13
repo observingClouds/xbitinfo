@@ -5,8 +5,13 @@ CHANGELOG
 unreleased
 ------------------
 
-* Update pre-commit hooks and update doctests (:pr:`307`) `Hauke Schulz`_.
 * Add note to docs on additional requirements running ArtificialInformation filter example (:pr:`322`) `Hauke Schulz`_.
+
+0.0.5 (2025-11-07)
+------------------
+
+* Update pre-commit hooks and update doctests (:pr:`307`) `Hauke Schulz`_.
+* Add python matrix test and restrict supported versions to 3.11-3.13 (:pr:`323`) `Hauke Schulz`_.
 
 0.0.4 (2025-09-22)
 ------------------
