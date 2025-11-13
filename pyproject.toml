@@ -49,7 +49,6 @@ package-data = { "xbitinfo" = ["*.jl"] }
 test-suite = "tests"
 
 [tool.pytest]
-addopts = "--ignore=setup.py"
 norecursedirs = [
     ".git",
     ".github",
