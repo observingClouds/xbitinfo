@@ -2,6 +2,11 @@
 CHANGELOG
 =========
 
+unreleased
+------------------
+
+* Join pytest toml sections to support pytest>=9.0.0 (:pr:`326`) `Hauke Schulz`_.
+
 0.0.5 (2025-11-07)
 ------------------
 
