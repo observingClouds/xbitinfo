@@ -50,8 +50,6 @@ test-suite = "tests"
 
 [tool.pytest]
 addopts = "--ignore=setup.py"
-
-[tool.pytest.ini_options]
 norecursedirs = [
     ".git",
     ".github",
