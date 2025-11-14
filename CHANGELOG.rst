@@ -5,7 +5,9 @@ CHANGELOG
 unreleased
 ------------------
 
+* Add note to docs on additional requirements running ArtificialInformation filter example (:pr:`322`) `Hauke Schulz`_.
 * Improve README code example (:pr:`325`) `Hauke Schulz`_.
+* Join pytest toml sections to support pytest>=9.0.0 (:pr:`326`) `Hauke Schulz`_.
 
 0.0.5 (2025-11-07)
 ------------------
