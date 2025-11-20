@@ -4,7 +4,24 @@ import shutil
 import pytest
 import xarray as xr
 import zarr
-from zarr.codecs import BloscCodec, BloscShuffle
+from packaging.version import Version
+
+zarr_version = Version(zarr.__version__)
+
+if zarr_version >= Version("3.0.0"):
+    from zarr.codecs import BloscCodec, BloscShuffle
+
+    compressor_key = "compressors"
+else:
+    from zarr.codecs import Blosc as BloscCodec
+
+    compressor_key = "compressor"
+
+    class BloscShuffle:
+        bitshuffle = zarr.codecs.blosc.BITSHUFFLE
+        shuffle = zarr.codecs.blosc.SHUFFLE
+        noshuffle = zarr.codecs.blosc.NOSHUFFLE
+
 
 import xbitinfo as xb
 
@@ -52,7 +69,11 @@ def get_zarr_size(fn):
     # Collect size
     total = 0
     for var in list(grp.keys()):
-        total += grp[var].nbytes_stored()
+        nbytes_stored = grp[var].nbytes_stored
+        if isinstance(nbytes_stored, int):
+            total += nbytes_stored
+        else:
+            total += nbytes_stored()
     return total
 
 
@@ -62,7 +83,7 @@ def test_to_compressed_zarr(rasm):
     label = "file"
     # save
     encoding = {
-        var: {"compressors": None} for var in ds.data_vars
+        var: {compressor_key: None} for var in ds.data_vars
     }  # deactivate default compression
     ds.to_zarr(f"./tmp_testdir/{label}.zarr", mode="w", encoding=encoding)
     ds.to_compressed_zarr(f"./tmp_testdir/{label}_compressed.zarr", mode="w")
@@ -80,7 +101,7 @@ def test_to_compressed_zarr_individual_compressors(eraint_uvz):
     label = "file"
     # save
     encoding = {
-        var: {"compressors": None} for var in ds.data_vars
+        var: {compressor_key: None} for var in ds.data_vars
     }  # deactivate default compression
     ds.to_zarr(f"./tmp_testdir/{label}.zarr", mode="w", encoding=encoding)
     compressors = {

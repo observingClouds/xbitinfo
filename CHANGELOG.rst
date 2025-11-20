@@ -2,9 +2,25 @@
 CHANGELOG
 =========
 
-X.X.X (unreleased)
+unreleased
 ------------------
 
+* Add note to docs on additional requirements running ArtificialInformation filter example (:pr:`322`) `Hauke Schulz`_.
+* Improve README code example (:pr:`325`) `Hauke Schulz`_.
+* Join pytest toml sections to support pytest>=9.0.0 (:pr:`326`) `Hauke Schulz`_.
+* Add python 3.10 support (:pr:`327`) `Hauke Schulz`_.
+
+0.0.5 (2025-11-07)
+------------------
+
+* Update pre-commit hooks and update doctests (:pr:`307`) `Hauke Schulz`_.
+* Add python matrix test and restrict supported versions to 3.11-3.13 (:pr:`323`) `Hauke Schulz`_.
+
+0.0.4 (2025-09-22)
+------------------
+
+* Improve documentation (:pr:`310`) `Hauke Schulz`_.
+* Fix deprecation compatibility issues (:pr:`309`) `Hauke Schulz`_.
 * Limit libcurl version to fix recent binary issues (:pr:`297`) `Hauke Schulz`_.
 * Add warning for quantized variables (:pr:`286`, :issue:`202`) `Joel Jaeschke`_.
 * Update BitInformation.jl version to v0.6.3 (:pr:`292`) `Hauke Schulz`_

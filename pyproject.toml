@@ -3,14 +3,14 @@ name = "xbitinfo"
 dynamic = ["version"]
 description = "Retrieve information content and compress accordingly."
 readme = "README.md"
-requires-python = ">=3.9"
+requires-python = ">=3.10,<3.14"
 license = { text = "MIT license" }
 keywords = ["xbitinfo"]
 dependencies = [
     "dask",
     "xarray",
     "tqdm",
-    "numcodecs>=0.10.0",
+    "numcodecs>=0.10.0,<0.16.4",
     "matplotlib>=3.9.0",
     "prefect>=3.3.0",
     "zarr",
@@ -38,6 +38,8 @@ docs = [
     "zarr",
     "julia",
     "pooch",
+    "ipywidgets",
+    "pip"
 ]
 
 [tool.setuptools]
@@ -46,11 +48,7 @@ include-package-data = true
 package-data = { "xbitinfo" = ["*.jl"] }
 test-suite = "tests"
 
-
 [tool.pytest]
-addopts = "--ignore=setup.py"
-
-[tool.pytest.ini_options]
 norecursedirs = [
     ".git",
     ".github",
