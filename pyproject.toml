@@ -3,7 +3,7 @@ name = "xbitinfo"
 dynamic = ["version"]
 description = "Retrieve information content and compress accordingly."
 readme = "README.md"
-requires-python = ">=3.11,<3.14"
+requires-python = ">=3.10,<3.14"
 license = { text = "MIT license" }
 keywords = ["xbitinfo"]
 dependencies = [
