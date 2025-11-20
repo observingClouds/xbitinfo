@@ -2,7 +2,7 @@
 CHANGELOG
 =========
 
-unreleased
+0.0.6 (2025-11-20)
 ------------------
 
 * Update GitHub actions (:pr:`306`) `Hauke Schulz`_.
