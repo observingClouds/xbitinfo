@@ -523,6 +523,7 @@ def get_cdf_without_artificial_information(
       * inflevel  (inflevel) float64 8B 0.99
     Data variables:
         air       (dim, inflevel) int64 24B 5 7 6
+    ...
     """
 
     # Extract coordinates from the 'info_per_bit' dataset.
@@ -625,6 +626,7 @@ def get_keepbits(info_per_bit, inflevel=0.99, information_filter=None, **kwargs)
         dim       <U3 12B 'lon'
     Data variables:
         air       (inflevel) int64 8B 7
+    ...
     >>> xb.get_keepbits(info_per_bit, inflevel=0.99999999)
     <xarray.Dataset> Size: 28B
     Dimensions:   (inflevel: 1)
@@ -633,6 +635,7 @@ def get_keepbits(info_per_bit, inflevel=0.99, information_filter=None, **kwargs)
         dim       <U3 12B 'lon'
     Data variables:
         air       (inflevel) int64 8B 7
+    ...
     >>> xb.get_keepbits(info_per_bit, inflevel=1.0)
     <xarray.Dataset> Size: 28B
     Dimensions:   (inflevel: 1)
@@ -641,6 +644,7 @@ def get_keepbits(info_per_bit, inflevel=0.99, information_filter=None, **kwargs)
         dim       <U3 12B 'lon'
     Data variables:
         air       (inflevel) int64 8B 52
+    ...
     >>> info_per_bit = xb.get_bitinformation(ds)
     >>> xb.get_keepbits(info_per_bit)
     <xarray.Dataset> Size: 80B
@@ -650,6 +654,7 @@ def get_keepbits(info_per_bit, inflevel=0.99, information_filter=None, **kwargs)
       * inflevel  (inflevel) float64 8B 0.99
     Data variables:
         air       (dim, inflevel) int64 24B 5 7 6
+    ...
     """
     if not isinstance(inflevel, list):
         inflevel = [inflevel]
