@@ -1,6 +1,23 @@
 import numcodecs
 import xarray as xr
-from zarr.codecs import BloscCodec, BloscShuffle
+import zarr
+from packaging.version import Version
+
+zarr_version = Version(zarr.__version__)
+
+if zarr_version >= Version("3.0.0"):
+    from zarr.codecs import BloscCodec, BloscShuffle
+
+    compressor_key = "compressors"
+else:
+    from zarr.codecs import Blosc as BloscCodec
+
+    compressor_key = "compressor"
+
+    class BloscShuffle:
+        bitshuffle = zarr.codecs.blosc.BITSHUFFLE
+        shuffle = zarr.codecs.blosc.SHUFFLE
+        noshuffle = zarr.codecs.blosc.NOSHUFFLE
 
 
 def get_chunksizes(da, for_cdo=False, time_dim="time", chunks=None):
