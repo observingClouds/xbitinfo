@@ -96,8 +96,8 @@ interrupted by visual inspection and testing (see \autoref{fig:xbitinfo_workflow
 ![Xbitinfo workflow with the addition of storing the computationally expensive retrieval of the bit information content in a JSON file for later reference and the ability to evaluate and adjust the keepbits on subsets of the original dataset.\label{fig:xbitinfo_workflow}](xbitinfo_workflow.png){ width=40% }
 
 Xbitinfo therefore provides additional convenience functions over  @klower_compressing_2021 to analyse,
-filter, and visualize the bitwise real information content. Because Xbitinfo operates on xarray datasets
-it can also handle a large variety of input and output formats, such as netCDF and Zarr and naturally fits
+filter, and visualize the bitwise real information content. Because Xbitinfo operates on xarray[@xarray] datasets
+it can also handle a large variety of input and output formats, such as netCDF[@netcdf] and Zarr[@zarr] and naturally fits
 into other scientific workflows. Thanks to the xarray-compatibility, it can also make use of a wide range of
 modern lossless compression algorithms that are implemented for specific output data formats, allowing them to exploit the additional compression gains due to reduced information.
 
