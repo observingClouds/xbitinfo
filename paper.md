@@ -81,9 +81,9 @@ The compression can therefore be split into three main stages:
  - **Compression**:
     - applying lossless compression
 
-All stages are shown in Figure \autoref(fig:general_workflow).
+All stages are shown in \autoref{fig:general_workflow}.
 
-![General workflow.](general_workflow.png){#fig:general_workflow width=40%}
+![General workflow.\label{fig:general_workflow}](general_workflow.png){ width=40% }
 
 Bit rounding is supported by many libraries (e.g. CDO, netCDF, numcodecs). One can also set the
 `inflevel` and get the corresponding number of keepbits with the Julia implementation provided by
