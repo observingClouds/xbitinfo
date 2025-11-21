@@ -81,7 +81,7 @@ The compression can therefore be split into three main stages:
  - **Compression**:
     - applying lossless compression
 
-All stages are shown in Figure \@ref(fig:general_workflow).
+All stages are shown in Figure \autoref(fig:general_workflow).
 
 ![General workflow.](general_workflow.png){#fig:general_workflow width=40%}
 
