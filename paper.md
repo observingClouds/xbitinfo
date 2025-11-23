@@ -3,10 +3,10 @@ title: 'xbitinfo: Compressing geospatial data based on information theory'
 tags:
   - Python
 authors:
-  - name: Hauke Schulz^[Now at Danish Meteorological Institute, Copenhagen, Denmark]
+  - name: Hauke Schulz
     orcid: 0000-0001-5468-1137
     corresponding: true
-    affiliation: "1, 2"
+    affiliation: "1, 2, 5"
   - name: Milan Klöwer
     orcid: 0000-0002-3920-4356
     affiliation: 3
@@ -22,6 +22,8 @@ affiliations:
    index: 3
  - name: Max Planck Institute for Meteorology, Hamburg, Germany
    index: 4
+ - name: Now at Danish Meteorological Institute, Copenhagen, Denmark
+   index: 5
 date: 22 September 2025
 bibliography: paper.bib
 ---
@@ -135,5 +137,6 @@ within xbitinfo to warn the user.
 
 We acknowledge all GitHub contributors that have helped and continue to help to improve Xbitinfo and its dependencies. We also thank
 the ECMWF Code4Earth and Google Summer of Code programs for providing funding for students to work on new features of Xbitinfo.
+HS was supported in part by the University of Washington eScience Institute and the Cooperative Institute for Climate, Ocean, & Ecosystem Studies (CICOES) under NOAA Cooperative Agreement NA20OAR4320271, Contribution No. 2025-1507
 
 # References
