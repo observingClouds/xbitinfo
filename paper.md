@@ -3,7 +3,7 @@ title: 'xbitinfo: Compressing geospatial data based on information theory'
 tags:
   - Python
 authors:
-  - name: Hauke Schulz^[Now at Danish Meteorological Institute, Copenhagen, Denmark]
+  - name: Hauke Schulz^[Corresponding author, Now at Danish Meteorological Institute, Copenhagen, Denmark]
     orcid: 0000-0001-5468-1137
     corresponding: false
     affiliation: "1, 2"
