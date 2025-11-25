@@ -10,7 +10,7 @@ authors:
   - name: Milan Klöwer
     orcid: 0000-0002-3920-4356
     affiliation: 3
-  - name: Aaron Spring
+  - name: Aaron Spring^[Now at XING, Hamburg, Germany]
     orcid: 0000-0003-0216-2241
     affiliation: 4
 affiliations:
