@@ -102,8 +102,8 @@ it can also handle a large variety of input and output formats, such as netCDF [
 into other scientific workflows. Thanks to the xarray-compatibility, it can also make use of a wide range of
 modern lossless compression algorithms that are implemented for specific output data formats, allowing them to exploit the additional compression gains due to reduced information.
 
-Xbitinfo provides two backends for the calculation of the real bitwise information content, one wraps the
-latest Julia implementation in BitInformation.jl provided with @klower_compressing_2021 for consistency
+Xbitinfo provides two backends for the calculation of the real bitwise information content. One wraps the
+latest Julia implementation in BitInformation.jl provided with @klower_compressing_2021 for consistency,
 and the other uses numpy to be dask compatible and therefore is more performant when compressing in parallel.
 
 
