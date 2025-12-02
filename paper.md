@@ -14,11 +14,11 @@ authors:
     orcid: 0000-0003-0216-2241
     affiliation: 4
 affiliations:
- - name: University of Washington, Seattle, USA
+ - name: University of Washington, Seattle, United States of America
    index: 1
- - name: eScience Institute, University of Washington, Seattle, USA
+ - name: eScience Institute, University of Washington, Seattle, United States of America
    index: 2
- - name: University of Oxford, Oxford, UK
+ - name: University of Oxford, Oxford, United Kingdom
    index: 3
  - name: Max Planck Institute for Meteorology, Hamburg, Germany
    index: 4
