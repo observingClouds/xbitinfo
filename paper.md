@@ -45,19 +45,20 @@ on these components significantly and are therefore commonly used.
 
 Lossless compressors like Zlib or Zstandard encode datasets exploiting redundancies without losing
 any information. This is often unnecessarily conservative as not all the bits are meaningful,
-i.e. they do not contain real information. They often encode floating-point numbers with unnecessarily high precision, several orders of magnitude higher than the uncertainty of the data
+i.e., they do not contain real information. They often encode floating-point numbers with unnecessarily high precision, several orders of magnitude higher than the uncertainty of the data
 (arising from, for example, model, numerical, observational or rounding errors) itself. Lossy compression
-is therefore often used, sacrificing bits with little to no real information, and from image and
-audio compression, JPEG and MP3 are two prominent examples. Geospatial data lacks a similarly
+is therefore often used, sacrificing bits with little to no real information.
+JPEG and MP3 are two prominent examples of this, from image and
+audio compression respectively. Geospatial data lacks a similarly
 widely accepted compression standard.
 
 JPEG and MP3 use perceptual models of the human visual and auditory system to decide on whether
 or not to keep information [@jpeg_iso;@mp3_iso]. Applied to geospatial data, the visual approach is acceptable for the
-publication of a scientific figure, however, it may not yield a tolerable compression error for the original
-data that still undergoes mathematical operations, like gradients. Commonly used with geospatial
-data is linear quantization as it is a standard algorithm supported by the GRIB format. It encodes
+publication of a scientific figure. However, it may not yield a tolerable compression error for the original
+data that still undergoes mathematical operations, like gradients. Linear quantization is commonly used with geospatial
+data, as it is a standard algorithm supported by the GRIB format. It encodes
 the min-max range of the data into evenly, or linearly, spaced quanta and enumerates those using
-integers. The issue with linear quantization is however that it often is not a good mapping for
+integers. The issue with linear quantization is, however, that it often is not a good mapping for
 geophysical quantities with a more logarithmic distribution. In practice, the number of preserved
 mantissa bits in the quantization process is often applied to an entire set of variables and dimensions.
 As a consequence, some variables have too little information preserved while others keep too much
@@ -68,7 +69,7 @@ information content based on information theory. It further allows one to set a 
 information content that shall be preserved if additional compression is needed beyond the
 filtering of false information.
 
-As typical for lossy compression, parameters can be set to influence the loss.
+As is typical for lossy compression, parameters can be set to influence the loss.
 In the case of the bit information algorithm, the `inflevel` parameter can be set to decide on the
 percentage of real information content to be preserved.
 The compression can therefore be split into three main stages:
@@ -76,7 +77,7 @@ The compression can therefore be split into three main stages:
  - **Bit information**: analysing the bit information content
  - **Bit rounding**:
     - deciding on information content to keep (`inflevel`)
-    - translate `inflevel` to mantissa bits to keep (`keepbits`) after rounding
+    - translating `inflevel` to mantissa bits to keep (`keepbits`) after rounding
     - bit rounding according to keepbits
  - **Compression**:
     - applying lossless compression
@@ -85,13 +86,13 @@ All stages are shown in \autoref{fig:general_workflow}.
 
 ![General workflow.\label{fig:general_workflow}](general_workflow.png){ width=40% }
 
-Bit rounding is supported by many libraries (e.g. CDO, netCDF, numcodecs). One can also set the
+Bit rounding is supported by many libraries (e.g., CDO, netCDF, numcodecs). One can also set the
 `inflevel` and get the corresponding number of keepbits with the Julia implementation provided by
-@klower_compressing_2021. However, for a user with a workflow that is otherwise Python-based this
+@klower_compressing_2021. However, for a user with a workflow that is otherwise Python-based, this
 is not convenient. In practice, the decision on how much real information to keep needs
 testing with the downstream tools and is often an iterative process to ensure consistent
 behaviour with the original dataset. The gathering of the bit information and the decision on
-the bit-rounding parameters are therefore often not immediately following each other and are
+the bit-rounding parameters therefore often do not immediately follow each other and are
 interrupted by visual inspection and testing (see \autoref{fig:xbitinfo_workflow}).
 
 ![Xbitinfo workflow with the addition of storing the computationally expensive retrieval of the bit information content in a JSON file for later reference and the ability to evaluate and adjust the keepbits on subsets of the original dataset.\label{fig:xbitinfo_workflow}](xbitinfo_workflow.png){ width=40% }
@@ -109,7 +110,7 @@ and the other uses numpy to be dask compatible and therefore is more performant 
 
 # Example
 
-To compress a dataset based on its real bitwise information content with xbitinfo follow these steps:
+To compress a dataset based on its real bitwise information content with xbitinfo, follow these steps:
 
 ```python
 import xarray as xr
@@ -127,13 +128,13 @@ ds.to_compressed_zarr("/path/to/output/file")
 
 It should be noted that the BitInformation algorithm relies on uncompressed data that hasn't been manipulated beforehand.
 A common issue is that climate model output has been linearly quantized during its generation,
-e.g. because it has been written to the GRIB format. Such datasets should be handled with care as the bit information often
+e.g., because it has been written to the GRIB format. Such datasets should be handled with care as the bit information often
 contains artificial information resulting in too many keepbits. Filters to capture those cases are currently being developed
 within xbitinfo to warn the user.
 
 # Acknowledgements
 
-We acknowledge all GitHub contributors that have helped and continue to help to improve Xbitinfo and its dependencies. We also thank
+We acknowledge all GitHub contributors who have helped and continue to help to improve Xbitinfo and its dependencies. We also thank
 the ECMWF Code4Earth and Google Summer of Code programs for providing funding for students to work on new features of Xbitinfo.
 HS was supported in part by the University of Washington eScience Institute and the Cooperative Institute for Climate, Ocean, & Ecosystem Studies (CICOES) under NOAA Cooperative Agreement NA20OAR4320271, Contribution No. 2025-1507
 
