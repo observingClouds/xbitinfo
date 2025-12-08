@@ -165,7 +165,7 @@ def get_compress_encoding_zarr(
     >>> get_compress_encoding_zarr(ds)  # doctest: +NORMALIZE_WHITESPACE
     {'Tair': {'chunks': None,
               'compressor': BloscCodec(_tunable_attrs={'typesize'},
-                                       typesize=None,
+                                       typesize=1,
                                        cname=<BloscCname.zstd: 'zstd'>,
                                        clevel=5,
                                        shuffle=<BloscShuffle.bitshuffle: 'bitshuffle'>,
