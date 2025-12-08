@@ -4,7 +4,7 @@
 
 # xbitinfo: Retrieve bitwise information content and compress accordingly
 
-[![Binder](https://mybinder.org/badge_logo.svg)](https://mybinder.org/v2/gh/observingClouds/xbitinfo/main?labpath=docs%2Fquick-start.ipynb) [![Open In SageMaker Studio Lab](https://studiolab.sagemaker.aws/studiolab.svg)](https://studiolab.sagemaker.aws/import/github/https://github.com/observingClouds/xbitinfo/blob/main/docs/quick-start.ipynb) [![CI](https://github.com/observingClouds/xbitinfo/actions/workflows/ci.yaml/badge.svg?branch=main)](https://github.com/observingClouds/xbitinfo/actions/workflows/ci.yaml) [![pre-commit.ci status](https://results.pre-commit.ci/badge/github/observingClouds/xbitinfo/main.svg)](https://results.pre-commit.ci/latest/github/observingClouds/xbitinfo/main) [![Documentation Status](https://readthedocs.org/projects/xbitinfo/badge/?version=latest)](https://xbitinfo.readthedocs.io/en/latest/) [![pypi](https://img.shields.io/pypi/v/xbitinfo.svg)](https://pypi.python.org/pypi/xbitinfo) ![Conda (channel only)](https://img.shields.io/conda/vn/conda-forge/xbitinfo)
+[![DOI](https://joss.theoj.org/papers/10.21105/joss.09178/status.svg)](https://doi.org/10.21105/joss.09178) [![Binder](https://mybinder.org/badge_logo.svg)](https://mybinder.org/v2/gh/observingClouds/xbitinfo/main?labpath=docs%2Fquick-start.ipynb) [![Open In SageMaker Studio Lab](https://studiolab.sagemaker.aws/studiolab.svg)](https://studiolab.sagemaker.aws/import/github/https://github.com/observingClouds/xbitinfo/blob/main/docs/quick-start.ipynb) [![CI](https://github.com/observingClouds/xbitinfo/actions/workflows/ci.yaml/badge.svg?branch=main)](https://github.com/observingClouds/xbitinfo/actions/workflows/ci.yaml) [![pre-commit.ci status](https://results.pre-commit.ci/badge/github/observingClouds/xbitinfo/main.svg)](https://results.pre-commit.ci/latest/github/observingClouds/xbitinfo/main) [![Documentation Status](https://readthedocs.org/projects/xbitinfo/badge/?version=latest)](https://xbitinfo.readthedocs.io/en/latest/) [![pypi](https://img.shields.io/pypi/v/xbitinfo.svg)](https://pypi.python.org/pypi/xbitinfo) ![Conda (channel only)](https://img.shields.io/conda/vn/conda-forge/xbitinfo)
 
 
 Xbitinfo analyses datasets based on their bitwise real information content and applies lossy compression accordingly. Being based on [`xarray`](xarray.pydata.org/) it integrates seamlessly into common research workflows. Additional convienient functions help users to visualize the bitwise information content and to make informed decisions on the real information threshold that is subsequently used as the preserved precision during the compression.
@@ -84,6 +84,8 @@ ds_bitrounded.to_compressed_netcdf(outpath)
 ### Paper
 
 Klöwer, M., Razinger, M., Dominguez, J. J., Düben, P. D., & Palmer, T. N. (2021). Compressing atmospheric data into its real information content. Nature Computational Science, 1(11), 713–724. doi: [10/gnm4jj](https://doi.org/10.1038/s43588-021-00156-2)
+
+Schulz, H., M. Klöwer, and A. Spring. 2025. “Xbitinfo: Compressing Geospatial Data Based on Information Theory.” Journal of Open Source Software 10 (116): 9178. doi: [10.21105/joss.09178](https://doi.org/10.21105/joss.09178).
 
 ### Videos
 
