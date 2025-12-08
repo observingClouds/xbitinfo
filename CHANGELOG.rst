@@ -5,6 +5,7 @@ CHANGELOG
 unreleased
 ------------------
 
+* Add JOSS publication references (:pr:`330`) `Hauke Schulz`_.
 * Update doctests to reflect latest changes in zarr 3.1.4 (:pr:`331`) `Hauke Schulz`_.
 
 0.0.6 (2025-11-20)
