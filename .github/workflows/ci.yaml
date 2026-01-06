@@ -52,6 +52,8 @@ jobs:
           enable-cache: true
           python-version: ${{ matrix.python-version }}
           cache-dependency-glob: "**/pyproject.toml"
+      - name:  List installed dependencies
+        run: uv pip list
       - name: Run tests
         run: uv run --group test pytest tests
   doctest:
