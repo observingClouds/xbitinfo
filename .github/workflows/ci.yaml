@@ -54,7 +54,7 @@ jobs:
           cache-dependency-glob: "**/pyproject.toml"
       - name:  List installed dependencies
         run: |
-          uv sync
+          uv sync --group test
           uv pip list
       - name: Run tests
         run: uv run --group test pytest tests
