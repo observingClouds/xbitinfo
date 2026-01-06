@@ -8,6 +8,7 @@ license = { text = "MIT license" }
 keywords = ["xbitinfo"]
 dependencies = [
     "dask",
+    "numpy<2.4.0",
     "xarray",
     "tqdm",
     "numcodecs>=0.10.0,<0.16.4",
