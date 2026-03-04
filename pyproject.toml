@@ -22,7 +22,19 @@ viz = ["matplotlib<3.9.1", "cmcrameri"]
 prefect = ["prefect>=3.3.0"]
 io = ["netcdf4", "zarr"]
 julia = ["julia"]
-test = ["pytest", "pooch", "netcdf4", "dask", "zarr", "julia", "cmcrameri", "cfgrib", "prefect>=3.3.0", "prefect_dask"]
+test = [
+    "pytest",
+ "pooch",
+ "netcdf4",
+ "dask",
+ "zarr",
+ "julia",
+ "cmcrameri",
+ "cfgrib",
+ "prefect>=3.3.0",
+ "prefect_dask",
+ "pre-commit>=4.5.1",
+]
 docs = [
     "sphinx",
     "sphinxcontrib-napoleon",
