@@ -83,22 +83,17 @@ Preparing Pull Requests
    If you need some help with Git, follow this quick start
    `guide <https://git.wiki.kernel.org/index.php/QuickStart>`_.
 
-#. Install dependencies into a new
-   `conda <https://conda.io/projects/conda/en/latest/user-guide/getting-started.html>`_
-   environment::
+#. Install dependencies using
+   `uv <https://docs.astral.sh/uv/>`_::
 
-    $ conda env create -f environment.yml
-    $ conda activate bitinfo
+    $ uv sync
 
-#. Make an editable install of ``xbitinfo`` by running::
-
-    $ pip install -e .
+   which will create a venv virutal environment.
 
 #. Install `pre-commit <https://pre-commit.com>`_ and its hook on the
    ``xbitinfo`` repo::
 
-     $ pip install --user pre-commit
-     $ pre-commit install
+     $ uv run pre-commit install
 
    ``pre-commit`` automatically beautifies the code, makes it more
    maintainable and catches syntax errors. Afterwards ``pre-commit`` will run
@@ -134,13 +129,13 @@ Preparing Pull Requests
    integration of all tests with `pytest <https://docs.pytest.org/en/7.1.x/getting-started.html#get-started>`__ on all new commits.
    However, you can already run tests locally::
 
-    $ pytest  # all
-    $ pytest tests/test_bitround.py::test_xr_bitround_dask  # specific tests
+    $ uv run pytest  # all
+    $ uv run pytest tests/test_bitround.py::test_xr_bitround_dask  # specific tests
 
    Check that `doctests <https://docs.pytest.org/en/stable/doctest.html>`_ are
    passing::
 
-    $ pytest --doctest-modules xbitinfo
+    $ uv run pytest --doctest-modules xbitinfo
 
    Please stick to
    `xarray <http://xarray.pydata.org/en/stable/contributing.html>`_'s testing
@@ -158,7 +153,7 @@ Preparing Pull Requests
    If you need to run a benchmark, change your directory to ``asv_bench/`` and
    run::
 
-      $ asv continuous -f 1.1 upstream/main HEAD
+      $ uv run asv continuous -f 1.1 upstream/main HEAD
 
    You can replace ``HEAD`` with the name of the branch you are working on,
    and report benchmarks that changed by more than 10%.
@@ -172,7 +167,7 @@ Preparing Pull Requests
    If you want to only run a specific group of tests from a file, you can do it
    using ``.`` as a separator. For example::
 
-      $ asv continuous -f 1.1 upstream/main HEAD -b benchmarks_bitround.rasm.time_xr_bitround
+      $ uv run asv continuous -f 1.1 upstream/main HEAD -b benchmarks_bitround.rasm.time_xr_bitround
 
    will only run the ``time_xr_bitround`` benchmark of class
    ``rasm`` loading the ``xr.tutorial.load_dataset("rasm")`` defined in ``benchmarks_bitround.py``.
