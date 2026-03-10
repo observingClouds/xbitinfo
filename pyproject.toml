@@ -33,7 +33,6 @@ test = [
     "cfgrib",
     "prefect>=3.3.0",
     "prefect_dask",
-    "pre-commit>=4.5.1",
     "asv>=0.6.5",
 ]
 docs = [
