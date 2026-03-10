@@ -86,7 +86,7 @@ Preparing Pull Requests
 #. Install dependencies using
    `uv <https://docs.astral.sh/uv/>`_::
 
-    $ uv sync
+    $ uv sync --group test
 
    which will create a new virtual environment.
 
