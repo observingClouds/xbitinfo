@@ -93,7 +93,7 @@ Preparing Pull Requests
 #. Install `pre-commit <https://pre-commit.com>`_ and its hook on the
    ``xbitinfo`` repo::
 
-     $ uv run pre-commit install
+     $ uvx pre-commit install
 
    ``pre-commit`` automatically beautifies the code, makes it more
    maintainable and catches syntax errors. Afterwards ``pre-commit`` will run
