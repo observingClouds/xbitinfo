@@ -183,9 +183,6 @@ Preparing Pull Requests
    and ``<pull request number>`` is the pull request number and
    ``<author's names>`` are your first and last names.
 
-   Add yourself to list of authors at the end of `CHANGELOG.rst <CHANGELOG.rst>`_ file if
-   not there yet, in alphabetical order.
-
 
 #. Finally, submit a `Pull Request <https://docs.github.com/en/github/collaborating-with-pull-requests/proposing-changes-to-your-work-with-pull-requests/about-pull-requests>`_ through the GitHub website using this data::
 
