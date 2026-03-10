@@ -88,7 +88,7 @@ Preparing Pull Requests
 
     $ uv sync
 
-   which will create a venv virutal environment.
+   which will create a new virtual environment.
 
 #. Install `pre-commit <https://pre-commit.com>`_ and its hook on the
    ``xbitinfo`` repo::
