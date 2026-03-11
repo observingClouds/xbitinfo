@@ -15,13 +15,17 @@ dependencies = [
     "matplotlib>=3.9.0",
     "prefect>=3.3.0",
     "zarr",
+    "julia>=0.6.2",
 ]
 
-[dependency-groups]
+[project.optional-dependencies]
 viz = ["matplotlib<3.9.1", "cmcrameri"]
-prefect = ["prefect>=3.3.0"]
 io = ["netcdf4", "zarr"]
 julia = ["julia"]
+example = ["xbitinfo[viz,io]","pooch","jupyter>=1.1"]
+
+[dependency-groups]
+prefect = ["prefect>=3.3.0"]
 test = ["pytest", "pooch", "netcdf4", "dask", "zarr", "julia", "cmcrameri", "cfgrib", "prefect>=3.3.0", "prefect_dask"]
 docs = [
     "sphinx",
