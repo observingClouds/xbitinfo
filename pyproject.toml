@@ -22,11 +22,24 @@ dependencies = [
 viz = ["matplotlib<3.9.1", "cmcrameri"]
 io = ["netcdf4", "zarr"]
 julia = ["julia"]
-example = ["xbitinfo[viz,io]","pooch","jupyter>=1.1","s3fs]
+example = ["xbitinfo[viz,io]","pooch","jupyter>=1.1","s3fs"]
 
 [dependency-groups]
 prefect = ["prefect>=3.3.0"]
-test = ["pytest", "pooch", "netcdf4", "dask", "zarr", "julia", "cmcrameri", "cfgrib", "prefect>=3.3.0", "prefect_dask"]
+test = [
+    "pytest",
+    "pooch",
+    "netcdf4",
+    "dask",
+    "zarr",
+    "julia",
+    "cmcrameri",
+    "cfgrib",
+    "prefect>=3.3.0",
+    "prefect_dask",
+    "asv>=0.6.5",
+    "eccodeslib",
+]
 docs = [
     "sphinx",
     "sphinxcontrib-napoleon",
