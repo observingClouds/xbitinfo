@@ -9,7 +9,7 @@ jobs:
   detect-ci-trigger:
     name: detect ci trigger
     runs-on: ubuntu-latest
-    if: github.event_name == 'push' || github.event_name == 'pull_request'
+    if: github.event_name == 'push' || github.event_name == 'pull_request' || github.event_name == 'workflow_dispatch'
     outputs:
       triggered: '${{ steps.detect-trigger.outputs.trigger-found }}'
     steps:
