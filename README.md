@@ -35,10 +35,17 @@ one might choose one installation option over the other.
 ```
 pip install xbitinfo
 ```
-or
+We also maintain other dependency sets for different subsets of functionality:
+```
+pip install "xbitinfo[viz]" # Optional dependencies for visualisation
+pip install "xbitinfo[io]" # Optional dependencies for IO
+```
+
+For conda
 ```
 conda install -c conda-forge xbitinfo-python
 ```
+the IO and visualisation dependencies are included by default.
 
 ### Installation including optional Julia backend
 ```
@@ -46,11 +53,16 @@ conda install -c conda-forge xbitinfo
 ```
 or
 ```
-pip install xbitinfo  # julia needs to be installed manually
+pip install "xbitinfo[julia]"  # julia needs to be installed manually
 ```
 
 ## How to use
 
+To install all dependencies needed to run this example,
+```
+pip install "xbitinfo[example]"
+```
+is recommended
 ```python
 import xarray as xr
 import xbitinfo as xb
