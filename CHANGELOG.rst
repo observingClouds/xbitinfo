@@ -10,6 +10,7 @@ unreleased
 * Limit numpy to <2.4.0 to temporarily fix some incompatibilities (:pr:`334`) `Hauke Schulz`_.
 * Add dependency listing to CI actions to see version changes (:pr:`334`) `Hauke Schulz`_.
 * Fix contributing guide to use uv instead of conda (:pr:`336`) `Olivier Bonte`_.
+* Fix CI test with recent eccodes versions (:pr:`338`) `Hauke Schulz`_.
 
 0.0.6 (2025-11-20)
 ------------------

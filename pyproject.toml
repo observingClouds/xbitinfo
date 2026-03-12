@@ -34,6 +34,7 @@ test = [
     "prefect>=3.3.0",
     "prefect_dask",
     "asv>=0.6.5",
+    "eccodeslib",
 ]
 docs = [
     "sphinx",
