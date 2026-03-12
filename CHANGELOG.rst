@@ -9,6 +9,7 @@ unreleased
 * Update doctests to reflect latest changes in zarr 3.1.4 (:pr:`331`) `Hauke Schulz`_.
 * Limit numpy to <2.4.0 to temporarily fix some incompatibilities (:pr:`337`) `Hauke Schulz`_.
 * Add depndency listing to CI actions to see version changes (:pr:`337`) `Hauke Schulz`_.
+* Fix CI test with recent eccodes versions (:pr:`338`) `Hauke Schulz`_.
 
 0.0.6 (2025-11-20)
 ------------------
