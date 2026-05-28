@@ -12,6 +12,7 @@ unreleased
 * Fix contributing guide to use uv instead of conda (:pr:`336`) `Olivier Bonte`_.
 * Allow manual triggering of all CI jobs (:pr:`337`) `Hauke Schulz`_.
 * Fix CI test with recent eccodes versions (:pr:`338`) `Hauke Schulz`_.
+* Make `prefect` optional by removing it from default dependencies and raising a clear error in `get_prefect_flow` when missing (:pr:`342`) `Hauke Schulz`_.
 
 0.0.6 (2025-11-20)
 ------------------

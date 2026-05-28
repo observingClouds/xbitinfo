@@ -6,7 +6,14 @@ import warnings
 import numpy as np
 import xarray as xr
 from dask import array as da
-from prefect import flow, task, unmapped
+
+try:
+    from prefect import flow, task, unmapped
+
+    prefect_import_error = None
+except ImportError as e:
+    flow = task = unmapped = None
+    prefect_import_error = e
 
 try:
     from julia.api import Julia
@@ -821,6 +828,11 @@ def get_prefect_flow(paths=[]):
     `ETL Pipelines with Prefect <https://examples.dask.org/applications/prefect-etl.html/>`__ and
     `Run a flow <https://docs.prefect.io/core/getting_started/basic-core-flow.html>`__
     """
+    if prefect_import_error is not None:
+        raise ImportError(
+            "get_prefect_flow requires the optional 'prefect' dependency. "
+            "Install it with e.g. `pip install prefect` or include the prefect dependency group."
+        ) from prefect_import_error
 
     from .bitround import jl_bitround, xr_bitround
 
