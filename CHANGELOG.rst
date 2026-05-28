@@ -13,7 +13,7 @@ unreleased
 * Allow manual triggering of all CI jobs (:pr:`337`) `Hauke Schulz`_.
 * Fix CI test with recent eccodes versions (:pr:`338`) `Hauke Schulz`_.
 * Make `prefect` optional by removing it from default dependencies and raising a clear error in `get_prefect_flow` when missing (:pr:`342`) `Hauke Schulz`_.
-* Update pre-commit hook versions for ruff and black.
+* Update pre-commit hook versions for ruff and black (:pr:`340`) `pre-commit-ci` _.
 
 0.0.6 (2025-11-20)
 ------------------
