@@ -62,7 +62,7 @@ To install all dependencies needed to run this example,
 ```
 pip install "xbitinfo[example]"
 ```
-is recommended
+is recommended.
 ```python
 import xarray as xr
 import xbitinfo as xb
