@@ -21,10 +21,10 @@ dependencies = [
 viz = ["matplotlib<3.9.1", "cmcrameri"]
 io = ["netcdf4", "zarr"]
 julia = ["julia"]
+prefect = ["prefect>=3.3.0"]
 example = ["xbitinfo[viz,io]","pooch","jupyter>=1.1","s3fs"]
 
 [dependency-groups]
-prefect = ["prefect>=3.3.0"]
 test = [
     "pytest",
     "pooch",
