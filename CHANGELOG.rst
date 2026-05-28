@@ -2,7 +2,7 @@
 CHANGELOG
 =========
 
-unreleased
+0.0.7 (2026-05-28)
 ------------------
 
 * Add JOSS publication references (:pr:`330`, :pr:`332`) `Hauke Schulz`_.
