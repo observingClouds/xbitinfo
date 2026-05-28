@@ -12,14 +12,14 @@ repos:
       - id: debug-statements
       - id: mixed-line-ending
   - repo: https://github.com/astral-sh/ruff-pre-commit
-    rev: v0.15.9
+    rev: v0.15.14
     hooks:
       # run the linter
       - id: ruff
         args: [--fix, --ignore-noqa]
 
   - repo: https://github.com/psf/black-pre-commit-mirror
-    rev: 26.3.1
+    rev: 26.5.1
     hooks:
       - id: black
       - id: black-jupyter
