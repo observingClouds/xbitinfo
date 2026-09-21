@@ -138,6 +138,33 @@ def _check_bitinfo_kwargs(implementation=None, axis=None, dim=None, kwargs=None)
     return
 
 
+def _warn_if_nonfinite(ds):
+    """Warn once if any floating variable contains NaN or Inf values.
+
+    Many non-finite values can yield unexpected bitinformation results
+    (see https://github.com/observingClouds/xbitinfo/issues/200).
+    """
+    for var in ds.data_vars:
+        da = ds[var]
+        if not np.issubdtype(da.dtype, np.floating):
+            continue
+        values = da.data
+        if hasattr(values, "chunks"):
+            has_nonfinite = not bool(
+                xr.apply_ufunc(np.isfinite, da, dask="allowed").all().compute()
+            )
+        else:
+            has_nonfinite = not np.isfinite(np.asarray(values)).all()
+        if has_nonfinite:
+            warnings.warn(
+                f"Variable {var} contains non-finite values (NaN or Inf). "
+                "Many non-finite values may yield unexpected bitinformation results.",
+                category=UserWarning,
+                stacklevel=3,
+            )
+            return
+
+
 def get_bitinformation(
     ds,
     dim=None,
@@ -226,6 +253,7 @@ def get_bitinformation(
             return info_per_bit
     else:
         _check_bitinfo_kwargs(implementation, axis, dim, kwargs)
+        _warn_if_nonfinite(ds)
 
     return _get_bitinformation(
         ds,

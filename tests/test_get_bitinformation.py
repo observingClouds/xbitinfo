@@ -282,3 +282,19 @@ def test_warn_on_quantized_variables(dataset_name, implementation):
     with warnings.catch_warnings():
         warnings.simplefilter("error")
         _ = xb.get_bitinformation(ds_raw, implementation=implementation)
+
+
+def test_warn_on_nonfinite_values():
+    """Warn when floating variables contain NaN or Inf (issue #200)."""
+    ds_nan = xr.Dataset({"a": ("x", np.array([1.0, np.nan, 3.0]))})
+    with pytest.warns(UserWarning, match="non-finite"):
+        xb.get_bitinformation(ds_nan, dim="x", implementation="python")
+
+    ds_inf = xr.Dataset({"a": ("x", np.array([1.0, np.inf, 3.0]))})
+    with pytest.warns(UserWarning, match="non-finite"):
+        xb.get_bitinformation(ds_inf, dim="x", implementation="python")
+
+    ds_finite = xr.Dataset({"a": ("x", np.array([1.0, 2.0, 3.0]))})
+    with warnings.catch_warnings():
+        warnings.simplefilter("error")
+        xb.get_bitinformation(ds_finite, dim="x", implementation="python")
