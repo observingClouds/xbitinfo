@@ -247,11 +247,15 @@ class ToCompressed_Zarr:
         compressor=BloscCodec(cname="zstd", shuffle=BloscShuffle.bitshuffle),
         **kwargs,
     ):
+        zarr_format = kwargs.get("zarr_format")
+        if zarr_format is None:
+            zarr_format = "3" if zarr_version >= Version("3.0.0") else "2"
         self._obj.to_zarr(
             path,
             encoding=get_compress_encoding_zarr(
                 self._obj,
                 compressor=compressor,
+                zarr_format=str(zarr_format),
             ),
             **kwargs,
         )
