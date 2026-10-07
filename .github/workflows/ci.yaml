@@ -28,6 +28,11 @@ jobs:
     runs-on: ubuntu-latest
     needs: detect-ci-trigger
     if: needs.detect-ci-trigger.outputs.triggered == 'false'
+    env:
+      # Use uv-managed Python builds only. On ubuntu-latest, uv otherwise picks
+      # the system /usr/bin/python3.12, which segfaults inside Julia (Pkg/p7zip
+      # iterating ENV) when xbitinfo initialises its Julia backend on import.
+      UV_PYTHON_PREFERENCE: only-managed
     strategy:
       fail-fast: false
       matrix:
@@ -57,12 +62,12 @@ jobs:
           uv sync --group test
           uv pip list
       - name: Run tests
-        env:
-          PYTHONFAULTHANDLER: '1'
-        run: uv run --group test python -X faulthandler -m pytest -vv -s tests
+        run: uv run --group test pytest tests
   doctest:
     name: doctests
     runs-on: ubuntu-latest
+    env:
+      UV_PYTHON_PREFERENCE: only-managed
     defaults:
       run:
         shell: 'bash -l {0}'
@@ -77,7 +82,6 @@ jobs:
         uses: astral-sh/setup-uv@v6.3.1
         with:
           enable-cache: true
-          python-version: '3.11'
           cache-dependency-glob: "**/pyproject.toml"
       - name: Run doctests
         run: |
@@ -87,6 +91,8 @@ jobs:
     runs-on: ubuntu-latest
     needs: detect-ci-trigger
     if: needs.detect-ci-trigger.outputs.triggered == 'false'
+    env:
+      UV_PYTHON_PREFERENCE: only-managed
     defaults:
       run:
         shell: 'bash -l {0}'
@@ -99,7 +105,6 @@ jobs:
         uses: astral-sh/setup-uv@v6.3.1
         with:
           enable-cache: true
-          python-version: '3.11'
           cache-dependency-glob: "**/pyproject.toml"
       - name: Test notebooks
         run: >
